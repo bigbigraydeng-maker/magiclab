@@ -32,3 +32,5 @@ dist-ssr
 
 # Build output
 out/
+.next/
+node_modules
