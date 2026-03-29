@@ -1,22 +1,23 @@
+import { projects } from '../data/projects';
+
 const Clients = () => {
   return (
-    <section className="py-16 bg-gray-900">
+    <section className="py-14 bg-gray-900/50 border-y border-gray-800/50">
       <div className="container mx-auto px-4">
-        <div className="text-center mb-12">
-          <h2 className="text-2xl md:text-3xl font-semibold text-white mb-4">
-            Trusted by growing businesses in New Zealand and Asia-Pacific.
-          </h2>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-center justify-items-center">
-          <div className="bg-white p-8 rounded-lg w-full max-w-xs">
-            <p className="text-center text-gray-800 font-medium">China Travel Service NZ</p>
-          </div>
-          <div className="bg-white p-8 rounded-lg w-full max-w-xs">
-            <p className="text-center text-gray-800 font-medium">Compass Property</p>
-          </div>
-          <div className="bg-white p-8 rounded-lg w-full max-w-xs">
-            <p className="text-center text-gray-800 font-medium">Warm Voyage</p>
-          </div>
+        <p className="text-center text-gray-500 text-sm font-medium uppercase tracking-wider mb-8">
+          Trusted by growing businesses in New Zealand and Asia-Pacific
+        </p>
+        <div className="flex flex-wrap justify-center items-center gap-4 md:gap-6">
+          {projects.map((project, index) => (
+            <div
+              key={index}
+              className="client-card px-6 py-3 rounded-lg"
+            >
+              <p className="text-gray-300 font-medium text-sm whitespace-nowrap">
+                {project.client}
+              </p>
+            </div>
+          ))}
         </div>
       </div>
     </section>
