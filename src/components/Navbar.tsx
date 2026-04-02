@@ -20,6 +20,12 @@ const Navbar = () => {
           <Link href="/insights" className="text-gray-300 hover:text-white transition-colors">
             Insights
           </Link>
+          <Link href="/immigration-assessment" className="text-gray-300 hover:text-white transition-colors">
+            Immigration Assessment
+          </Link>
+          <Link href="/agency-dashboard" className="text-gray-300 hover:text-white transition-colors">
+            Agency Dashboard
+          </Link>
           <Link href="/about" className="text-gray-300 hover:text-white transition-colors">
             About
           </Link>
