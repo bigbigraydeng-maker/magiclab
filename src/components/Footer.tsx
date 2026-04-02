@@ -62,10 +62,10 @@ const Footer = () => {
           <div>
             <h4 className="text-white font-semibold mb-4">Contact</h4>
             <p className="text-gray-400 mb-2">
-              Email: contact@magiclab.nz
+              Email: grace.gu@magiclab.nz
             </p>
             <p className="text-gray-400">
-              Phone: +64 21 123 4567
+              Phone: +61 499 451 794
             </p>
           </div>
         </div>
