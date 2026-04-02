@@ -163,7 +163,7 @@ export default function MobilePlansPage() {
                 <h3 className="text-xl font-bold text-gray-800 mb-2">Premium Plan</h3>
                 <div className="text-3xl font-bold text-blue-600 mb-4">$79.99<span className="text-sm font-normal text-gray-600">/mo</span></div>
               </div>
-              <ul className="space-y-3 mb-8">
+              <ul className="space-y-3 mb-8 text-gray-700">
                 <li className="flex items-center">
                   <svg className="w-5 h-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
@@ -225,7 +225,7 @@ export default function MobilePlansPage() {
                 <p>Our sales team will contact you shortly to complete your order.</p>
               </div>
             ) : (
-              <form onSubmit={handleSubmit} className="bg-white rounded-xl p-8 shadow-md">
+              <form onSubmit={handleSubmit} className="bg-white rounded-xl p-6 md:p-8 shadow-lg transition duration-300 hover:shadow-xl">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                   <div>
                     <label htmlFor="name" className="block text-gray-700 font-medium mb-2">
@@ -238,7 +238,7 @@ export default function MobilePlansPage() {
                       value={formData.name}
                       onChange={handleChange}
                       required
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300"
                     />
                   </div>
                   <div>
@@ -252,7 +252,7 @@ export default function MobilePlansPage() {
                       value={formData.email}
                       onChange={handleChange}
                       required
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300"
                     />
                   </div>
                 </div>
@@ -268,7 +268,7 @@ export default function MobilePlansPage() {
                     value={formData.phone}
                     onChange={handleChange}
                     required
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300"
                   />
                 </div>
 
@@ -282,7 +282,7 @@ export default function MobilePlansPage() {
                     value={formData.plan}
                     onChange={handleChange}
                     required
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300"
                   >
                     <option value="">Choose a plan</option>
                     <option value="Starter Plan">Starter Plan - $29.99/month</option>
@@ -301,7 +301,7 @@ export default function MobilePlansPage() {
                     value={formData.message}
                     onChange={handleChange}
                     rows={4}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300"
                   ></textarea>
                 </div>
 
@@ -309,7 +309,7 @@ export default function MobilePlansPage() {
                   <button
                     type="submit"
                     disabled={isSubmitting}
-                    className="bg-blue-600 text-white font-semibold py-3 px-8 rounded-lg hover:bg-blue-700 transition duration-300 disabled:opacity-70 disabled:cursor-not-allowed"
+                    className="bg-blue-600 text-white font-semibold py-3 px-8 rounded-lg hover:bg-blue-700 transition duration-300 disabled:opacity-70 disabled:cursor-not-allowed shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
                   >
                     {isSubmitting ? 'Submitting...' : 'Submit'}
                   </button>
