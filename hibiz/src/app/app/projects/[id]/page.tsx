@@ -18,7 +18,28 @@ import { parseMerchantProfile } from "@/types/merchant-profile";
 
 interface ProjectDetailPageProps {
   params: { id: string };
-  searchParams: { notice?: string; preview?: string };
+  searchParams: { notice?: string; preview?: string; missing?: string };
+}
+
+const MISSING_FIELD_LABELS: Record<string, string> = {
+  title: "标题",
+  description: "描述",
+  images: "图片",
+  bedrooms: "卧室数",
+  price_hint: "价格信息",
+  address: "地址",
+};
+
+function missingLabelsHuman(raw: string | undefined): string {
+  if (!raw?.trim()) {
+    return "";
+  }
+  const keys = raw
+    .split(",")
+    .map((k) => k.trim())
+    .filter(Boolean);
+  const labels = keys.map((k) => MISSING_FIELD_LABELS[k] ?? k);
+  return labels.join("、");
 }
 
 function isClarification(data: unknown): data is ClarificationPayload {
@@ -61,6 +82,10 @@ const NOTICE_COPY: Record<string, string> = {
   trademe_no_url: "请先在「TradeMe listing URL」里粘贴房源链接（可直接点导入，成功后会写入资料；若仍提示此项说明输入框为空）。",
   listing_import_fail: "未能从链接提取房源信息。请检查链接是否正确，或手动填写。",
   listing_imported: "已从链接导入房源信息（标题、描述、图片）。可在下方编辑。",
+  listing_extraction_failed:
+    "抓取结果质量不足，未写入资料。请换一条链接、稍后重试，或在下方手动填写。",
+  listing_imported_partial:
+    "已导入房源资料，但部分字段偏弱或缺失。建议在下方核对并补充后再保存或打印海报。",
 };
 
 export default async function ProjectDetailPage({ params, searchParams }: ProjectDetailPageProps) {
@@ -156,7 +181,26 @@ export default async function ProjectDetailPage({ params, searchParams }: Projec
       : null;
   const heroForEdit = draftForEdit?.modules.find((m) => m.type === "hero");
 
-  const notice = searchParams.notice ? NOTICE_COPY[searchParams.notice] ?? null : null;
+  const missingRaw =
+    typeof searchParams.missing === "string" ? decodeURIComponent(searchParams.missing.trim()) : "";
+  const missingHuman = missingLabelsHuman(missingRaw);
+
+  let notice: string | null = null;
+  if (searchParams.notice) {
+    const key = searchParams.notice;
+    if (key === "listing_extraction_failed") {
+      const base = NOTICE_COPY.listing_extraction_failed;
+      notice =
+        missingHuman.length > 0 ? `${base} 偏弱或缺失：${missingHuman}。` : base;
+    } else if (key === "listing_imported_partial") {
+      const base = NOTICE_COPY.listing_imported_partial;
+      notice =
+        missingHuman.length > 0 ? `${base} 请关注：${missingHuman}。` : base;
+    } else {
+      notice = NOTICE_COPY[key] ?? null;
+    }
+  }
+
   const noticeIsError =
     searchParams.notice === "gen_error" ||
     searchParams.notice === "missing_openai" ||
@@ -170,7 +214,10 @@ export default async function ProjectDetailPage({ params, searchParams }: Projec
     searchParams.notice === "hero_save_error" ||
     searchParams.notice === "merchant_no_microsite" ||
     searchParams.notice === "merchant_save_error" ||
-    searchParams.notice === "listing_import_fail";
+    searchParams.notice === "listing_import_fail" ||
+    searchParams.notice === "listing_extraction_failed";
+
+  const noticeIsWarning = searchParams.notice === "listing_imported_partial";
 
   return (
     <div>
@@ -194,7 +241,13 @@ export default async function ProjectDetailPage({ params, searchParams }: Projec
 
       {notice ? (
         <div
-          className={`mt-6 rounded-xl border px-4 py-3 text-sm ${noticeIsError ? "border-red-200 bg-red-50 text-red-900" : "border-emerald-200 bg-emerald-50 text-emerald-950"}`}
+          className={`mt-6 rounded-xl border px-4 py-3 text-sm ${
+            noticeIsError
+              ? "border-red-200 bg-red-50 text-red-900"
+              : noticeIsWarning
+                ? "border-amber-200 bg-amber-50 text-amber-950"
+                : "border-emerald-200 bg-emerald-50 text-emerald-950"
+          }`}
         >
           {notice}
         </div>

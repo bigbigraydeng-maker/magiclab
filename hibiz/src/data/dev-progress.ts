@@ -20,7 +20,7 @@ export interface ProgressPhase {
 }
 
 /** 与 Obsidian「最后同步」保持习惯性一致；发布看板前可顺手改日期 */
-export const DEV_PROGRESS_LAST_UPDATED = "2026-04-06";
+export const DEV_PROGRESS_LAST_UPDATED = "2026-04-07";
 
 export const DEV_PROGRESS_PHASES: ProgressPhase[] = [
   {
@@ -73,19 +73,19 @@ export const DEV_PROGRESS_PHASES: ProgressPhase[] = [
         id: "re-poster",
         label: "房产：HTTPS 图片 URL、TradeMe 链接、打印海报 `/app/projects/[id]/poster`",
         status: "done",
-        note: "gallery 基础完成；提取优化与代理进行中",
+        note: "gallery + 多层提取、质量门、Storage 代理已接 merchant_profile",
       },
       {
         id: "trademe-extract-v2",
         label: "TradeMe 房源提取优化：质量检测门 + __NEXT_DATA__ 解析 + Jina fallback",
-        status: "in_progress",
-        note: "Layer 1: __NEXT_DATA__（零成本） → Layer 2: Jina Reader + OpenAI → 质量检测（failed 明确告知）",
+        status: "done",
+        note: "Layer 1: __NEXT_DATA__ → Layer 2: Jina + OpenAI；failed 不写入并带 missing",
       },
       {
         id: "image-proxy",
         label: "图片代理到 Supabase Storage（绕防盗链、长期保存）",
-        status: "in_progress",
-        note: "Server Action 拉取 TradeMe CDN → 转存到 Storage → 替换 merchant_profile.trademe_image_urls",
+        status: "done",
+        note: "bucket listing-images；导入时 Referer 拉取后写 Storage，失败则保留原图 URL",
       },
     ],
   },

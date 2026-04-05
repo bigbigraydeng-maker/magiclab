@@ -5,8 +5,11 @@ import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { normalizePosterTemplateId } from "@/data/poster-templates";
 import { buildMerchantProfileFromListing, patchHeroDraftFromListing } from "@/lib/extraction/auto-fill";
-import { extractTradeMeListing } from "@/lib/extraction/extract-listing";
+import { extractTradeMeListingMultiLayer } from "@/lib/extraction/extraction-layers";
+import { proxyImagesToStorage } from "@/lib/extraction/image-proxy";
 import { generatePosterBlurbs } from "@/lib/extraction/poster-blurb";
+import { assessExtractionQuality } from "@/lib/extraction/quality-gate";
+import type { TradeMeListingData } from "@/lib/extraction/trademe-schema";
 import { rawPropertyPromoObject, rawTrademeImageUrls } from "@/lib/merchant-profile/raw-json";
 import { parseMerchantProfile, type MerchantContactV1, type MerchantProfileV1, type PropertyPromoV1 } from "@/types/merchant-profile";
 import { isRenderModelV1 } from "@/types/render-model";
@@ -199,15 +202,29 @@ export async function importListingFromUrl(projectId: string, urlFromInput?: str
     redirect(`/app/projects/${projectId}?notice=trademe_no_url`);
   }
 
-  let listing;
+  let listing: TradeMeListingData;
   let markdown: string;
   try {
-    const extracted = await extractTradeMeListing(url);
+    const extracted = await extractTradeMeListingMultiLayer(url);
     listing = extracted.listing;
     markdown = extracted.markdown;
   } catch {
     redirect(`/app/projects/${projectId}?notice=listing_import_fail`);
   }
+
+  const quality = assessExtractionQuality(listing);
+  const missingParam =
+    quality.missing.length > 0 ? `&missing=${encodeURIComponent(quality.missing.join(","))}` : "";
+  if (quality.grade === "failed") {
+    redirect(`/app/projects/${projectId}?notice=listing_extraction_failed${missingParam}`);
+  }
+
+  const originalImages = [...listing.images];
+  const proxiedImages = await proxyImagesToStorage(listing.images, projectId, supabase);
+  listing = {
+    ...listing,
+    images: proxiedImages.length > 0 ? proxiedImages : originalImages,
+  };
 
   let posterBlurbs: { zh: string; en: string };
   try {
@@ -248,5 +265,8 @@ export async function importListingFromUrl(projectId: string, urlFromInput?: str
     revalidatePath(`/site/${ms.slug}`);
   }
 
+  if (quality.grade === "partial") {
+    redirect(`/app/projects/${projectId}?notice=listing_imported_partial${missingParam}`);
+  }
   redirect(`/app/projects/${projectId}?notice=listing_imported`);
 }

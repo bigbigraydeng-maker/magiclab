@@ -76,6 +76,15 @@ export async function generatePosterBlurbs(
     agent_company: listing.agent_company,
   };
 
+  const md = markdownExcerpt.trim();
+  const userContent =
+    md.length === 0
+      ? "Listing JSON:\n" + JSON.stringify(payload, null, 2)
+      : "Listing JSON:\n" +
+        JSON.stringify(payload, null, 2) +
+        "\n\nMarkdown excerpt (may contain noise; ignore site chrome and URLs):\n---\n" +
+        markdownExcerpt.slice(0, 25_000);
+
   const client = getClient();
   const completion = await client.chat.completions.create({
     model: getModel(),
@@ -83,11 +92,7 @@ export async function generatePosterBlurbs(
       { role: "system", content: SYSTEM },
       {
         role: "user",
-        content:
-          "Listing JSON:\n" +
-          JSON.stringify(payload, null, 2) +
-          "\n\nMarkdown excerpt (may contain noise; ignore site chrome and URLs):\n---\n" +
-          markdownExcerpt.slice(0, 25_000),
+        content: userContent,
       },
     ],
     response_format: { type: "json_object" },
