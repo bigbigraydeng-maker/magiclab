@@ -4,17 +4,12 @@ services:
     env: node
     plan: standard
 
-    buildCommand: rm -rf node_modules && npm install --legacy-peer-deps && npm run build
+    buildCommand: npm install --include=dev && npm run build
     startCommand: npm start
 
     envVars:
       - key: OPENAI_API_KEY
-        scope: build
       - key: NEXT_PUBLIC_SUPABASE_URL
-        scope: build
       - key: NEXT_PUBLIC_SUPABASE_ANON_KEY
-        scope: build
-      - key: NODE_ENV
-        value: production
       - key: NODE_OPTIONS
         value: --max-old-space-size=2048
