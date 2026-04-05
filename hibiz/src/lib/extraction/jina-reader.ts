@@ -1,5 +1,5 @@
 const JINA_READER_BASE = "https://r.jina.ai/";
-const FETCH_TIMEOUT_MS = 30_000;
+const FETCH_TIMEOUT_MS = 60_000;
 
 const TRADEME_HOST = /\.trademe\.co\.nz$/i;
 const SANDBOX_HOST = /\.tmsandbox\.co\.nz$/i;
@@ -14,6 +14,7 @@ function buildJinaReaderUrl(targetUrl: string): string {
 
 /**
  * 通过 Jina Reader 将页面转为 Markdown（GET r.jina.ai/{encodedUrl}）。
+ * 若 JINA_API_KEY 已配置，启用 Pro 功能（JS 渲染等待、更长超时）。
  */
 export async function fetchMarkdownFromUrl(url: string): Promise<string> {
   const trimmed = url.trim();
@@ -36,15 +37,25 @@ export async function fetchMarkdownFromUrl(url: string): Promise<string> {
     throw new Error("仅允许 trademe.co.nz 或 tmsandbox.co.nz 域名。");
   }
 
+  const headers: Record<string, string> = {
+    Accept: "text/markdown",
+  };
+
+  const jinaKey = process.env.JINA_API_KEY?.trim();
+  if (jinaKey) {
+    headers["Authorization"] = `Bearer ${jinaKey}`;
+    // 等待 gallery / listing 正文 DOM 加载完毕再抓取
+    headers["X-Wait-For-Selector"] = ".tm-property-listing-body, .gallery, .listing__photo, [data-testid=\"gallery\"], .o-carousel";
+    headers["X-Timeout"] = "45";
+  }
+
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
 
   try {
     const res = await fetch(buildJinaReaderUrl(trimmed), {
       method: "GET",
-      headers: {
-        Accept: "text/markdown",
-      },
+      headers,
       signal: controller.signal,
       cache: "no-store",
     });
