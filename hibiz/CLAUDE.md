@@ -15,8 +15,8 @@
 | UI | React 18 + Tailwind 3.4 |
 | Backend | Supabase Auth + Postgres + RLS |
 | AI | OpenAI API (gpt-4o-mini), Structured Output |
-| URL 提取 | Jina Reader (`r.jina.ai`) → Markdown → LLM 结构化提取 |
-| Deploy | Vercel（计划） |
+| URL 提取 | Jina Reader / `__NEXT_DATA__` / Markdown → LLM 结构化提取 |
+| Deploy | Render（生产环境）；`Root Directory: hibiz/` |
 
 ## 核心架构
 
