@@ -1,0 +1,87 @@
+import type { TradeMeListingData } from "@/lib/extraction/trademe-schema";
+import type { MerchantProfileV1, PropertyPromoV1 } from "@/types/merchant-profile";
+import type { RenderModelV1 } from "@/types/render-model";
+
+const HERO_TITLE_MAX = 80;
+const HERO_SUBTITLE_MAX = 200;
+
+export interface BuildListingProfileOptions {
+  /** 二次 LLM 生成的中英海报要点正文 */
+  posterBlurbs?: { zh: string; en: string };
+}
+
+/**
+ * 用提取结果填充商家资料：保留 contact 与 poster_template_id；`trademeUrl` 为用户粘贴的原始链接。
+ */
+export function buildMerchantProfileFromListing(
+  existing: MerchantProfileV1 | null,
+  listing: TradeMeListingData,
+  trademeUrl: string,
+  options?: BuildListingProfileOptions,
+): MerchantProfileV1 {
+  const prevPromo = existing?.property_promo;
+  const locale = prevPromo?.poster_locale === "en" ? "en" : "zh";
+
+  const property_promo: PropertyPromoV1 = {
+    ...prevPromo,
+    headline: listing.title,
+    details: listing.description,
+    trademe_image_urls: listing.images,
+    trademe_url: trademeUrl.trim(),
+    poster_locale: locale,
+    ...(listing.images[0] ? { image_url: listing.images[0] } : {}),
+    ...(listing.agent_name?.trim() ? { listing_agent_name: listing.agent_name.trim() } : {}),
+    ...(listing.agent_company?.trim() ? { listing_agent_company: listing.agent_company.trim() } : {}),
+    ...(listing.agent_phone?.trim()
+      ? { listing_agent_phone: listing.agent_phone.trim() }
+      : {}),
+    ...(listing.agent_photo_url?.trim() ? { listing_agent_photo_url: listing.agent_photo_url.trim() } : {}),
+    ...(options?.posterBlurbs
+      ? {
+          poster_blurb_zh: options.posterBlurbs.zh,
+          poster_blurb_en: options.posterBlurbs.en,
+        }
+      : {}),
+  };
+
+  return {
+    schema_version: 1,
+    ...(existing?.contact ? { contact: { ...existing.contact } } : {}),
+    property_promo,
+  };
+}
+
+/**
+ * 更新草稿中的 hero 文案与图片 alt；无 hero 模块时原样返回（同一引用，未修改）。
+ */
+export function patchHeroDraftFromListing(currentDraftModel: RenderModelV1, listing: TradeMeListingData): RenderModelV1 {
+  const hasHero = currentDraftModel.modules.some((m) => m.type === "hero");
+  if (!hasHero) {
+    return currentDraftModel;
+  }
+
+  const titleSlice = listing.title.trim().slice(0, HERO_TITLE_MAX);
+  const subtitleSlice = listing.description.trim().slice(0, HERO_SUBTITLE_MAX);
+  const altText = listing.title.trim();
+
+  return {
+    ...currentDraftModel,
+    modules: currentDraftModel.modules.map((mod) => {
+      if (mod.type !== "hero") {
+        return mod;
+      }
+      return {
+        ...mod,
+        content: {
+          ...mod.content,
+          title: titleSlice.length > 0 ? titleSlice : mod.content.title,
+          subtitle: subtitleSlice.length > 0 ? subtitleSlice : mod.content.subtitle,
+          image: {
+            ...mod.content.image,
+            alt: altText.length > 0 ? altText : mod.content.image.alt,
+          },
+        },
+      };
+    }),
+  };
+}

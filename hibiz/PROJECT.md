@@ -1,0 +1,203 @@
+# HiBiz — 产品与技术全景
+
+> 最后更新：2026-04-05
+
+## 一句话
+
+HiBiz 让新西兰本地商家用一句话生成专业微站和留资表单。
+
+## 产品定位
+
+| 维度 | 定义 |
+|------|------|
+| 目标用户 | NZ 本地中小商家（Phase 1：房产中介、留学移民顾问） |
+| 核心价值 | 自然语言输入 → 30 秒生成可发布的留资微站 |
+| 竞品差异 | 不是 Wix/Webflow 式自由建站；是行业垂直的 AI 填槽 + 模板渲染 |
+| 商业模式 | 免费生成 + 付费增值（自定义域名、数据导出、通知等，预留） |
+
+## 核心对象模型
+
+```
+User 1──* Project
+Project 1──1 ProjectIntent（版本化，raw_prompt → compiled）
+Project 1──1 Microsite（draft_model / published_model）
+Project 1──* Form（MVP 通常 1 个）
+Form 1──* Submission
+IndustryPreset / TemplatePreset：配置数据，非用户实例
+```
+
+## 技术架构
+
+### 整体流程
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│  用户输入（自然语言）                                        │
+│  "I want an open home registration page for my Auckland     │
+│   3-bed listing this Sunday 2-3pm"                          │
+└──────────────────────┬──────────────────────────────────────┘
+                       ▼
+┌──────────────────────────────────────────────────────────────┐
+│  Stage 1: 意图编译                                           │
+│  Rule Guard → LLM Compiler → CompiledIntent                 │
+│  输出: industry, scene, city, language, module_selection,    │
+│        form_field_hints, business_context                    │
+└──────────────────────┬──────────────────────────────────────┘
+                       ▼
+┌──────────────────────────────────────────────────────────────┐
+│  用户确认（Understanding Summary UI）                        │
+│  可修改行业、场景、城市、语言、是否需要表单                   │
+└──────────────────────┬──────────────────────────────────────┘
+                       ▼
+┌──────────────────────────────────────────────────────────────┐
+│  Stage 2: 并行生成                                           │
+│  ┌─────────────────┐  ┌─────────────────┐                   │
+│  │ Copy Generator   │  │ Form Builder     │                  │
+│  │ (LLM → 文案)     │  │ (LLM → 字段选取) │                  │
+│  └────────┬────────┘  └────────┬────────┘                   │
+│           └────────┬───────────┘                             │
+│                    ▼                                          │
+│  Stage 3: 装配 + 校验                                        │
+│  assembleRenderModel → Schema Validate → Compliance Filter   │
+│  → RenderModel + FormFields                                  │
+└──────────────────────┬──────────────────────────────────────┘
+                       ▼
+┌──────────────────────────────────────────────────────────────┐
+│  草稿预览 → 用户编辑槽位 → 发布                              │
+│  → /site/{slug}（微站）                                      │
+│  → /forms/{public_slug}（独立表单）                          │
+└──────────────────────────────────────────────────────────────┘
+```
+
+### 技术栈
+
+| 层 | 技术 | 说明 |
+|----|------|------|
+| Frontend | Next.js 14 App Router + React 18 + Tailwind | SSR + Server Actions |
+| Auth | Supabase Auth (Magic Link) | 极简登录 |
+| Database | Supabase Postgres + RLS | 行级安全 |
+| AI | OpenAI API (gpt-4o-mini) | Structured Output |
+| URL 提取 | Jina Reader (`r.jina.ai`) | URL → Markdown → LLM 结构化提取 |
+| 安全 | 蜜罐字段 + 限流函数 + RLS | 防滥用 |
+
+### 目录结构
+
+```
+src/
+├── app/                     → Pages & Server Actions
+│   ├── app/projects/        → 商家工作台（列表/新建/详情/编辑/提交记录）
+│   ├── site/[slug]/         → 公开微站渲染
+│   ├── forms/[public_slug]/ → 独立表单页
+│   ├── auth/                → Magic Link callback
+│   ├── login/               → 登录页
+│   └── progress/            → 开发进度看板
+├── components/              → UI 组件
+├── data/                    → 配置数据（模板预设等）
+├── lib/
+│   ├── compiler/            → 意图编译器（rule-based, guards）
+│   ├── extraction/          → URL 提取管线（Jina Reader + LLM；legacy-url 读库兼容）
+│   ├── generation/          → 生成管线（OpenAI, assemble, form-presets, slugs, compliance）
+│   └── supabase/            → Supabase 客户端
+└── types/                   → TypeScript 类型（CompiledIntent, RenderModel, etc.）
+```
+
+## AI 工程设计原则
+
+### 1. 开放输入，封闭执行
+
+用户可以用任何自然语言描述需求，但系统的输出收敛在预设的封闭空间内：
+- **行业**：封闭枚举（`immigration_education` | `real_estate`）
+- **场景**：封闭枚举（8 种）
+- **模块**：封闭池（hero, offer, form, faq, about, contact, footer）
+- **表单字段类型**：封闭枚举（text, email, phone, textarea, select, multiselect）
+
+### 2. LLM 填槽，不自由排版
+
+LLM 的职责是：
+- 理解用户意图 → 映射到封闭枚举
+- 生成文案 → 填入模块的 content 槽位
+- 选择表单字段 → 从字段池中选取并定制 label
+
+LLM 不负责：
+- 页面布局、模块排序（由模板决定）
+- HTML/CSS 生成（由 React 组件决定）
+- 数据库操作（由 Server Actions 决定）
+
+### 3. 三层校验
+
+| 层 | 校验内容 |
+|----|---------|
+| Schema 校验 | JSON 结构、枚举值、字段类型 |
+| 合规过滤 | 禁用词（包过、保证批签等）、外链白名单 |
+| Fallback | LLM 输出缺失时的默认值 |
+
+### 4. 成本分层
+
+| 操作 | 是否调 LLM | 何时触发 |
+|------|-----------|---------|
+| 行业/城市检测 | 否（正则） | 用户输入后立即 |
+| 意图编译 | 视复杂度（规则优先） | 用户提交 prompt |
+| 文案生成 | 是 | 用户确认意图后 |
+| 表单生成 | 是（V2） | 用户确认意图后 |
+| URL 提取 | 是（Jina + LLM） | 用户粘贴外部链接时 |
+
+### 5. URL 提取管线
+
+用户粘贴外部 URL（如 TradeMe 房源、学校课程页）时，统一走提取管线：
+
+```
+URL → Jina Reader (r.jina.ai) → Markdown → OpenAI Structured Output → 结构化数据
+→ 自动填充 merchant_profile + 微站模块 + 海报
+→ 用户事后编辑
+```
+
+**设计决策**：
+- **Jina Reader**（非 Firecrawl）：免费 1000 万 token，零成本 MVP
+- **旧 HTML 正则管线已移除**：统一使用 `src/lib/extraction/`
+- **直接填充**：不需用户确认提取结��，通过现有编辑界面事后修改
+- **先 TradeMe，后学校**：同一管线架构���不同提取 schema
+- **域名路由**：`trademe.co.nz` → 房产 schema；`*.ac.nz` / NZQA → 学校 schema
+
+## 状态机
+
+### Project 状态
+
+```
+draft → intent_drafting → intent_ready → generating → ready_draft → published
+                                      ↘ generation_failed ↗
+```
+
+### 其他状态
+
+- `IntentCompilation`: pending | succeeded | failed | needs_clarification
+- `GenerationRun`: queued | running | succeeded | failed
+- `Microsite`: draft → published
+- `Form`: draft | active
+
+## 数据库迁移历史
+
+| 迁移 | 说明 |
+|------|------|
+| `20260404120000_hibiz_public_rls.sql` | 公开读 + 匿名写策略 |
+| `20260404200000_hibiz_lead_rate_limit_fn.sql` | `check_lead_rate_limit` 函数 |
+| `20260405120000_merchant_profile.sql` | `merchant_profile` + 更新视图 |
+
+## 行业预设（Phase 1）
+
+### 房地产 (real_estate)
+
+| 场景 | 模块重点 | CTA |
+|------|---------|-----|
+| Open Home 报名 | Hero（时间地点）+ Form | Register for Open Home |
+| 房源推广 | Hero（图片）+ Offer + Form | Enquire Now |
+| 免费估价 | Hero + Form（地址字段） | Get Free Appraisal |
+| 买家登记 | Hero + Offer + Form | Join Buyers List |
+
+### 留学移民 (immigration_education)
+
+| 场景 | 模块重点 | CTA |
+|------|---------|-----|
+| 免费评估 | Hero + Form（签证状态字段） | Get Free Assessment |
+| 咨询预约 | Hero + About + Form | Book Consultation |
+| 讲座报名 | Hero（日期）+ Form | Register for Seminar |
+| 项目留资 | Hero + Offer + Form | Learn More |

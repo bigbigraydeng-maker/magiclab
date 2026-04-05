@@ -1,0 +1,252 @@
+"use server";
+
+import { revalidatePath } from "next/cache";
+import { createClient } from "@/lib/supabase/server";
+import { redirect } from "next/navigation";
+import { normalizePosterTemplateId } from "@/data/poster-templates";
+import { buildMerchantProfileFromListing, patchHeroDraftFromListing } from "@/lib/extraction/auto-fill";
+import { extractTradeMeListing } from "@/lib/extraction/extract-listing";
+import { generatePosterBlurbs } from "@/lib/extraction/poster-blurb";
+import { rawPropertyPromoObject, rawTrademeImageUrls } from "@/lib/merchant-profile/raw-json";
+import { parseMerchantProfile, type MerchantContactV1, type MerchantProfileV1, type PropertyPromoV1 } from "@/types/merchant-profile";
+import { isRenderModelV1 } from "@/types/render-model";
+
+function clamp(s: string, max: number): string {
+  return s.trim().slice(0, max);
+}
+
+function nonEmptyContact(c: MerchantContactV1): MerchantContactV1 | undefined {
+  const out: MerchantContactV1 = {};
+  const phone = clamp(String(c.phone ?? ""), 40);
+  const email = clamp(String(c.email ?? ""), 200);
+  const address = clamp(String(c.address ?? ""), 500);
+  if (phone) {
+    out.phone = phone;
+  }
+  if (email) {
+    out.email = email;
+  }
+  if (address) {
+    out.address = address;
+  }
+  return Object.keys(out).length > 0 ? out : undefined;
+}
+
+function buildPropertyPromoFromForm(
+  formData: FormData,
+  existingPromo: PropertyPromoV1 | undefined,
+  rawMerchantProfile: unknown,
+): PropertyPromoV1 | undefined {
+  const headline = clamp(String(formData.get("promo_headline") ?? ""), 120);
+  const details = clamp(String(formData.get("promo_details") ?? ""), 2000);
+  const image_url = clamp(String(formData.get("promo_image_url") ?? ""), 2000);
+  const trademe_url = clamp(String(formData.get("promo_trademe_url") ?? ""), 500);
+  const poster_template_id = normalizePosterTemplateId(String(formData.get("poster_template_id") ?? ""));
+  const poster_locale = String(formData.get("poster_locale") ?? "zh") === "en" ? "en" : "zh";
+  const listing_agent_name = clamp(String(formData.get("listing_agent_name") ?? ""), 120);
+  const listing_agent_company = clamp(String(formData.get("listing_agent_company") ?? ""), 120);
+  const listing_agent_phone = clamp(String(formData.get("listing_agent_phone") ?? ""), 40);
+  const listing_agent_photo_url = clamp(String(formData.get("listing_agent_photo_url") ?? ""), 2000);
+
+  const prevUrl = (existingPromo?.trademe_url ?? "").trim();
+  const nextUrl = trademe_url.trim();
+  const fromParse = existingPromo?.trademe_image_urls;
+  const fromRaw = rawTrademeImageUrls(rawMerchantProfile);
+  let trademe_image_urls =
+    fromParse && fromParse.length > 0 ? fromParse : fromRaw;
+  if (!nextUrl) {
+    trademe_image_urls = undefined;
+  } else if (prevUrl !== nextUrl) {
+    trademe_image_urls = undefined;
+  }
+
+  const merged: PropertyPromoV1 = {
+    ...existingPromo,
+    headline: headline || undefined,
+    details: details || undefined,
+    image_url: image_url || undefined,
+    trademe_url: nextUrl || undefined,
+    poster_template_id,
+    trademe_image_urls,
+    poster_locale,
+    listing_agent_name: listing_agent_name || undefined,
+    listing_agent_company: listing_agent_company || undefined,
+    listing_agent_phone: listing_agent_phone || undefined,
+    listing_agent_photo_url: listing_agent_photo_url || undefined,
+  };
+
+  const hasAny =
+    Boolean(merged.headline) ||
+    Boolean(merged.details) ||
+    Boolean(merged.image_url) ||
+    Boolean(merged.trademe_url) ||
+    Boolean(merged.trademe_image_urls?.length) ||
+    Boolean(merged.poster_template_id) ||
+    Boolean(merged.poster_blurb_zh) ||
+    Boolean(merged.poster_blurb_en) ||
+    Boolean(merged.listing_agent_name) ||
+    Boolean(merged.listing_agent_company) ||
+    Boolean(merged.listing_agent_phone) ||
+    Boolean(merged.listing_agent_photo_url);
+
+  return hasAny ? merged : undefined;
+}
+
+export async function updateMerchantProfileFromForm(formData: FormData): Promise<void> {
+  const projectId = formData.get("project_id");
+  if (typeof projectId !== "string" || projectId.length === 0) {
+    return;
+  }
+
+  const supabase = createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) {
+    redirect(`/login?next=${encodeURIComponent(`/app/projects/${projectId}`)}`);
+  }
+
+  const contact = nonEmptyContact({
+    phone: String(formData.get("contact_phone") ?? ""),
+    email: String(formData.get("contact_email") ?? ""),
+    address: String(formData.get("contact_address") ?? ""),
+  });
+
+  const { data: ms, error: msErr } = await supabase
+    .from("microsites")
+    .select("id, slug, published_at, merchant_profile")
+    .eq("project_id", projectId)
+    .maybeSingle();
+
+  if (msErr || !ms) {
+    redirect(`/app/projects/${projectId}?notice=merchant_no_microsite`);
+  }
+
+  const existing = parseMerchantProfile(ms.merchant_profile);
+  const hasPromoFields = formData.has("promo_headline");
+
+  let property_promo: PropertyPromoV1 | undefined;
+  if (hasPromoFields) {
+    property_promo = buildPropertyPromoFromForm(formData, existing?.property_promo, ms.merchant_profile);
+  } else {
+    property_promo = existing?.property_promo;
+  }
+
+  const profile: MerchantProfileV1 = {
+    schema_version: 1,
+    ...(contact ? { contact } : {}),
+    ...(property_promo ? { property_promo } : {}),
+  };
+
+  const isEmpty = !contact && !property_promo;
+
+  const { error: uErr } = await supabase
+    .from("microsites")
+    .update({
+      merchant_profile: isEmpty ? null : profile,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", ms.id);
+
+  if (uErr) {
+    redirect(`/app/projects/${projectId}?notice=merchant_save_error`);
+  }
+
+  revalidatePath(`/app/projects/${projectId}`);
+  revalidatePath(`/app/projects/${projectId}/poster`);
+  if (ms.slug) {
+    revalidatePath(`/site/${ms.slug}`);
+  }
+
+  redirect(`/app/projects/${projectId}?notice=merchant_saved`);
+}
+
+/**
+ * 从 TradeMe 链接提取房源信息（Jina + LLM）并写入 merchant_profile；若有草稿则同步 hero。
+ * `urlFromInput`：可选，与输入框一致；非空时优先于库里已保存的链接。
+ */
+export async function importListingFromUrl(projectId: string, urlFromInput?: string | null): Promise<void> {
+  if (typeof projectId !== "string" || projectId.length === 0) {
+    redirect("/app/projects");
+  }
+
+  const supabase = createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) {
+    redirect(`/login?next=${encodeURIComponent(`/app/projects/${projectId}`)}`);
+  }
+
+  const { data: ms, error: msErr } = await supabase
+    .from("microsites")
+    .select("id, slug, merchant_profile, draft_model")
+    .eq("project_id", projectId)
+    .maybeSingle();
+
+  if (msErr || !ms) {
+    redirect(`/app/projects/${projectId}?notice=merchant_no_microsite`);
+  }
+
+  const existing = parseMerchantProfile(ms.merchant_profile);
+  const rawPromo = rawPropertyPromoObject(ms.merchant_profile);
+  const fromDb =
+    existing?.property_promo?.trademe_url?.trim() ??
+    (typeof rawPromo?.trademe_url === "string" ? rawPromo.trademe_url.trim() : "");
+  const fromInput = typeof urlFromInput === "string" ? clamp(urlFromInput, 500) : "";
+  const url = fromInput || fromDb;
+  if (!url) {
+    redirect(`/app/projects/${projectId}?notice=trademe_no_url`);
+  }
+
+  let listing;
+  let markdown: string;
+  try {
+    const extracted = await extractTradeMeListing(url);
+    listing = extracted.listing;
+    markdown = extracted.markdown;
+  } catch {
+    redirect(`/app/projects/${projectId}?notice=listing_import_fail`);
+  }
+
+  let posterBlurbs: { zh: string; en: string };
+  try {
+    posterBlurbs = await generatePosterBlurbs(markdown, listing);
+  } catch {
+    posterBlurbs = { zh: "", en: "" };
+  }
+
+  const profilePayload = buildMerchantProfileFromListing(existing, listing, url, { posterBlurbs });
+
+  const updatePayload: {
+    merchant_profile: typeof profilePayload;
+    draft_model?: unknown;
+    updated_at: string;
+  } = {
+    merchant_profile: profilePayload,
+    updated_at: new Date().toISOString(),
+  };
+
+  if (ms.draft_model && isRenderModelV1(ms.draft_model)) {
+    updatePayload.draft_model = patchHeroDraftFromListing(ms.draft_model, listing);
+  }
+
+  const { data: updatedRow, error: uErr } = await supabase
+    .from("microsites")
+    .update(updatePayload)
+    .eq("id", ms.id)
+    .select("id")
+    .maybeSingle();
+
+  if (uErr || !updatedRow?.id) {
+    redirect(`/app/projects/${projectId}?notice=merchant_save_error`);
+  }
+
+  revalidatePath(`/app/projects/${projectId}`);
+  revalidatePath(`/app/projects/${projectId}/poster`);
+  if (ms.slug) {
+    revalidatePath(`/site/${ms.slug}`);
+  }
+
+  redirect(`/app/projects/${projectId}?notice=listing_imported`);
+}
