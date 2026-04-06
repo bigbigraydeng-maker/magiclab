@@ -144,6 +144,37 @@ export const DEV_PROGRESS_PHASES: ProgressPhase[] = [
     ],
   },
   {
+    id: "hybrid-v04",
+    title: "混合编译器 (v0.4)",
+    summary: "Rule Guard + LLM Compiler V2 + Form Builder + Plugin",
+    items: [
+      {
+        id: "v04-types",
+        label: "Phase 0：`CompiledIntentV2` / `rule-guard` / `form-builder` 类型与字段池",
+        status: "done",
+      },
+      {
+        id: "v04-rule-guard",
+        label: "Phase 1：Rule Guard（`applyRuleGuard` + 城市/行业/语言/黑名单）",
+        status: "done",
+        note: "Vitest：`src/lib/compiler/rule-guard.test.ts`",
+      },
+      {
+        id: "v04-llm-compiler",
+        label: "Phase 2：LLM Compiler V2（`compileLLMV2` / `compileIntentHybrid`）",
+        status: "done",
+        note: "gpt-4o-mini + json_object；`buildCompiledIntentV2FromLlmJson`；Vitest mock",
+      },
+      {
+        id: "v04-form-builder",
+        label: "Phase 3：Form Builder（规则表 + `buildFormFieldsFromRules`）+ 后台工作流侧栏",
+        status: "done",
+        note: "迁移 20260408120000 compiled_intent_v2；compile-intent-v2-action",
+      },
+      { id: "v04-plugins", label: "Phase 5–6：行业插件 + Server Actions 集成", status: "todo" },
+    ],
+  },
+  {
     id: "ops",
     title: "运营与体验",
     summary: "线索、风控、编辑能力",

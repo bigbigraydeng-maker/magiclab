@@ -30,7 +30,8 @@ export function resolveActiveSkeletonModuleEntries(
     });
 }
 
-function resolveSkeletonHex(
+/** Theme colours for posters / previews (palette_id or manual overrides). */
+export function resolveSkeletonHex(
   skeleton: TemplateSkeleton,
   profile: MerchantProfileV1,
 ): { primary: string; accent: string; background: string; fontFamily?: string } {

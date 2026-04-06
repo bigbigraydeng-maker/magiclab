@@ -45,6 +45,9 @@ export interface FormFieldDefinitionV2 {
 
 export type CompilerVersionV2 = "rule_v1" | "hybrid_v2";
 
+/** 持久化 JSON schema：1 = 初始；2 = 含确认历史 revisions */
+export type CompiledIntentSchemaVersion = 1 | 2;
+
 export interface CompiledIntentV2 {
   /** 持久化后填写；编译前可为空。 */
   id?: string;
@@ -72,6 +75,37 @@ export interface CompiledIntentV2 {
 
   created_at: string;
   updated_at: string;
+
+  /** schema_version 2：每次确认追加一条，不修改旧记录；回滚也会新增一条指向旧快照 */
+  schema_version?: CompiledIntentSchemaVersion;
+  /** 当前指针，与最后一次确认的 revision.version 一致 */
+  current_version?: number;
+}
+
+/**
+ * 写入 `revisions[].intent` 的快照（不含历史元数据，避免嵌套与循环 JSON）。
+ */
+export type CompiledIntentV2Snapshot = Omit<CompiledIntentV2, "schema_version" | "current_version" | "revisions">;
+
+export interface IntentRevisionV2 {
+  version: number;
+  intent: CompiledIntentV2Snapshot;
+  confirmed_at: string;
+  created_at: string;
+}
+
+/** 确认历史（见上；接口合并避免循环前置声明） */
+export interface CompiledIntentV2 {
+  revisions?: IntentRevisionV2[];
+}
+
+/** 从持久化对象去掉历史元数据，供写入 revisions[].intent */
+export function stripIntentForRevision(intent: CompiledIntentV2): CompiledIntentV2Snapshot {
+  const { schema_version, current_version, revisions, ...rest } = intent;
+  void schema_version;
+  void current_version;
+  void revisions;
+  return rest;
 }
 
 /** 与现有 `IndustryId` 互转（渐进集成）。 */
@@ -115,9 +149,78 @@ export function isCompiledIntentV2(v: unknown): v is CompiledIntentV2 {
   if (typeof o.user_confirmed !== "boolean") {
     return false;
   }
+  if (o.schema_version !== undefined && o.schema_version !== 1 && o.schema_version !== 2) {
+    return false;
+  }
+  if (o.current_version !== undefined && typeof o.current_version !== "number") {
+    return false;
+  }
+  if (o.revisions !== undefined) {
+    if (!Array.isArray(o.revisions)) {
+      return false;
+    }
+    for (const item of o.revisions) {
+      if (!isIntentRevisionEntryLoose(item)) {
+        return false;
+      }
+    }
+  }
+  return true;
+}
+
+function isIntentRevisionEntryLoose(v: unknown): boolean {
+  if (!v || typeof v !== "object") {
+    return false;
+  }
+  const r = v as Record<string, unknown>;
+  if (typeof r.version !== "number" || r.version < 1) {
+    return false;
+  }
+  if (!r.intent || typeof r.intent !== "object") {
+    return false;
+  }
+  if (typeof r.confirmed_at !== "string" || typeof r.created_at !== "string") {
+    return false;
+  }
   return true;
 }
 
 export function parseCompiledIntentV2(raw: unknown): CompiledIntentV2 | null {
   return isCompiledIntentV2(raw) ? raw : null;
+}
+
+/**
+ * 读取 DB 已有 JSON，得到确认前历史列表与当前版本号（用于追加下一版；兼容无 revisions 的旧数据）。
+ */
+export function collectPriorRevisionsForConfirm(prevRaw: unknown): {
+  revisions: IntentRevisionV2[];
+  currentVersion: number;
+} {
+  const parsed = parseCompiledIntentV2(prevRaw);
+  if (!parsed) {
+    return { revisions: [], currentVersion: 0 };
+  }
+  if (parsed.schema_version === 2 && Array.isArray(parsed.revisions) && parsed.revisions.length > 0) {
+    const revs = parsed.revisions;
+    const cv =
+      typeof parsed.current_version === "number"
+        ? parsed.current_version
+        : revs[revs.length - 1]?.version ?? 0;
+    return { revisions: revs, currentVersion: cv };
+  }
+  if (parsed.user_confirmed) {
+    const snap = stripIntentForRevision(parsed);
+    return {
+      revisions: [
+        {
+          version: 1,
+          intent: snap,
+          confirmed_at: parsed.updated_at,
+          created_at: parsed.created_at,
+        },
+      ],
+      currentVersion: 1,
+    };
+  }
+  return { revisions: [], currentVersion: 0 };
 }

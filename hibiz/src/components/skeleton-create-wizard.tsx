@@ -72,7 +72,7 @@ export function SkeletonCreateWizard({ realEstateSkeletons }: SkeletonCreateWiza
         <StepTab label="4 预览" active={step === "preview"} />
       </nav>
 
-      <form action={createProjectFromSkeleton} encType="multipart/form-data" noValidate className="space-y-8">
+      <form action={createProjectFromSkeleton} noValidate className="space-y-8">
         <input type="hidden" name="skeleton_id" value={selectedSkeletonId ?? ""} />
 
         {step === "choose" ? (

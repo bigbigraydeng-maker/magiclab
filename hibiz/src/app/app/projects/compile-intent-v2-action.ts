@@ -5,7 +5,11 @@ import { createClient } from "@/lib/supabase/server";
 import { compileLLMV2 } from "@/lib/compiler/llm-compiler-v2";
 import { applyRuleGuard } from "@/lib/compiler/rule-guard";
 import { buildFormFieldsFromRules } from "@/lib/generation/llm-form-builder";
-import type { CompiledIntentV2 } from "@/types/compiled-intent-v2";
+import {
+  collectPriorRevisionsForConfirm,
+  stripIntentForRevision,
+  type CompiledIntentV2,
+} from "@/types/compiled-intent-v2";
 import type { FormBuilderResultV2 } from "@/types/form-builder";
 
 export interface CompileIntentV2Response {
@@ -80,16 +84,39 @@ export async function confirmIntentV2Action(projectId: string, intent: CompiledI
     throw new Error("Project not found or access denied.");
   }
 
-  const formFields = buildFormFieldsFromRules(intent.industry, intent.scene);
+  const { data: row } = await supabase
+    .from("projects")
+    .select("compiled_intent_v2")
+    .eq("id", projectId)
+    .eq("user_id", user.id)
+    .maybeSingle();
+
+  const base = stripIntentForRevision(intent);
+  const formFields = buildFormFieldsFromRules(base.industry, base.scene);
   const now = new Date().toISOString();
-  const merged: CompiledIntentV2 = {
-    ...intent,
+  let merged: CompiledIntentV2 = {
+    ...base,
     project_id: projectId,
     user_confirmed: true,
     form_field_pool: Object.fromEntries(formFields.selected_fields.map((f) => [f.id, f])),
     form_field_order: formFields.field_order,
     updated_at: now,
-    created_at: intent.created_at ?? now,
+    created_at: base.created_at ?? now,
+  };
+
+  const { revisions: priorRevisions, currentVersion } = collectPriorRevisionsForConfirm(row?.compiled_intent_v2);
+  const nextVersion = currentVersion + 1;
+  const snapshot = stripIntentForRevision(merged);
+  const newRevisions = [
+    ...priorRevisions,
+    { version: nextVersion, intent: snapshot, confirmed_at: now, created_at: now },
+  ];
+
+  merged = {
+    ...merged,
+    schema_version: 2,
+    current_version: nextVersion,
+    revisions: newRevisions,
   };
 
   const { error } = await supabase
