@@ -23,6 +23,9 @@ function nonEmptyContact(c: MerchantContactV1): MerchantContactV1 | undefined {
   const phone = clamp(String(c.phone ?? ""), 40);
   const email = clamp(String(c.email ?? ""), 200);
   const address = clamp(String(c.address ?? ""), 500);
+  const whatsapp = clamp(String(c.whatsapp ?? ""), 40);
+  const wechat_qr_url = clamp(String(c.wechat_qr_url ?? ""), 2000);
+  const xiaohongshu_url = clamp(String(c.xiaohongshu_url ?? ""), 500);
   if (phone) {
     out.phone = phone;
   }
@@ -31,6 +34,15 @@ function nonEmptyContact(c: MerchantContactV1): MerchantContactV1 | undefined {
   }
   if (address) {
     out.address = address;
+  }
+  if (whatsapp) {
+    out.whatsapp = whatsapp;
+  }
+  if (wechat_qr_url) {
+    out.wechat_qr_url = wechat_qr_url;
+  }
+  if (xiaohongshu_url) {
+    out.xiaohongshu_url = xiaohongshu_url;
   }
   return Object.keys(out).length > 0 ? out : undefined;
 }

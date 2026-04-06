@@ -3,6 +3,8 @@ import type { RenderModelV1 } from "@/types/render-model";
 import type { GeneratedCopyV1 } from "./openai-copy";
 import { footerDisclaimer, formPrivacyNote } from "./compliance";
 
+export { assembleRenderModelFromSkeleton, resolveActiveSkeletonModuleEntries } from "./assemble-skeleton";
+
 function themeFromTone(compiled: CompiledIntentV1): RenderModelV1["theme"] {
   if (compiled.industry === "real_estate") {
     return { preset: "trust_teal", density: "comfortable" };

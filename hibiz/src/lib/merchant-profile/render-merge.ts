@@ -6,6 +6,7 @@ export function contactLinesFromMerchant(modelLines: string[], contact: Merchant
   const p = contact?.phone?.trim();
   const e = contact?.email?.trim();
   const a = contact?.address?.trim();
+  const w = contact?.whatsapp?.trim();
   if (p) {
     lines.push(`Phone: ${p}`);
   }
@@ -14,6 +15,17 @@ export function contactLinesFromMerchant(modelLines: string[], contact: Merchant
   }
   if (a) {
     lines.push(`Address: ${a}`);
+  }
+  if (w) {
+    const digits = w.replace(/\D/g, "");
+    if (digits.length >= 8) {
+      lines.push(`WhatsApp: https://wa.me/${digits}`);
+    } else {
+      lines.push(`WhatsApp: ${w}`);
+    }
+  }
+  if (contact?.wechat_qr_url?.trim()) {
+    lines.push("WeChat: 见下方二维码");
   }
   return lines.length > 0 ? lines : modelLines;
 }

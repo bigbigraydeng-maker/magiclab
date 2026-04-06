@@ -15,6 +15,12 @@ export interface PosterDesignedLayoutProps {
   /** 优先 listing 导入；否则回退到 Contact 电话 */
   listingAgentPhone?: string | null;
   listingAgentPhotoUrl?: string | null;
+  /** 骨架 / 商家资料：公司 Logo */
+  brandLogoUrl?: string | null;
+  /** 微信二维码图 URL */
+  wechatQrUrl?: string | null;
+  /** WhatsApp 链接 */
+  whatsappUrl?: string | null;
 }
 
 function QrBlock({
@@ -106,7 +112,8 @@ function ListingAgentCard({
 function ContactBlock({ contact }: { contact: MerchantContactV1 | undefined }) {
   return (
     <div className="mt-auto border-t border-white/15 pt-6 text-center text-sm text-white/90">
-      {contact?.email ? <p>Email: {contact.email}</p> : null}
+      {contact?.phone ? <p>Phone: {contact.phone}</p> : null}
+      {contact?.email ? <p className={contact?.phone ? "mt-1" : ""}>Email: {contact.email}</p> : null}
       {contact?.address ? <p className="mt-2 whitespace-pre-line text-white/80">{contact.address}</p> : null}
       {!contact?.email && !contact?.address ? (
         <p className="text-white/45">商家联系可在项目页「Business details」补充邮箱与地址</p>
@@ -156,6 +163,50 @@ function ImageGrid({ urls, rounded }: { urls: string[]; rounded: string }) {
   );
 }
 
+function BrandLogoRow({ url }: { url: string | null | undefined }) {
+  if (!url?.trim()) {
+    return null;
+  }
+  return (
+    <div className="mb-4 flex justify-center">
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src={url.trim()} alt="" className="h-12 w-auto max-w-[180px] object-contain" referrerPolicy="no-referrer" />
+    </div>
+  );
+}
+
+function WechatWhatsappRow({
+  wechatQrUrl,
+  whatsappUrl,
+  variant,
+}: {
+  wechatQrUrl: string | null | undefined;
+  whatsappUrl: string | null | undefined;
+  variant: "light" | "dark" | "minimal";
+}) {
+  if (!wechatQrUrl?.trim() && !whatsappUrl?.trim()) {
+    return null;
+  }
+  const textClass =
+    variant === "dark" ? "text-teal-100/90" : variant === "minimal" ? "text-stone-600" : "text-stone-700";
+  return (
+    <div className={`mt-4 flex flex-wrap items-end justify-center gap-6 text-sm ${textClass}`}>
+      {whatsappUrl?.trim() ? (
+        <a href={whatsappUrl.trim()} className="font-medium underline">
+          WhatsApp
+        </a>
+      ) : null}
+      {wechatQrUrl?.trim() ? (
+        <div className="flex flex-col items-center gap-1">
+          <span className="text-xs opacity-80">WeChat</span>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={wechatQrUrl.trim()} alt="" className="h-24 w-24 rounded-lg border border-white/20 object-contain" />
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
 export function PosterDesignedLayout({
   templateId,
   headline,
@@ -167,6 +218,9 @@ export function PosterDesignedLayout({
   listingAgentCompany,
   listingAgentPhone,
   listingAgentPhotoUrl,
+  brandLogoUrl,
+  wechatQrUrl,
+  whatsappUrl,
 }: PosterDesignedLayoutProps) {
   const qrCaptionZh = "扫码查看 Trade Me 完整房源";
   const qrCaptionEn = "Scan for full listing";
@@ -179,6 +233,7 @@ export function PosterDesignedLayout({
       >
         <div className="text-center">
           <p className="font-mono text-[9px] uppercase tracking-[0.35em] text-stone-400">HiBiz · gallery</p>
+          <BrandLogoRow url={brandLogoUrl} />
           <h2 className="mt-3 font-display text-3xl font-semibold tracking-tight text-stone-900">{headline}</h2>
         </div>
         <div className="mt-5">
@@ -201,6 +256,7 @@ export function PosterDesignedLayout({
             <QrBlock dataUrl={listingQrDataUrl} captionZh={qrCaptionZh} captionEn={qrCaptionEn} />
           </div>
         ) : null}
+        <WechatWhatsappRow wechatQrUrl={wechatQrUrl} whatsappUrl={whatsappUrl} variant="light" />
         <div className="mt-10 border-t border-stone-200 pt-6 text-center text-sm text-stone-700">
           {contact?.phone ? <p>Phone: {contact.phone}</p> : null}
           {contact?.email ? <p className="mt-1">Email: {contact.email}</p> : null}
@@ -219,6 +275,7 @@ export function PosterDesignedLayout({
       >
         <div className="flex min-h-[240mm] flex-col">
           <p className="text-center font-mono text-[9px] uppercase tracking-[0.5em] text-stone-400">Property</p>
+          <BrandLogoRow url={brandLogoUrl} />
           <h2 className="mt-8 text-center font-display text-4xl font-light tracking-tight text-stone-900">{headline}</h2>
           <div className="mx-auto mt-6 max-w-md">
             <ListingAgentCard
@@ -251,6 +308,7 @@ export function PosterDesignedLayout({
               <QrBlock dataUrl={listingQrDataUrl} captionZh={qrCaptionZh} captionEn={qrCaptionEn} />
             </div>
           ) : null}
+          <WechatWhatsappRow wechatQrUrl={wechatQrUrl} whatsappUrl={whatsappUrl} variant="minimal" />
           <div className="mt-auto border-t border-stone-200 pt-8 text-center text-xs font-light text-stone-500">
             {contact?.phone ? <p>{contact.phone}</p> : null}
             {contact?.email ? <p className="mt-1">{contact.email}</p> : null}
@@ -282,6 +340,9 @@ export function PosterDesignedLayout({
         <p className="relative text-center font-mono text-[10px] uppercase tracking-[0.45em] text-teal-200/85">
           New Zealand property
         </p>
+        <div className="relative">
+          <BrandLogoRow url={brandLogoUrl} />
+        </div>
         <h2 className="relative mt-5 text-center font-display text-[2.1rem] font-semibold leading-[1.15] tracking-tight sm:text-[2.45rem]">
           {headline}
         </h2>
@@ -313,6 +374,7 @@ export function PosterDesignedLayout({
           </div>
         ) : null}
 
+        <WechatWhatsappRow wechatQrUrl={wechatQrUrl} whatsappUrl={whatsappUrl} variant="dark" />
         <ContactBlock contact={contact} />
         <p className="relative mt-8 text-center font-mono text-[9px] text-teal-300/45">HiBiz · magiclab.com</p>
       </div>

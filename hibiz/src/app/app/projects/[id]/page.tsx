@@ -15,6 +15,8 @@ import { isRenderModelV1 } from "@/types/render-model";
 import { RenderMicrosite } from "@/components/microsite/RenderMicrosite";
 import { isFormFieldsFileV1 } from "@/lib/generation/form-presets";
 import { parseMerchantProfile } from "@/types/merchant-profile";
+import { getSkeletonById } from "@/data/skeletons";
+import { SkeletonPreviewPanel } from "@/components/skeleton-preview-panel";
 
 interface ProjectDetailPageProps {
   params: { id: string };
@@ -124,6 +126,7 @@ export default async function ProjectDetailPage({ params, searchParams }: Projec
       formForPreview?.fields && isFormFieldsFileV1(formForPreview.fields) ? formForPreview.fields : null;
 
     const previewMerchant = parseMerchantProfile(ms?.merchant_profile);
+    const previewSkeleton = previewMerchant?.skeleton_id ? getSkeletonById(previewMerchant.skeleton_id) : undefined;
 
     return (
       <>
@@ -132,7 +135,16 @@ export default async function ProjectDetailPage({ params, searchParams }: Projec
             ← Back to {project.name}
           </Link>
         </div>
-        <RenderMicrosite model={draft} formFields={formFields} preview merchantProfile={previewMerchant} />
+        {previewSkeleton && previewMerchant ? (
+          <SkeletonPreviewPanel projectId={project.id} skeleton={previewSkeleton} profile={previewMerchant} />
+        ) : null}
+        <RenderMicrosite
+          model={draft}
+          formFields={formFields}
+          preview
+          merchantProfile={previewMerchant}
+          editableProjectId={previewMerchant?.skeleton_id ? project.id : null}
+        />
       </>
     );
   }

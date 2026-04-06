@@ -3,6 +3,13 @@
 export interface RenderThemeV1 {
   preset: "trust_teal" | "warm_neutral" | "premium_minimal";
   density: "compact" | "comfortable";
+  /** Skeleton flow: optional hex palette (overrides preset visuals when set). */
+  skeleton_hex?: {
+    primary: string;
+    accent: string;
+    background: string;
+    fontFamily?: string;
+  };
 }
 
 export interface RenderSeoV1 {
@@ -10,7 +17,18 @@ export interface RenderSeoV1 {
   description: string;
 }
 
-export type RenderModuleType = "hero" | "offer" | "form" | "faq" | "about" | "contact" | "footer";
+export type RenderModuleType =
+  | "hero"
+  | "offer"
+  | "form"
+  | "faq"
+  | "about"
+  | "contact"
+  | "footer"
+  | "listings"
+  | "testimonials"
+  | "openHome"
+  | "services";
 
 export interface RenderModuleBase {
   id: string;
@@ -65,6 +83,39 @@ export interface FooterContent {
   links: { label: string; href: string }[];
 }
 
+export interface ListingCardContent {
+  id: string;
+  name: string;
+  address: string;
+  description: string;
+  images: string[];
+  bedrooms?: number;
+  bathrooms?: number;
+  price_hint?: string;
+  trademe_url?: string;
+}
+
+export interface ListingsContent {
+  heading: string;
+  items: ListingCardContent[];
+}
+
+export interface TestimonialsContent {
+  heading: string;
+  items: { quote: string; author: string; role?: string }[];
+}
+
+export interface OpenHomeContent {
+  heading: string;
+  lines: string[];
+  cta_label: string | null;
+}
+
+export interface ServicesContent {
+  heading: string;
+  items: { title: string; description: string }[];
+}
+
 export type RenderModuleV1 =
   | (RenderModuleBase & { type: "hero"; content: HeroContent })
   | (RenderModuleBase & { type: "offer"; content: OfferContent })
@@ -72,7 +123,11 @@ export type RenderModuleV1 =
   | (RenderModuleBase & { type: "faq"; content: FaqContent })
   | (RenderModuleBase & { type: "about"; content: AboutContent })
   | (RenderModuleBase & { type: "contact"; content: ContactContent })
-  | (RenderModuleBase & { type: "footer"; content: FooterContent });
+  | (RenderModuleBase & { type: "footer"; content: FooterContent })
+  | (RenderModuleBase & { type: "listings"; content: ListingsContent })
+  | (RenderModuleBase & { type: "testimonials"; content: TestimonialsContent })
+  | (RenderModuleBase & { type: "openHome"; content: OpenHomeContent })
+  | (RenderModuleBase & { type: "services"; content: ServicesContent });
 
 export interface RenderModelV1 {
   schema_version: 1;

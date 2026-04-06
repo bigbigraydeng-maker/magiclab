@@ -94,12 +94,16 @@ function collectPhotos(data: Record<string, unknown>): string[] {
         urls.push(p);
       } else if (p && typeof p === "object") {
         const obj = p as Record<string, unknown>;
+        const valueObj =
+          obj.Value && typeof obj.Value === "object"
+            ? (obj.Value as Record<string, unknown>)
+            : undefined;
         const u = pickStr(
-          obj.Value?.FullSize,
+          valueObj?.FullSize,
           obj.FullSize,
-          obj.Value?.Large,
+          valueObj?.Large,
           obj.Large,
-          obj.Value?.Medium,
+          valueObj?.Medium,
           obj.Medium,
           obj.Url,
           obj.url,

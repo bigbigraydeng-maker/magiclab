@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { normalizePosterTemplateId } from "@/data/poster-templates";
 import { listingUrlToQrDataUrl } from "@/lib/poster/qr";
 import { collectPosterImageUrls } from "@/lib/merchant-profile/poster-images";
+import { buildPosterContactFromProfile } from "@/lib/generation/skeleton-fill";
 import { parseMerchantProfile, type PropertyPromoV1 } from "@/types/merchant-profile";
 import { PosterDesignedLayout } from "@/components/poster/PosterDesignedLayout";
 import { PosterPromptPanel } from "@/components/poster/PosterPromptPanel";
@@ -54,12 +55,13 @@ export default async function PosterPage({ params }: PosterPageProps) {
   const mp = parseMerchantProfile(ms.merchant_profile);
   const promo = mp?.property_promo;
   const contact = mp?.contact;
+  const posterContact = mp ? buildPosterContactFromProfile(mp) : null;
   const templateId = normalizePosterTemplateId(promo?.poster_template_id);
   const headline = promo?.headline?.trim() || project.name;
   const posterBody = resolvePosterBody(promo);
   const trademe = promo?.trademe_url?.trim() ?? null;
   const imageUrls = collectPosterImageUrls(promo);
-  const listingAgentName = promo?.listing_agent_name?.trim() ?? null;
+  const listingAgentName = promo?.listing_agent_name?.trim() ?? posterContact?.name?.trim() ?? null;
   const listingAgentCompany = promo?.listing_agent_company?.trim() ?? null;
   const listingAgentPhotoUrl = promo?.listing_agent_photo_url?.trim() ?? null;
   const listingAgentPhone = promo?.listing_agent_phone?.trim() || contact?.phone?.trim() || null;
@@ -98,6 +100,9 @@ export default async function PosterPage({ params }: PosterPageProps) {
         listingAgentCompany={listingAgentCompany}
         listingAgentPhone={listingAgentPhone}
         listingAgentPhotoUrl={listingAgentPhotoUrl}
+        brandLogoUrl={mp?.logo_url?.trim() ?? null}
+        wechatQrUrl={posterContact?.wechat_qr_url ?? null}
+        whatsappUrl={posterContact?.whatsapp_url ?? null}
       />
     </div>
   );
