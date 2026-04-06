@@ -8,6 +8,7 @@ const WORKFLOW_STEPS: { id: string; step: number; label: string; description: st
 ];
 
 const SECONDARY_LINKS: { label: string; path: string }[] = [
+  { label: "🖼️ 素材库", path: "/media" },
   { label: "📊 数据报表", path: "/dashboard" },
   { label: "🎬 社交媒体", path: "/social" },
 ];

@@ -12,6 +12,7 @@ export function ProjectSubNav({ projectId }: ProjectSubNavProps) {
   const base = `/app/projects/${projectId}`;
   const items: { href: string; label: string }[] = [
     { href: base, label: "项目" },
+    { href: `${base}/media`, label: "素材" },
     { href: `${base}/social`, label: "社媒" },
     { href: `${base}/social/history`, label: "社媒历史" },
     { href: `${base}/dashboard`, label: "数据" },
