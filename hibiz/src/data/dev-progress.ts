@@ -90,6 +90,22 @@ export const DEV_PROGRESS_PHASES: ProgressPhase[] = [
     ],
   },
   {
+    id: "skeleton",
+    title: "骨架模板系统 (v0.2.2)",
+    summary: "预制骨架 + AI 填肉 + 手动房源 + 表单模板",
+    items: [
+      { id: "skeleton-types", label: "TemplateSkeleton 类型 + RenderModuleType 扩展", status: "todo" },
+      { id: "skeleton-data", label: "3 套房产骨架（Classic Agent / Property Showcase / Bilingual Pro）", status: "todo" },
+      { id: "profile-extend", label: "MerchantProfile 扩展（logo、QR、WhatsApp、property_listings）", status: "todo" },
+      { id: "create-flow", label: "分步创建流程（选行业 → 选骨架 → 填信息 → 预览）", status: "todo" },
+      { id: "property-manual", label: "手动房源管理（名称、地址、图片上传、介绍、TradeMe 链接）", status: "todo" },
+      { id: "skeleton-fill", label: "确定性填充 + AI 文案生成（中英文）", status: "todo" },
+      { id: "poster-auto", label: "联系方式自动带入海报（name/phone/email/logo/QR）", status: "todo" },
+      { id: "module-toggle", label: "模块开关 + 配色切换 + 行内编辑", status: "todo" },
+      { id: "form-templates", label: "表单模板（Open Home / Buyer Inquiry / Valuation）", status: "todo" },
+    ],
+  },
+  {
     id: "ops",
     title: "运营与体验",
     summary: "线索、风控、编辑能力",

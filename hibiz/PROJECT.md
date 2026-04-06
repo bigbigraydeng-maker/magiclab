@@ -1,6 +1,6 @@
 # HiBiz — 产品与技术全景
 
-> 最后更新：2026-04-05
+> 最后更新：2026-04-07
 
 ## 一句话
 
@@ -77,7 +77,8 @@ IndustryPreset / TemplatePreset：配置数据，非用户实例
 | Auth | Supabase Auth (Magic Link) | 极简登录 |
 | Database | Supabase Postgres + RLS | 行级安全 |
 | AI | OpenAI API (gpt-4o-mini) | Structured Output |
-| URL 提取 | Jina Reader (`r.jina.ai`) | URL → Markdown → LLM 结构化提取 |
+| URL 提取 | TradeMe API (OAuth 1.0a) + Jina Reader + OpenAI | 三层 fallback 提取 |
+| Deploy | Render Web Service | SSR, Root Directory: `hibiz/` |
 | 安全 | 蜜罐字段 + 限流函数 + RLS | 防滥用 |
 
 ### 目录结构
@@ -139,24 +140,46 @@ LLM 不负责：
 | 意图编译 | 视复杂度（规则优先） | 用户提交 prompt |
 | 文案生成 | 是 | 用户确认意图后 |
 | 表单生成 | 是（V2） | 用户确认意图后 |
-| URL 提取 | 是（Jina + LLM） | 用户粘贴外部链接时 |
+| URL 提取 | 是（API / Jina + LLM） | 用户粘贴外部链接时 |
 
-### 5. URL 提取管线
+### 5. URL 提取管线（三层 fallback）
 
-用户粘贴外部 URL（如 TradeMe 房源、学校课程页）时，统一走提取管线：
+用户粘贴外部 URL 时，按优先级依次尝试：
 
 ```
-URL → Jina Reader (r.jina.ai) → Markdown → OpenAI Structured Output → 结构化数据
+Layer 0: TradeMe Official API（OAuth 1.0a，最可靠）
+  ↓ 未配置 / 失败
+Layer 1: __NEXT_DATA__ HTML 解析（零 LLM 成本）
+  ↓ 无数据
+Layer 2: Jina Reader Pro → Markdown → OpenAI Structured Output
+  ↓
+→ 质量门评分（0-100，good/partial/failed）
 → 自动填充 merchant_profile + 微站模块 + 海报
+→ 图片代理到 Supabase Storage
 → 用户事后编辑
 ```
 
 **设计决策**：
-- **Jina Reader**（非 Firecrawl）：免费 1000 万 token，零成本 MVP
+- **TradeMe API 为首选**：TradeMe 封锁非浏览器请求（Jina/fetch 均返回 500）
 - **旧 HTML 正则管线已移除**：统一使用 `src/lib/extraction/`
-- **直接填充**：不需用户确认提取结��，通过现有编辑界面事后修改
-- **先 TradeMe，后学校**：同一管线架构���不同提取 schema
-- **域名路由**：`trademe.co.nz` → 房产 schema；`*.ac.nz` / NZQA → 学校 schema
+- **直接填充**：不需用户确认提取结果，通过现有编辑界面事后修改
+- **统一管线**：`extraction-layers.ts` 编排所有层
+
+### 6. 骨架模板系统（v0.2.2）
+
+预制骨架 + AI 填肉模式：
+
+```
+用户选行业 → 选骨架 → 填基本信息（name/phone/email/logo/QR）
+  → AI 自动填充文案（中英文）
+  → assembleRenderModel()（已有装配器）
+  → 联系方式自动带入海报
+  → 预览 → 微调（开关模块、换配色、改文字）→ 发布
+```
+
+**核心原则**：骨架不是新的渲染层，是 CompiledIntent 的预设值，走现有装配管线。
+
+**手动房源**：用户可上传房源（名称、地址、图片、介绍），可选附 TradeMe 跳转链接。存储在 `merchant_profile.property_listings[]`。
 
 ## 状态机
 

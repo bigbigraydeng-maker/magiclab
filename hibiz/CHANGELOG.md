@@ -5,14 +5,42 @@
 
 ---
 
-## [0.3.0] - 开发中
+## [0.2.2] - 开发中
 
 ### 规划中
 
-- 混合编译器（Rule + LLM），`CompiledIntentV2`
-- 表单生成引擎（字段池 + LLM 选取）
-- 模块动态选择（`module_selection`）
-- Copy Generator 按需生成
+- 骨架模板系统（预制骨架 + AI 填肉）
+- 3 套房产骨架：Classic Agent / Property Showcase / Bilingual Pro
+- 手动房源管理（名称、地址、图片上传、介绍、TradeMe 跳转链接）
+- 表单模板：Open Home / Buyer Inquiry / Property Valuation
+- 联系方式自动带入海报（name、phone、email、logo、QR）
+- 分步创建流程（选行业 → 选骨架 → 填信息 → 预览微调）
+- 模块开关、配色切换、行内文字编辑
+- 扩展 merchant_profile：logo_url、wechat_qr_url、whatsapp、property_listings[]
+
+---
+
+## [0.2.1] - 2026-04-07
+
+### 新增
+
+- **Render 生产部署**：`render.yaml`、Root Directory `hibiz/`、`hibiz-service.onrender.com`
+- **TradeMe 提取管线 v2**：三层 fallback（API → `__NEXT_DATA__` → Jina + OpenAI）
+- **TradeMe OAuth API**：`trademe-api.ts`，OAuth 1.0a 两脚认证，自动检测 sandbox/prod
+- **提取质量门**：`quality-gate.ts`，0-100 评分，good/partial/failed 分级
+- **图片代理**：`image-proxy.ts`，Referer header 拉取 → Supabase Storage 持久化
+- **Jina Reader Pro**：`X-Wait-For-Selector` + `X-Timeout` 头部支持
+- **Auth Render 适配**：`externalOrigin()` 使用 `X-Forwarded-Host` 解决反向代理重定向
+
+### 数据库迁移
+
+- `20260406140000_listing_images_storage.sql` — Supabase Storage `listing-images` bucket + 公开读策略
+
+### 设计决策
+
+- TradeMe 主动封锁非浏览器请求（Jina/fetch 均返回 500），确认 Official API 为唯一可靠路径
+- 三层 fallback 保证降级可用
+- Render 替代 Vercel 作为部署目标（Server Actions + Supabase 需要 SSR）
 
 ---
 

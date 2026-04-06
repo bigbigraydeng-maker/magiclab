@@ -15,21 +15,36 @@
 | UI | React 18 + Tailwind 3.4 |
 | Backend | Supabase Auth + Postgres + RLS |
 | AI | OpenAI API (gpt-4o-mini), Structured Output |
-| URL 提取 | Jina Reader / `__NEXT_DATA__` / Markdown → LLM 结构化提取 |
-| Deploy | Render（生产环境）；`Root Directory: hibiz/` |
+| URL 提取 | TradeMe API (OAuth 1.0a) / `__NEXT_DATA__` / Jina Reader + LLM（三层 fallback） |
+| Deploy | Render（生产环境）；`Root Directory: hibiz/`；域名 `hibiz-service.onrender.com` |
 
 ## 核心架构
+
+### 路径 A：自然语言创建（原有流程）
 
 ```
 用户 raw_prompt
   → Rule Guard（正则预过滤、城市/语言检测）
-  → LLM Compiler（意图编译 → CompiledIntentV2）
+  → LLM Compiler（意图编译 → CompiledIntentV1）
   → 用户确认
-  → LLM Copy Generator + LLM Form Builder（并行）
+  → LLM Copy Generator + Form Builder（并行）
   → assembleRenderModel（确定性装配）
   → Schema 校验 + 合规过滤
-  → RenderModelV2 → 草稿预览 → 发布
+  → RenderModelV1 → 草稿预览 → 发布
 ```
+
+### 路径 B：骨架模板创建（v0.2.2 新增）
+
+```
+用户选行业 → 选骨架 → 填基本信息（name/phone/email/logo/QR）
+  → AI 自动填充文案（中英文）
+  → 联系方式自动带入海报
+  → assembleRenderModel（骨架模式）
+  → 预览 → 微调（开关模块、换配色、改文字）
+  → 发布
+```
+
+**骨架不是新的渲染层**：骨架 = CompiledIntent 的预设值，最终走现有装配管线。
 
 ### 关键文件映射
 
@@ -42,9 +57,15 @@
 | 类型定义 | `src/types/compiled-intent.ts`, `render-model.ts` |
 | 模板预设 | `src/data/template-presets.ts` |
 | Server Actions | `src/app/app/projects/intent-actions.ts`, `generation-actions.ts` |
-| URL 提取（Jina + LLM） | `src/lib/extraction/`（`jina-reader.ts`, `extract-listing.ts`, `auto-fill.ts`） |
+| URL 提取（三层） | `src/lib/extraction/`（`trademe-api.ts`, `extract-next-data.ts`, `jina-reader.ts`, `extract-listing.ts`） |
+| 提取编排 | `src/lib/extraction/extraction-layers.ts`（Layer 0→1→2 fallback） |
+| 提取质量门 | `src/lib/extraction/quality-gate.ts`（评分 0-100） |
+| 图片代理 | `src/lib/extraction/image-proxy.ts`（→ Supabase Storage） |
 | 读库 URL 兼容 | `src/lib/extraction/legacy-url.ts`（`coercePersistedTradeMeImageUrl`） |
 | 商家信息 | `src/types/merchant-profile.ts`, `merchant-profile-actions.ts` |
+| 骨架类型 | `src/types/skeleton.ts`（待创建） |
+| 骨架数据 | `src/data/skeletons/`（待创建） |
+| 骨架 AI 填充 | `src/lib/generation/skeleton-fill.ts`（待创建） |
 
 ## 约定
 
@@ -53,6 +74,7 @@
 - **开放输入，封闭执行**：LLM 只做意图解析和文案填充，模块选择和渲染由代码控制。
 - LLM 输出必须经过 Schema 校验，禁止直接渲染未校验的 LLM 输出。
 - 所有枚举值（industry, scene, module type, field type）封闭定义在 TypeScript 类型中。
+- **骨架原则**：骨架是预设配置，不是新的渲染引擎。模块 type 和 variant 必须在封闭枚举内。
 
 ## 编码规范
 
@@ -72,40 +94,23 @@
 
 ## URL 提取管线（v0.2.1）
 
-用户粘贴外部 URL 时，统一走 Jina Reader + LLM 提取管线，替代旧的纯 HTML 正则解析。
-
-### 管线流程
+三层 fallback 架构：
 
 ```
-用户粘贴 URL（如 TradeMe 房源链接）
-  → Jina Reader (r.jina.ai/{url}) → 干净 Markdown
-  → OpenAI Structured Output → 结构化数据 {title, description, images[], ...}
-  → 自动填充 merchant_profile + 微站模块 + 海报数据
-  → 用户在现有界面事后编辑
-```
+Layer 0: TradeMe Official API（OAuth 1.0a，最可靠）
+  → trademe-api.ts: fetchListingFromApi(url)
+  → 自动检测 sandbox/production
 
-### 设计决策
+Layer 1: __NEXT_DATA__ 解析（零 LLM 成本）
+  → extract-next-data.ts: extractFromNextData(url)
 
-- **Jina Reader 而非 Firecrawl**：免费 1000 万 token，足够 MVP；API 极简（一行 GET）
-- **旧 HTML 抓取管线已移除**：统一使用 `src/lib/extraction/`（Jina Reader + OpenAI）
-- **直接填充，不需用户确认**：提取结果直接写入，用户通过现有编辑界面事后修改
-- **先 TradeMe，后学校链接**：同一管线，不同的 LLM 提取 schema
-- **统一管线位置**：`src/lib/extraction/`
+Layer 2: Jina Reader Pro + OpenAI（最后手段）
+  → jina-reader.ts → extract-listing.ts
+  → 支持 X-Wait-For-Selector、X-Timeout
 
-### TradeMe 提取 Schema
-
-```typescript
-interface TradeMeListingData {
-  title: string;              // 房屋标题
-  description: string;        // 房屋描述
-  address: string | null;     // 地址
-  bedrooms: number | null;
-  bathrooms: number | null;
-  price_hint: string | null;  // "Auction", "By negotiation", "$850,000" 等
-  images: string[];           // 图片 URL 列表
-  agent_name: string | null;  // 中介姓名
-  agent_company: string | null;
-}
+编排: extraction-layers.ts → extractTradeMeListingMultiLayer(url)
+质量: quality-gate.ts → assessExtractionQuality()
+图片: image-proxy.ts → proxyImagesToStorage()
 ```
 
 ### 自动填充映射
@@ -119,6 +124,33 @@ interface TradeMeListingData {
 | title + images[0] | 微站 hero 模块 |
 | 全部数据 | 海报 |
 
+## 骨架模板系统（v0.2.2）
+
+### 数据流
+
+```
+TemplateSkeleton（静态 JSON）
+  + MerchantProfile（用户输入）
+  + AI 文案（LLM 生成）
+  → assembleRenderModel()（已有装配器）
+  → RenderModelV1
+```
+
+### 联系方式 → 海报自动映射
+
+| 用户输入 | 微站 | 海报 |
+|---------|------|------|
+| name | hero / about | agent 姓名 |
+| phone | contact / hero CTA | 联系电话 |
+| email | contact | 联系邮箱 |
+| logo_url | navbar / footer | logo |
+| wechat_qr_url | contact | 二维码 |
+| whatsapp | contact | WhatsApp 链接 |
+
+### 手动房源
+
+存储在 `merchant_profile.property_listings[]`（JSON 数组），不新增数据库表。每个房源：name, address, description, images[], bedrooms?, bathrooms?, price_hint?, trademe_url?（跳转链接，非同步）。
+
 ## 禁止
 
 - 勿将 HiBiz 与根目录 Magic Lab **静态 export** 站混为同一部署目标
@@ -126,6 +158,8 @@ interface TradeMeListingData {
 - 禁止在表单中使用不在封闭字段类型枚举内的 type
 - 禁止硬编码联系信息、API key
 - 禁止「包过」「保证批签」等合规违规文案
+- 禁止骨架模块使用不在 RenderModuleType 枚举内的 type
+- 禁止实现拖拽编辑器（手机端体验差，用 toggle + contentEditable）
 
 ## Agent 使用指南
 
