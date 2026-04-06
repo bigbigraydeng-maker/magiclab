@@ -3,6 +3,7 @@ services:
     name: crazycontent
     env: node
     plan: standard
+    rootDir: crazycontent
     buildCommand: npm install && npm run build
     startCommand: npm start
     envVars:
