@@ -9,6 +9,7 @@ import { skeletonModuleVisibilityKey } from "@/lib/generation/skeleton-module-ke
 import { validateImageUpload } from "@/lib/upload/validate-image";
 import { parseMerchantProfile, type MerchantProfileV1 } from "@/types/merchant-profile";
 import { isRenderModelV1, type RenderModelV1 } from "@/types/render-model";
+import { parseCompiledIntentV2 } from "@/types/compiled-intent-v2";
 
 function clamp(s: string, max: number): string {
   return s.trim().slice(0, max);
@@ -39,7 +40,12 @@ async function reapplySkeletonDraft(
     return;
   }
 
-  const { data: proj } = await supabase.from("projects").select("name").eq("id", projectId).eq("user_id", userId).maybeSingle();
+  const { data: proj } = await supabase
+    .from("projects")
+    .select("name, compiled_intent_v2")
+    .eq("id", projectId)
+    .eq("user_id", userId)
+    .maybeSingle();
   if (!proj) {
     return;
   }
@@ -49,9 +55,16 @@ async function reapplySkeletonDraft(
     return;
   }
 
+  // 查詢最新的 CompiledIntentV2（如果存在）
+  const parsed = proj.compiled_intent_v2
+    ? parseCompiledIntentV2(proj.compiled_intent_v2)
+    : null;
+  const compiledIntent = parsed ?? undefined;
+
   const nextModel = assembleRenderModelFromSkeleton({
     skeleton,
     profile,
+    compiledIntent,
     formId: formRow.id,
     publicSlug: formRow.public_slug,
     projectName: proj.name,

@@ -7,11 +7,31 @@ import { skeletonModuleVisibilityKey } from "@/lib/generation/skeleton-module-ke
 import type { MerchantProfileV1 } from "@/types/merchant-profile";
 import type { RenderModelV1 } from "@/types/render-model";
 import type { TemplateSkeleton } from "@/types/skeleton";
+import type { CompiledIntentV2 } from "@/types/compiled-intent-v2";
+import { resolveActiveModulesForForm } from "@/types/compiled-intent-v2";
 
 export function resolveActiveSkeletonModuleEntries(
   skeleton: TemplateSkeleton,
   profile: MerchantProfileV1,
+  compiledIntent?: CompiledIntentV2,
 ): { mod: TemplateSkeleton["modules"][number]; index: number }[] {
+  // 優先：使用編譯意圖中的 module_selection（新 Option B 系統）
+  if (compiledIntent?.module_selection) {
+    const activeModules = resolveActiveModulesForForm(
+      compiledIntent.scene,
+      compiledIntent.module_selection
+    );
+    const activeModuleSet = new Set(activeModules.map(m => String(m)));
+
+    return skeleton.modules
+      .map((mod, index) => ({ mod, index }))
+      .filter(({ mod }) => {
+        // 模組名稱從骨架 mod.type 映射到 ModuleTypeV2
+        return activeModuleSet.has(mod.type as string);
+      });
+  }
+
+  // 回退：使用舊邏輯（兼容場景預設 + module_visibility 覆蓋）
   return skeleton.modules
     .map((mod, index) => ({ mod, index }))
     .filter(({ mod, index }) => {
@@ -71,12 +91,17 @@ export function assembleRenderModelFromSkeleton(input: {
   skeleton: TemplateSkeleton;
   profile: MerchantProfileV1;
   copy?: GeneratedCopyV1;
+  compiledIntent?: CompiledIntentV2;
   formId: string;
   publicSlug: string;
   projectName: string;
 }): RenderModelV1 {
-  const { skeleton, profile, copy, formId, publicSlug, projectName } = input;
-  const activeModuleEntries = resolveActiveSkeletonModuleEntries(skeleton, profile);
+  const { skeleton, profile, copy, compiledIntent, formId, publicSlug, projectName } = input;
+  const activeModuleEntries = resolveActiveSkeletonModuleEntries(
+    skeleton,
+    profile,
+    compiledIntent
+  );
   const base = fillSkeletonDeterministic({
     skeleton,
     profile,
