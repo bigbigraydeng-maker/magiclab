@@ -2,7 +2,12 @@
  * Form Builder V2 — 基于 industry + scene 的规则表（零 LLM 成本）。
  */
 
-import type { FormFieldDefinitionV2, IndustryV2, SceneV2 } from "@/types/compiled-intent-v2";
+import type {
+  FormFieldDefinitionV2,
+  IndustryV2,
+  SceneV2,
+  SelectableModuleType,
+} from "@/types/compiled-intent-v2";
 
 export type { FormFieldDefinitionV2 };
 
@@ -220,4 +225,54 @@ export const FORM_FIELD_RULES: {
       confidence: 90,
     },
   },
+};
+
+// ═══ Option B：模块 → 表单字段 ID（与 llm-form-builder 组合使用）══════════════════
+
+/** 模块级字段规则；空数组表示该模块不额外增加字段（由场景或其它模块覆盖） */
+export const FORM_FIELD_RULES_BY_MODULE: Record<
+  SelectableModuleType,
+  {
+    real_estate?: readonly string[];
+    immigration?: readonly string[];
+  }
+> = {
+  offer: {
+    real_estate: ["property_address", "property_type", "bedrooms", "budget", "message"],
+    immigration: ["visa_type", "current_location", "english_proficiency", "message"],
+  },
+  faq: {
+    real_estate: [],
+    immigration: [],
+  },
+  about: {
+    real_estate: [],
+    immigration: [],
+  },
+  contact: {
+    real_estate: [],
+    immigration: [],
+  },
+  listings: {
+    real_estate: ["property_address", "property_type", "bedrooms", "budget"],
+    immigration: [],
+  },
+  testimonials: {
+    real_estate: [],
+    immigration: [],
+  },
+  openHome: {
+    real_estate: ["inspection_date", "message"],
+    immigration: [],
+  },
+  services: {
+    real_estate: [],
+    immigration: [],
+  },
+};
+
+/** 全场景通用必填（与旧规则 contact 核心一致） */
+export const MANDATORY_FORM_FIELDS: Record<IndustryV2, readonly string[]> = {
+  real_estate: ["name", "email", "phone"],
+  immigration: ["name", "email", "phone"],
 };

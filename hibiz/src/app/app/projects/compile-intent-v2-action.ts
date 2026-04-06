@@ -4,9 +4,12 @@ import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { compileLLMV2 } from "@/lib/compiler/llm-compiler-v2";
 import { applyRuleGuard } from "@/lib/compiler/rule-guard";
-import { buildFormFieldsFromRules } from "@/lib/generation/llm-form-builder";
+import { buildFormFieldsFromModules } from "@/lib/generation/llm-form-builder";
 import {
   collectPriorRevisionsForConfirm,
+  createDefaultModuleSelection,
+  parseCompiledIntentV2,
+  resolveActiveModulesForForm,
   stripIntentForRevision,
   type CompiledIntentV2,
 } from "@/types/compiled-intent-v2";
@@ -58,7 +61,12 @@ export async function compileIntentV2Action(rawPrompt: string, projectId: string
     project_id: projectId,
   };
 
-  const formFields = buildFormFieldsFromRules(withProject.industry, withProject.scene);
+  if (!withProject.module_selection || Object.keys(withProject.module_selection).length === 0) {
+    withProject.module_selection = createDefaultModuleSelection(withProject.scene);
+  }
+
+  const modules = resolveActiveModulesForForm(withProject.scene, withProject.module_selection);
+  const formFields = buildFormFieldsFromModules(withProject.industry, modules, withProject.scene);
 
   return {
     intent: withProject,
@@ -71,6 +79,12 @@ export async function compileIntentV2Action(rawPrompt: string, projectId: string
  * Persist confirmed hybrid intent + recommended form fields on the project row.
  */
 export async function confirmIntentV2Action(projectId: string, intent: CompiledIntentV2): Promise<void> {
+  // HIGH-2: 验证来自客户端的 intent 结构
+  const parsed = parseCompiledIntentV2(intent);
+  if (!parsed) {
+    throw new Error("Invalid intent structure provided.");
+  }
+
   const supabase = createClient();
   const {
     data: { user },
@@ -91,11 +105,19 @@ export async function confirmIntentV2Action(projectId: string, intent: CompiledI
     .eq("user_id", user.id)
     .maybeSingle();
 
-  const base = stripIntentForRevision(intent);
-  const formFields = buildFormFieldsFromRules(base.industry, base.scene);
+  const base = stripIntentForRevision(parsed);
+  const withModules: CompiledIntentV2 = {
+    ...base,
+    module_selection:
+      base.module_selection && Object.keys(base.module_selection).length > 0
+        ? base.module_selection
+        : createDefaultModuleSelection(base.scene),
+  };
+  const modules = resolveActiveModulesForForm(withModules.scene, withModules.module_selection);
+  const formFields = buildFormFieldsFromModules(withModules.industry, modules, withModules.scene);
   const now = new Date().toISOString();
   let merged: CompiledIntentV2 = {
-    ...base,
+    ...withModules,
     project_id: projectId,
     user_confirmed: true,
     form_field_pool: Object.fromEntries(formFields.selected_fields.map((f) => [f.id, f])),

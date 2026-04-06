@@ -14,6 +14,83 @@ export type ImmigrationSceneV2 = "visa_consultation" | "school_info" | "program_
 
 export type SceneV2 = RealEstateSceneV2 | ImmigrationSceneV2;
 
+// ═══ 模块选择系统（Option B）══════════════════════════════════════════════════
+
+/** 可勾选模块 */
+export type SelectableModuleType =
+  | "offer"
+  | "faq"
+  | "about"
+  | "contact"
+  | "listings"
+  | "testimonials"
+  | "openHome"
+  | "services";
+
+/** 始终启用、不可关闭 */
+export type AlwaysEnabledModuleType = "hero" | "footer" | "form";
+
+export type ModuleTypeV2 = SelectableModuleType | AlwaysEnabledModuleType;
+
+/** 各场景的默认模块组合（与旧版 FORM_FIELD_RULES 推荐字段对齐） */
+export const MODULE_DEFAULTS_BY_SCENE: Record<
+  SceneV2,
+  {
+    always_enabled: AlwaysEnabledModuleType[];
+    recommended_enabled: SelectableModuleType[];
+    optional_modules: SelectableModuleType[];
+  }
+> = {
+  property_listing: {
+    always_enabled: ["hero", "form", "footer"],
+    recommended_enabled: ["offer", "contact", "faq"],
+    optional_modules: ["testimonials", "openHome", "services", "listings"],
+  },
+  open_home_event: {
+    always_enabled: ["hero", "form", "footer"],
+    recommended_enabled: ["openHome", "contact"],
+    optional_modules: ["offer", "faq", "testimonials", "services", "listings"],
+  },
+  market_update: {
+    always_enabled: ["hero", "form", "footer"],
+    recommended_enabled: ["offer", "contact", "faq"],
+    optional_modules: ["testimonials", "openHome", "services", "listings"],
+  },
+  visa_consultation: {
+    always_enabled: ["hero", "form", "footer"],
+    recommended_enabled: ["offer", "contact"],
+    optional_modules: ["faq", "testimonials", "openHome", "services", "listings"],
+  },
+  school_info: {
+    always_enabled: ["hero", "form", "footer"],
+    recommended_enabled: ["offer", "contact", "faq"],
+    optional_modules: ["testimonials", "openHome", "services", "listings"],
+  },
+  program_enrollment: {
+    always_enabled: ["hero", "form", "footer"],
+    recommended_enabled: ["offer", "contact"],
+    optional_modules: ["faq", "testimonials", "openHome", "services", "listings"],
+  },
+};
+
+export function getDefaultModulesForScene(scene: SceneV2): ModuleTypeV2[] {
+  const defaults = MODULE_DEFAULTS_BY_SCENE[scene];
+  if (!defaults) {
+    // 未知 scene：返回最小默认配置
+    return ["hero", "form", "footer", "offer", "contact"];
+  }
+  return [...defaults.always_enabled, ...defaults.recommended_enabled];
+}
+
+export function getAllSelectableModulesForScene(scene: SceneV2): SelectableModuleType[] {
+  const defaults = MODULE_DEFAULTS_BY_SCENE[scene];
+  if (!defaults) {
+    // 未知 scene：返回所有可选模块
+    return ["offer", "faq", "about", "contact", "listings", "testimonials", "openHome", "services"];
+  }
+  return [...defaults.recommended_enabled, ...defaults.optional_modules];
+}
+
 export type LanguageV2 = "en" | "zh" | "both";
 
 export type PageTypeV2 = "landing" | "showcase" | "form" | "multi_section";
@@ -28,6 +105,32 @@ export interface ModuleSelectionV2 {
     priority?: "high" | "medium" | "low";
     weight?: number;
   };
+}
+
+/** 写入 intent：默认勾选推荐模块（不含 hero/form/footer） */
+export function createDefaultModuleSelection(scene: SceneV2): ModuleSelectionV2 {
+  const sel: ModuleSelectionV2 = {};
+  for (const mod of getDefaultModulesForScene(scene)) {
+    if (mod !== "hero" && mod !== "form" && mod !== "footer") {
+      sel[mod as string] = { enabled: true };
+    }
+  }
+  return sel;
+}
+
+/** 根据 module_selection 解析参与表单推荐的模块列表 */
+export function resolveActiveModulesForForm(scene: SceneV2, moduleSelection: ModuleSelectionV2 | undefined): ModuleTypeV2[] {
+  const d = MODULE_DEFAULTS_BY_SCENE[scene];
+  if (!moduleSelection || Object.keys(moduleSelection).length === 0) {
+    return getDefaultModulesForScene(scene);
+  }
+  const out: ModuleTypeV2[] = [...d.always_enabled];
+  for (const mod of getAllSelectableModulesForScene(scene)) {
+    if (moduleSelection[mod]?.enabled) {
+      out.push(mod);
+    }
+  }
+  return out;
 }
 
 export type FormFieldTypeV2 = "text" | "email" | "phone" | "select" | "date" | "textarea" | "checkbox";
