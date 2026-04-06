@@ -5,18 +5,34 @@
 
 ---
 
-## [0.3.0] - 开发中
+## [0.3.0] - 2026-04-07
 
-### 规划中
+### 新增
 
-- **社媒文案 AI 生成**：内容类型模板（Just Listed / Just Sold / Open Home / 市场周报 / 买房贴士）
-- **中英双语文案**：AI 生成适配各平台字数的社交媒体文案
-- **模板化海报**：HTML-to-image 渲染，支持 1:1 / 4:5 / 9:16 社交媒体尺寸
-- **发布包导出**：图片 + 文案打包，长按保存 / `navigator.share` 系统分享
-- **Meta Graph API**：Facebook + Instagram 一键发布
-- **LinkedIn API**：LinkedIn 发帖集成
-- **小红书 / 微信**：生成内容包（图文导出，无官方 API）
-- **数据仪表盘**：微站访问量、表单提交数、转化率、UTM 追踪
+- **社媒文案 AI 生成**：5 种内容类型（Just Listed / Just Sold / Open Home / 市场周报 / 买房贴士）
+- **中英双语文案**：AI 生成（中英双语，适配 Facebook/Instagram/LinkedIn/小红书 平台字数约束）
+- **模板化海报生成**：HTML-to-image 渲染，支持 1:1 / 4:5 / 9:16 三种社交媒体尺寸
+- **发布包导出**：海报 PNG + 多平台文案（复制 / 下载 / `navigator.share` 系统分享）
+- **数据仪表盘**：微站访问量统计 + 表单转化率 + UTM 参数追踪
+- **访问追踪中间件**：自动记录 `/site/[slug]` 页面访问，捕获 referrer 和 UTM 参数
+- **社媒存储桶**：Supabase Storage `social-posters` 桶，公开读 + 认证用户写
+
+### 技术改进
+
+- 新增 `src/types/social-content.ts`、`src/types/analytics.ts` 类型定义
+- 新增 `openai-social-copy.ts` 社媒文案 AI 生成函数（gpt-4o-mini + JSON Schema）
+- 新增 `social-poster-templates.ts` + `poster-export.ts`（5 种海报模板 + html-to-image）
+- 新增 `fetch-analytics.ts` 仪表盘数据聚合（访问量、转化率、热门来源）
+- `social_posts` 表：project_id、content_type、captions (JSON)、poster_url、status
+- `site_visits` 表：microsite_id、path、referrer、utm_source/medium/campaign、user_agent
+- RLS 策略：社媒帖仅所有者可读写；访问记录已发布微站可写、所有者可读
+- 依赖新增：`html-to-image`、`recharts`
+
+### 待实现（Phase 5 拉伸）
+
+- Meta Graph API（Facebook + Instagram 一键发布）
+- LinkedIn API 集成
+- 小红书 / 微信官方 API（暂无官方接口，内容包导出为主）
 
 ---
 

@@ -20,7 +20,7 @@ export interface ProgressPhase {
 }
 
 /** 与 Obsidian「最后同步」保持习惯性一致；发布看板前可顺手改日期 */
-export const DEV_PROGRESS_LAST_UPDATED = "2026-04-06";
+export const DEV_PROGRESS_LAST_UPDATED = "2026-04-07";
 
 export const DEV_PROGRESS_PHASES: ProgressPhase[] = [
   {
@@ -110,11 +110,11 @@ export const DEV_PROGRESS_PHASES: ProgressPhase[] = [
     title: "社媒内容营销 (v0.3.1)",
     summary: "社媒文案 AI 生成 + 模板海报 + 分享包导出",
     items: [
-      { id: "content-types", label: "内容类型模板（Just Listed / Just Sold / Open Home / 市场周报 / 买房贴士）", status: "todo" },
-      { id: "social-copy-ai", label: "AI 社媒文案生成（中英双语，适配平台字数）", status: "todo" },
-      { id: "poster-template", label: "模板化海报生成（HTML-to-image，社交媒体尺寸）", status: "todo" },
-      { id: "share-pack", label: "发布包导出（图片 + 文案，长按保存）", status: "todo" },
-      { id: "native-share", label: "`navigator.share` 系统分享调用", status: "todo" },
+      { id: "content-types", label: "内容类型模板（Just Listed / Just Sold / Open Home / 市场周报 / 买房贴士）", status: "done" },
+      { id: "social-copy-ai", label: "AI 社媒文案生成（中英双语，适配平台字数）", status: "done" },
+      { id: "poster-template", label: "模板化海报生成（HTML-to-image，社交媒体尺寸）", status: "done" },
+      { id: "share-pack", label: "发布包导出（图片 + 文案，长按保存）", status: "done" },
+      { id: "native-share", label: "`navigator.share` 系统分享调用", status: "done" },
     ],
   },
   {
@@ -132,10 +132,15 @@ export const DEV_PROGRESS_PHASES: ProgressPhase[] = [
     title: "数据仪表盘 (v0.3.3)",
     summary: "微站访问量 + 表单转化率 + UTM 追踪",
     items: [
-      { id: "visit-tracking", label: "微站访问量统计（中间件计数 或 Umami）", status: "todo" },
-      { id: "form-conversion", label: "表单提交数 + 转化率统计", status: "todo" },
-      { id: "utm-tracking", label: "UTM 参数追踪（来源渠道归因）", status: "todo" },
-      { id: "recent-leads", label: "最近提交列表（仪表盘汇总视图）", status: "todo" },
+      {
+        id: "visit-tracking",
+        label: "微站访问量统计（中间件计数 或 Umami）",
+        status: "done",
+        note: "middleware + site_visits；迁移 20260407120000",
+      },
+      { id: "form-conversion", label: "表单提交数 + 转化率统计", status: "done" },
+      { id: "utm-tracking", label: "UTM 参数追踪（来源渠道归因）", status: "done" },
+      { id: "recent-leads", label: "最近提交列表（仪表盘汇总视图）", status: "done" },
     ],
   },
   {
@@ -239,20 +244,20 @@ export const ROADMAP_VERSIONS: RoadmapVersion[] = [
     id: "v0.3",
     version: "v0.3",
     title: "社媒内容营销 + 数据仪表盘",
-    status: "current",
-    date: null,
+    status: "released",
+    date: "2026-04-07",
     highlights: [
-      "社媒文案生成（中英双语）",
-      "模板化海报生成",
-      "Facebook/Instagram 一键发布",
-      "微站访问量 + 表单转化率统计",
+      "社媒文案 AI（5 类型 × 4 平台中英 + 字数约束）",
+      "海报预览 / html-to-image 导出 / Storage 上传",
+      "分享包：复制文案、下载 PNG、navigator.share",
+      "中间件 site_visits + UTM + 仪表盘（recharts）",
     ],
   },
   {
     id: "v0.4",
     version: "v0.4",
     title: "AI 编译器升级 + 多行业",
-    status: "planned",
+    status: "next",
     date: null,
     highlights: [
       "混合编译器（Rule + LLM）",
