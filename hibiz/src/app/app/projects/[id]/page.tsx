@@ -17,6 +17,8 @@ import { isFormFieldsFileV1 } from "@/lib/generation/form-presets";
 import { parseMerchantProfile } from "@/types/merchant-profile";
 import { getSkeletonById } from "@/data/skeletons";
 import { SkeletonPreviewPanel } from "@/components/skeleton-preview-panel";
+import { ProjectCompileV2Card } from "@/components/project-compile-v2-card";
+import { parseCompiledIntentV2 } from "@/types/compiled-intent-v2";
 
 interface ProjectDetailPageProps {
   params: { id: string };
@@ -94,7 +96,7 @@ export default async function ProjectDetailPage({ params, searchParams }: Projec
   const supabase = createClient();
   const { data: project, error: projectError } = await supabase
     .from("projects")
-    .select("id, name, status, updated_at")
+    .select("id, name, status, updated_at, compiled_intent_v2")
     .eq("id", params.id)
     .maybeSingle();
 
@@ -166,6 +168,7 @@ export default async function ProjectDetailPage({ params, searchParams }: Projec
     .order("revision", { ascending: false });
 
   const latestIntent = intents?.[0] ?? null;
+  const compiledIntentV2 = parseCompiledIntentV2(project.compiled_intent_v2);
   const compiled =
     latestIntent?.compiled && isCompiledIntentV1(latestIntent.compiled) ? latestIntent.compiled : null;
   const clarification =
@@ -265,7 +268,51 @@ export default async function ProjectDetailPage({ params, searchParams }: Projec
         </div>
       ) : null}
 
-      <section className="mt-10 rounded-2xl border border-stone-200 bg-white p-6 shadow-sm">
+      {/* ═══════════════════════════════════════════════════════════════ */}
+      {/* STEP 1: Compile Intent with v0.4 Hybrid Engine */}
+      {/* ═══════════════════════════════════════════════════════════════ */}
+      <section id="workflow-compile-v2" className="scroll-mt-28">
+        <div className="mb-3">
+          <div className="inline-block rounded-full bg-indigo-100 px-3 py-1 text-xs font-semibold text-indigo-800">
+            STEP 1 — Compile Intent
+          </div>
+        </div>
+        <ProjectCompileV2Card
+          projectId={project.id}
+          rawPrompt={latestIntent?.raw_prompt ?? ""}
+          savedIntent={compiledIntentV2}
+        />
+      </section>
+
+      {compiledIntentV2?.user_confirmed ? (
+        <section id="workflow-generate" className="scroll-mt-28 mt-10 rounded-2xl border border-stone-200 bg-white p-6 shadow-sm">
+          <div className="mb-3">
+            <div className="inline-block rounded-full bg-stone-900 px-3 py-1 text-xs font-semibold text-white">
+              Generate draft
+            </div>
+          </div>
+          <h2 className="font-display text-lg font-semibold text-stone-900">生成网站草稿</h2>
+          <p className="mt-1 text-sm text-stone-600">
+            意图已确认。使用已保存的 v0.4 意图与 V1 编译结果调用 OpenAI（需先完成「Analyse」且 intent 为 succeeded）。
+          </p>
+          <div className="mt-6">
+            <GenerateMicrositeForm projectId={project.id} isRegenerate={project.status === "ready_draft"} />
+          </div>
+        </section>
+      ) : null}
+
+      {/* ═══════════════════════════════════════════════════════════════ */}
+      {/* STEP 2: Intent Draft (Raw Input) */}
+      {/* ═══════════════════════════════════════════════════════════════ */}
+      <section
+        id="workflow-intent"
+        className="scroll-mt-28 rounded-2xl border border-stone-200 bg-white p-6 shadow-sm"
+      >
+        <div className="mb-4">
+          <div className="inline-block rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-800">
+            STEP 2 — Intent Input
+          </div>
+        </div>
         <h2 className="font-display text-lg font-semibold text-stone-800">Intent draft</h2>
         {latestIntent ? (
           <dl className="mt-4 space-y-3 text-sm">
@@ -358,14 +405,17 @@ export default async function ProjectDetailPage({ params, searchParams }: Projec
           </div>
         ) : null}
 
-        {canGenerate ? (
+        {canGenerate && !compiledIntentV2?.user_confirmed ? (
           <div className="mt-8">
             <GenerateMicrositeForm projectId={project.id} isRegenerate={project.status === "ready_draft"} />
           </div>
         ) : null}
 
         {hasDraftMicrosite ? (
-          <div className="mt-10 rounded-xl border border-stone-200 bg-stone-50/80 p-5">
+          <div
+            id="workflow-preview"
+            className="mt-10 scroll-mt-28 rounded-xl border border-stone-200 bg-stone-50/80 p-5"
+          >
             <h3 className="font-display text-base font-semibold text-stone-900">Result package</h3>
             <ul className="mt-4 space-y-3 text-sm">
               <li>
@@ -512,7 +562,10 @@ export default async function ProjectDetailPage({ params, searchParams }: Projec
         ) : null}
 
         {hasDraftMicrosite ? (
-          <div className="mt-10 rounded-xl border border-stone-200 bg-white p-6 shadow-sm">
+          <div
+            id="workflow-merchant"
+            className="mt-10 scroll-mt-28 rounded-xl border border-stone-200 bg-white p-6 shadow-sm"
+          >
             <h3 className="font-display text-base font-semibold text-stone-900">Business details</h3>
             <p className="mt-1 text-sm text-stone-500">
               Contact lines replace the AI placeholder on your public page&apos;s Contact block. No listing feed — for
