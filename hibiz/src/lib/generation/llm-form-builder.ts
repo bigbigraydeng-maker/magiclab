@@ -3,7 +3,6 @@
  */
 
 import type { FormFieldDefinitionV2, IndustryV2, ModuleTypeV2, SceneV2, SelectableModuleType } from "@/types/compiled-intent-v2";
-import { getDefaultModulesForScene } from "@/types/compiled-intent-v2";
 import {
   FORM_FIELD_RULES,
   FORM_FIELD_RULES_BY_MODULE,
@@ -105,19 +104,17 @@ function groupFormFieldsByCategory(fieldIds: string[], industry: IndustryV2): Ar
 }
 
 function confidenceForModules(scene: SceneV2, industry: IndustryV2): number {
-  if (industry === "real_estate" && scene === "property_listing") {
-    return 95;
+  if (industry === "real_estate") {
+    if (scene === "property_listing") return 95;
+    if (scene === "open_home_event") return 90;
+    if (scene === "market_update") return 85;
   }
-  if (industry === "immigration" && scene === "visa_consultation") {
-    return 92;
+  if (industry === "immigration") {
+    if (scene === "visa_consultation") return 92;
+    if (scene === "school_info") return 88;
+    if (scene === "program_enrollment") return 90;
   }
-  if (industry === "immigration" && scene === "school_info") {
-    return 88;
-  }
-  if (industry === "immigration" && scene === "program_enrollment") {
-    return 90;
-  }
-  return 93;
+  return 80; // Unknown scene fallback
 }
 
 /**
@@ -135,8 +132,11 @@ export function buildFormFieldsFromModules(
     if (mod === "hero" || mod === "form" || mod === "footer") {
       return;
     }
-    const selectable = mod as SelectableModuleType;
-    const ids = fieldIdsForSelectableModule(selectable, industry, scene);
+    // After filtering always-enabled, remaining are SelectableModuleType
+    if (!(mod in FORM_FIELD_RULES_BY_MODULE)) {
+      return;
+    }
+    const ids = fieldIdsForSelectableModule(mod as SelectableModuleType, industry, scene);
     ids.forEach((id) => selectedFieldIds.add(id));
   });
 

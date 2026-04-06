@@ -44,32 +44,32 @@ export const MODULE_DEFAULTS_BY_SCENE: Record<
   property_listing: {
     always_enabled: ["hero", "form", "footer"],
     recommended_enabled: ["offer", "contact", "faq"],
-    optional_modules: ["testimonials", "openHome", "services", "listings"],
+    optional_modules: ["about", "testimonials", "openHome", "services", "listings"],
   },
   open_home_event: {
     always_enabled: ["hero", "form", "footer"],
     recommended_enabled: ["openHome", "contact"],
-    optional_modules: ["offer", "faq", "testimonials", "services", "listings"],
+    optional_modules: ["about", "offer", "faq", "testimonials", "services", "listings"],
   },
   market_update: {
     always_enabled: ["hero", "form", "footer"],
     recommended_enabled: ["offer", "contact", "faq"],
-    optional_modules: ["testimonials", "openHome", "services", "listings"],
+    optional_modules: ["about", "testimonials", "openHome", "services", "listings"],
   },
   visa_consultation: {
     always_enabled: ["hero", "form", "footer"],
     recommended_enabled: ["offer", "contact"],
-    optional_modules: ["faq", "testimonials", "openHome", "services", "listings"],
+    optional_modules: ["about", "faq", "testimonials", "openHome", "services", "listings"],
   },
   school_info: {
     always_enabled: ["hero", "form", "footer"],
     recommended_enabled: ["offer", "contact", "faq"],
-    optional_modules: ["testimonials", "openHome", "services", "listings"],
+    optional_modules: ["about", "testimonials", "openHome", "services", "listings"],
   },
   program_enrollment: {
     always_enabled: ["hero", "form", "footer"],
     recommended_enabled: ["offer", "contact"],
-    optional_modules: ["faq", "testimonials", "openHome", "services", "listings"],
+    optional_modules: ["about", "faq", "testimonials", "openHome", "services", "listings"],
   },
 };
 
@@ -121,7 +121,7 @@ export function createDefaultModuleSelection(scene: SceneV2): ModuleSelectionV2 
 /** 根据 module_selection 解析参与表单推荐的模块列表 */
 export function resolveActiveModulesForForm(scene: SceneV2, moduleSelection: ModuleSelectionV2 | undefined): ModuleTypeV2[] {
   const d = MODULE_DEFAULTS_BY_SCENE[scene];
-  if (!moduleSelection || Object.keys(moduleSelection).length === 0) {
+  if (!d || !moduleSelection || Object.keys(moduleSelection).length === 0) {
     return getDefaultModulesForScene(scene);
   }
   const out: ModuleTypeV2[] = [...d.always_enabled];
