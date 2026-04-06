@@ -5,18 +5,41 @@
 
 ---
 
-## [0.2.2] - 开发中
+## [0.3.0] - 开发中
 
 ### 规划中
 
-- 骨架模板系统（预制骨架 + AI 填肉）
-- 3 套房产骨架：Classic Agent / Property Showcase / Bilingual Pro
-- 手动房源管理（名称、地址、图片上传、介绍、TradeMe 跳转链接）
-- 表单模板：Open Home / Buyer Inquiry / Property Valuation
-- 联系方式自动带入海报（name、phone、email、logo、QR）
-- 分步创建流程（选行业 → 选骨架 → 填信息 → 预览微调）
-- 模块开关、配色切换、行内文字编辑
-- 扩展 merchant_profile：logo_url、wechat_qr_url、whatsapp、property_listings[]
+- **社媒文案 AI 生成**：内容类型模板（Just Listed / Just Sold / Open Home / 市场周报 / 买房贴士）
+- **中英双语文案**：AI 生成适配各平台字数的社交媒体文案
+- **模板化海报**：HTML-to-image 渲染，支持 1:1 / 4:5 / 9:16 社交媒体尺寸
+- **发布包导出**：图片 + 文案打包，长按保存 / `navigator.share` 系统分享
+- **Meta Graph API**：Facebook + Instagram 一键发布
+- **LinkedIn API**：LinkedIn 发帖集成
+- **小红书 / 微信**：生成内容包（图文导出，无官方 API）
+- **数据仪表盘**：微站访问量、表单提交数、转化率、UTM 追踪
+
+---
+
+## [0.2.2] - 2026-04-06
+
+### 新增
+
+- **骨架模板系统**：预制骨架 + AI 填肉（`TemplateSkeleton` 类型 + `assembleRenderModelFromSkeleton`）
+- **3 套房产骨架**：Classic Agent / Property Showcase / Bilingual Pro
+- **分步创建流程**：选行业 → 选骨架 → 填信息 → 预览微调（4 步 stepper）
+- **手动房源管理**：名称、地址、图片上传、介绍、TradeMe 跳转链接
+- **表单模板**：Open Home Registration / Buyer Inquiry / Property Valuation（`FormTemplateId` 联合类型）
+- **联系方式自动带入海报**：name / phone / email / logo / QR 从 profile 映射
+- **模块开关**：toggle 切换可见性 + 配色方案选择 + 行内文字编辑
+- **图片上传安全**：MIME allowlist + 魔数校验（`validateImageUpload`），阻止 SVG XSS
+- **Server Action 授权**：所有写操作增加 `projects.user_id` 所有权校验
+
+### 技术改进
+
+- 扩展 `MerchantProfileV1`：`logo_url`、`wechat_qr_url`、`whatsapp`、`property_listings[]`、`module_visibility`、`theme_overrides`
+- 扩展 `RenderModuleType`：新增 `listings`、`testimonials`、`openHome`、`services`
+- `TemplateSkeleton.defaultFormTemplate` 类型收紧为 `FormTemplateId`（非 string）
+- 不可变数据模式修复：`reapplySkeletonDraft` 从 in-place mutation 改为 map+spread
 
 ---
 

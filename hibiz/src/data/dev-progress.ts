@@ -20,7 +20,7 @@ export interface ProgressPhase {
 }
 
 /** 与 Obsidian「最后同步」保持习惯性一致；发布看板前可顺手改日期 */
-export const DEV_PROGRESS_LAST_UPDATED = "2026-04-07";
+export const DEV_PROGRESS_LAST_UPDATED = "2026-04-06";
 
 export const DEV_PROGRESS_PHASES: ProgressPhase[] = [
   {
@@ -94,15 +94,48 @@ export const DEV_PROGRESS_PHASES: ProgressPhase[] = [
     title: "骨架模板系统 (v0.2.2)",
     summary: "预制骨架 + AI 填肉 + 手动房源 + 表单模板",
     items: [
-      { id: "skeleton-types", label: "TemplateSkeleton 类型 + RenderModuleType 扩展", status: "todo" },
-      { id: "skeleton-data", label: "3 套房产骨架（Classic Agent / Property Showcase / Bilingual Pro）", status: "todo" },
-      { id: "profile-extend", label: "MerchantProfile 扩展（logo、QR、WhatsApp、property_listings）", status: "todo" },
-      { id: "create-flow", label: "分步创建流程（选行业 → 选骨架 → 填信息 → 预览）", status: "todo" },
-      { id: "property-manual", label: "手动房源管理（名称、地址、图片上传、介绍、TradeMe 链接）", status: "todo" },
-      { id: "skeleton-fill", label: "确定性填充 + AI 文案生成（中英文）", status: "todo" },
-      { id: "poster-auto", label: "联系方式自动带入海报（name/phone/email/logo/QR）", status: "todo" },
-      { id: "module-toggle", label: "模块开关 + 配色切换 + 行内编辑", status: "todo" },
-      { id: "form-templates", label: "表单模板（Open Home / Buyer Inquiry / Valuation）", status: "todo" },
+      { id: "skeleton-types", label: "TemplateSkeleton 类型 + RenderModuleType 扩展", status: "done" },
+      { id: "skeleton-data", label: "3 套房产骨架（Classic Agent / Property Showcase / Bilingual Pro）", status: "done" },
+      { id: "profile-extend", label: "MerchantProfile 扩展（logo、QR、WhatsApp、property_listings）", status: "done" },
+      { id: "create-flow", label: "分步创建流程（选行业 → 选骨架 → 填信息 → 预览）", status: "done" },
+      { id: "property-manual", label: "手动房源管理（名称、地址、图片上传、介绍、TradeMe 链接）", status: "done" },
+      { id: "skeleton-fill", label: "确定性填充 + AI 文案生成（中英文）", status: "done" },
+      { id: "poster-auto", label: "联系方式自动带入海报（name/phone/email/logo/QR）", status: "done" },
+      { id: "module-toggle", label: "模块开关 + 配色切换 + 行内编辑", status: "done" },
+      { id: "form-templates", label: "表单模板（Open Home / Buyer Inquiry / Valuation）", status: "done" },
+    ],
+  },
+  {
+    id: "social",
+    title: "社媒内容营销 (v0.3.1)",
+    summary: "社媒文案 AI 生成 + 模板海报 + 分享包导出",
+    items: [
+      { id: "content-types", label: "内容类型模板（Just Listed / Just Sold / Open Home / 市场周报 / 买房贴士）", status: "todo" },
+      { id: "social-copy-ai", label: "AI 社媒文案生成（中英双语，适配平台字数）", status: "todo" },
+      { id: "poster-template", label: "模板化海报生成（HTML-to-image，社交媒体尺寸）", status: "todo" },
+      { id: "share-pack", label: "发布包导出（图片 + 文案，长按保存）", status: "todo" },
+      { id: "native-share", label: "`navigator.share` 系统分享调用", status: "todo" },
+    ],
+  },
+  {
+    id: "social-publish",
+    title: "社媒一键发布 (v0.3.2)",
+    summary: "Meta / LinkedIn API + 小红书内容包",
+    items: [
+      { id: "meta-api", label: "Meta Graph API 集成（Facebook + Instagram 发帖）", status: "todo" },
+      { id: "linkedin-api", label: "LinkedIn API 集成", status: "todo" },
+      { id: "xhs-wechat", label: "小红书 / 微信：生成内容包（无官方 API，图文导出）", status: "todo" },
+    ],
+  },
+  {
+    id: "dashboard",
+    title: "数据仪表盘 (v0.3.3)",
+    summary: "微站访问量 + 表单转化率 + UTM 追踪",
+    items: [
+      { id: "visit-tracking", label: "微站访问量统计（中间件计数 或 Umami）", status: "todo" },
+      { id: "form-conversion", label: "表单提交数 + 转化率统计", status: "todo" },
+      { id: "utm-tracking", label: "UTM 参数追踪（来源渠道归因）", status: "todo" },
+      { id: "recent-leads", label: "最近提交列表（仪表盘汇总视图）", status: "todo" },
     ],
   },
   {
@@ -191,8 +224,8 @@ export const ROADMAP_VERSIONS: RoadmapVersion[] = [
     id: "v0.2.2",
     version: "v0.2.2",
     title: "骨架模板系统",
-    status: "current",
-    date: null,
+    status: "released",
+    date: "2026-04-06",
     highlights: [
       "预制骨架 + AI 填肉（3 套房产骨架）",
       "分步创建：选行业 → 选骨架 → 填信息 → 预览",
@@ -206,7 +239,7 @@ export const ROADMAP_VERSIONS: RoadmapVersion[] = [
     id: "v0.3",
     version: "v0.3",
     title: "社媒内容营销 + 数据仪表盘",
-    status: "next",
+    status: "current",
     date: null,
     highlights: [
       "社媒文案生成（中英双语）",
