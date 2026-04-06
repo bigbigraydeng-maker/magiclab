@@ -129,6 +129,120 @@ export const DEV_PROGRESS_PHASES: ProgressPhase[] = [
   },
 ];
 
+/* ──────────────────────────────────────────────
+ * 版本路线图数据（/progress/roadmap 使用）
+ * ────────────────────────────────────────────── */
+
+export type VersionStatus = "released" | "current" | "next" | "planned";
+
+export interface RoadmapVersion {
+  id: string;
+  version: string;
+  title: string;
+  status: VersionStatus;
+  date: string | null;
+  highlights: string[];
+}
+
+export const ROADMAP_VERSIONS: RoadmapVersion[] = [
+  {
+    id: "v0.1",
+    version: "v0.1",
+    title: "底座与主链路",
+    status: "released",
+    date: "2026-04-04",
+    highlights: [
+      "Supabase Auth (Magic Link) + RLS",
+      "Rule-based 意图编译器",
+      "OpenAI 文案生成 (gpt-4o-mini)",
+      "RenderModel 装配 + 草稿预览 + 发布",
+      "公开微站 /site/[slug]",
+      "独立表单 /forms/[public_slug]",
+    ],
+  },
+  {
+    id: "v0.2",
+    version: "v0.2",
+    title: "模板预设 + 商家信息",
+    status: "released",
+    date: "2026-04-05",
+    highlights: [
+      "6 个行业场景预设（房产 3 + 移民 3）",
+      "商家联系信息 (merchant_profile)",
+      "房产推广 + TradeMe 链接 + 打印海报",
+      "留资风控：蜜罐 + 限流",
+    ],
+  },
+  {
+    id: "v0.2.1",
+    version: "v0.2.1",
+    title: "URL 提取管线 + Render 部署",
+    status: "released",
+    date: "2026-04-07",
+    highlights: [
+      "三层提取管线：API → __NEXT_DATA__ → Jina + OpenAI",
+      "TradeMe OAuth 1.0a 集成",
+      "图片代理到 Supabase Storage",
+      "提取质量门 (0-100 评分)",
+      "Render 生产部署 (hibiz-service.onrender.com)",
+    ],
+  },
+  {
+    id: "v0.2.2",
+    version: "v0.2.2",
+    title: "骨架模板系统",
+    status: "current",
+    date: null,
+    highlights: [
+      "预制骨架 + AI 填肉（3 套房产骨架）",
+      "分步创建：选行业 → 选骨架 → 填信息 → 预览",
+      "手动房源管理（上传图片、TradeMe 跳转）",
+      "联系方式自动带入海报",
+      "表单模板：Open Home / Buyer Inquiry / Valuation",
+      "模块开关 + 配色切换 + 行内编辑",
+    ],
+  },
+  {
+    id: "v0.3",
+    version: "v0.3",
+    title: "社媒内容营销 + 数据仪表盘",
+    status: "next",
+    date: null,
+    highlights: [
+      "社媒文案生成（中英双语）",
+      "模板化海报生成",
+      "Facebook/Instagram 一键发布",
+      "微站访问量 + 表单转化率统计",
+    ],
+  },
+  {
+    id: "v0.4",
+    version: "v0.4",
+    title: "AI 编译器升级 + 多行业",
+    status: "planned",
+    date: null,
+    highlights: [
+      "混合编译器（Rule + LLM）",
+      "留学移民骨架",
+      "行业插件架构",
+    ],
+  },
+  {
+    id: "v1.0",
+    version: "v1.0",
+    title: "公开发布",
+    status: "planned",
+    date: null,
+    highlights: [
+      "自定义域名",
+      "付费增值功能",
+      "安全审计",
+    ],
+  },
+];
+
+/* ────────────────────────────────────────────── */
+
 export function itemWeight(s: ItemStatus): number {
   switch (s) {
     case "done":
