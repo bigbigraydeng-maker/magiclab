@@ -1,76 +1,36 @@
 "use client";
 
-import { useMemo, useState, useTransition } from "react";
+import { useEffect, useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { compileIntentV2Action, confirmIntentV2Action } from "@/app/app/projects/compile-intent-v2-action";
-import { buildFormFieldsFromRules } from "@/lib/generation/llm-form-builder";
+import { buildFormFieldsFromModules } from "@/lib/generation/llm-form-builder";
+import {
+  baselineModulesForIntent,
+  filterModulesForScene,
+  hasNonAlwaysModules,
+  moduleSelectionFromModules,
+  modulesSignature,
+  previewScene,
+} from "@/lib/compile-v2-helpers";
 import type { FormBuilderResultV2 } from "@/types/form-builder";
+import { versionHeaderText } from "@/lib/compile-v2-intent-version";
+import { ProjectCompileV2CardBody } from "@/components/project-compile-v2-card-body";
+import { ProjectIntentHistoryModal } from "@/components/project-intent-history-modal";
 import {
   collectPriorRevisionsForConfirm,
+  getDefaultModulesForScene,
+  resolveActiveModulesForForm,
   stripIntentForRevision,
   type CompiledIntentV2,
-  type ImmigrationSceneV2,
   type IndustryV2,
   type IntentRevisionV2,
-  type RealEstateSceneV2,
-  type SceneV2,
+  type ModuleTypeV2,
 } from "@/types/compiled-intent-v2";
 
 export interface ProjectCompileV2CardProps {
   projectId: string;
   rawPrompt: string;
   savedIntent: CompiledIntentV2 | null;
-}
-
-const REAL_SCENES: { value: RealEstateSceneV2; label: string }[] = [
-  { value: "property_listing", label: "property_listing" },
-  { value: "open_home_event", label: "open_home_event" },
-  { value: "market_update", label: "market_update" },
-];
-
-const IMM_SCENES: { value: ImmigrationSceneV2; label: string }[] = [
-  { value: "visa_consultation", label: "visa_consultation" },
-  { value: "school_info", label: "school_info" },
-  { value: "program_enrollment", label: "program_enrollment" },
-];
-
-function scenesForIndustry(ind: IndustryV2): { value: SceneV2; label: string }[] {
-  return ind === "real_estate" ? REAL_SCENES : IMM_SCENES;
-}
-
-function defaultSceneForIndustry(ind: IndustryV2): SceneV2 {
-  return ind === "real_estate" ? "property_listing" : "visa_consultation";
-}
-
-function formatTimeShort(iso: string): string {
-  try {
-    return new Date(iso).toLocaleString("zh-CN", {
-      month: "numeric",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  } catch {
-    return iso;
-  }
-}
-
-function versionHeaderText(v: CompiledIntentV2 | null): { title: string; updated?: string } {
-  if (!v) {
-    return { title: "—" };
-  }
-  if (!v.user_confirmed) {
-    return { title: "尚未确认", updated: `更新 ${formatTimeShort(v.updated_at)}` };
-  }
-  const revs = v.revisions ?? [];
-  if (v.schema_version === 2 && revs.length > 0) {
-    const cur = v.current_version ?? revs[revs.length - 1]?.version ?? revs.length;
-    return {
-      title: `版本 ${cur}/${revs.length}`,
-      updated: `最后更新 ${formatTimeShort(v.updated_at)}`,
-    };
-  }
-  return { title: "版本 1/1", updated: `最后更新 ${formatTimeShort(v.updated_at)}` };
 }
 
 export function ProjectCompileV2Card({ projectId, rawPrompt, savedIntent }: ProjectCompileV2CardProps) {
@@ -83,23 +43,36 @@ export function ProjectCompileV2Card({ projectId, rawPrompt, savedIntent }: Proj
   const [editMode, setEditMode] = useState(false);
   const [historyOpen, setHistoryOpen] = useState(false);
   const [pendingIndustry, setPendingIndustry] = useState<IndustryV2 | null>(null);
-  const [pendingScene, setPendingScene] = useState<SceneV2 | null>(null);
+  const [selectedModules, setSelectedModules] = useState<ModuleTypeV2[]>([]);
   const [pending, startTransition] = useTransition();
 
   const displayIntent = intent ?? savedIntent;
 
-  const previewFields = useMemo(() => {
-    if (editMode && pendingIndustry && pendingScene) {
-      return buildFormFieldsFromRules(pendingIndustry, pendingScene);
+  useEffect(() => {
+    if (!editMode) {
+      setPendingIndustry(null);
+      setSelectedModules([]);
     }
-    return null;
-  }, [editMode, pendingIndustry, pendingScene]);
+  }, [editMode]);
+
+  const previewFields = useMemo(() => {
+    if (!editMode || !pendingIndustry) {
+      return null;
+    }
+    const scene = previewScene(pendingIndustry, displayIntent);
+    const mods = filterModulesForScene(scene, selectedModules);
+    if (mods.length === 0 || !hasNonAlwaysModules(scene, mods)) {
+      return null;
+    }
+    return buildFormFieldsFromModules(pendingIndustry, mods, scene);
+  }, [editMode, pendingIndustry, selectedModules, displayIntent]);
 
   const committedFieldsEdit = useMemo(() => {
     if (!editMode || !displayIntent) {
       return null;
     }
-    return buildFormFieldsFromRules(displayIntent.industry, displayIntent.scene);
+    const mods = baselineModulesForIntent(displayIntent);
+    return buildFormFieldsFromModules(displayIntent.industry, mods, displayIntent.scene);
   }, [editMode, displayIntent]);
 
   const readOnlyRecommended = useMemo(() => {
@@ -110,19 +83,22 @@ export function ProjectCompileV2Card({ projectId, rawPrompt, savedIntent }: Proj
       return formFields;
     }
     if (savedIntent) {
-      return buildFormFieldsFromRules(savedIntent.industry, savedIntent.scene);
+      const mods = baselineModulesForIntent(savedIntent);
+      return buildFormFieldsFromModules(savedIntent.industry, mods, savedIntent.scene);
     }
     return null;
   }, [editMode, formFields, savedIntent]);
 
   const effectiveConfirmed = Boolean(intent?.user_confirmed ?? savedIntent?.user_confirmed);
 
+  const previewScForDirty = previewScene(pendingIndustry, displayIntent);
   const pendingDirty =
     editMode &&
     pendingIndustry &&
-    pendingScene &&
     displayIntent &&
-    (pendingIndustry !== displayIntent.industry || pendingScene !== displayIntent.scene);
+    (pendingIndustry !== displayIntent.industry ||
+      modulesSignature(filterModulesForScene(previewScForDirty, selectedModules)) !==
+        modulesSignature(baselineModulesForIntent(displayIntent)));
 
   const showConfirm = Boolean(
     displayIntent && (!effectiveConfirmed || Boolean(pendingDirty)) && (intent ?? savedIntent),
@@ -138,7 +114,6 @@ export function ProjectCompileV2Card({ projectId, rawPrompt, savedIntent }: Proj
         setFormFields(res.formFields);
         setCostCents(res.costCents);
         setPendingIndustry(res.intent.industry);
-        setPendingScene(res.intent.scene);
         setEditMode(false);
       } catch (e) {
         setIntent(null);
@@ -154,43 +129,16 @@ export function ProjectCompileV2Card({ projectId, rawPrompt, savedIntent }: Proj
       return;
     }
     setSaveMessage(null);
-    setEditMode(true);
     setPendingIndustry(displayIntent.industry);
-    setPendingScene(displayIntent.scene);
+    const savedModules = displayIntent.module_selection
+      ? resolveActiveModulesForForm(displayIntent.scene, displayIntent.module_selection)
+      : getDefaultModulesForScene(displayIntent.scene);
+    setSelectedModules(savedModules);
+    setEditMode(true);
   };
 
   const cancelEdit = () => {
     setEditMode(false);
-    setPendingIndustry(null);
-    setPendingScene(null);
-  };
-
-  const mergeConfirmLocalState = (mergedInput: CompiledIntentV2, priorSource: CompiledIntentV2 | null) => {
-    const prior = collectPriorRevisionsForConfirm(priorSource);
-    const now = new Date().toISOString();
-    const base = stripIntentForRevision(mergedInput);
-    const formFieldsResult = buildFormFieldsFromRules(base.industry, base.scene);
-    const merged: CompiledIntentV2 = {
-      ...base,
-      project_id: projectId,
-      user_confirmed: true,
-      form_field_pool: Object.fromEntries(formFieldsResult.selected_fields.map((f) => [f.id, f])),
-      form_field_order: formFieldsResult.field_order,
-      updated_at: now,
-      created_at: base.created_at ?? now,
-    };
-    const nextVersion = prior.currentVersion + 1;
-    const snapshot = stripIntentForRevision(merged);
-    setIntent({
-      ...merged,
-      schema_version: 2,
-      current_version: nextVersion,
-      revisions: [
-        ...prior.revisions,
-        { version: nextVersion, intent: snapshot, confirmed_at: now, created_at: now },
-      ],
-    });
-    router.refresh();
   };
 
   const handleConfirm = () => {
@@ -203,19 +151,21 @@ export function ProjectCompileV2Card({ projectId, rawPrompt, savedIntent }: Proj
     startTransition(async () => {
       try {
         const ind = pendingIndustry ?? base.industry;
-        const sc = pendingScene ?? base.scene;
+        const sc = previewScene(ind, intent ?? savedIntent);
+        const module_selection = moduleSelectionFromModules(sc, filterModulesForScene(sc, selectedModules));
         const mergedInput: CompiledIntentV2 = {
           ...stripIntentForRevision(base),
           industry: ind,
           scene: sc,
+          module_selection,
         };
         await confirmIntentV2Action(projectId, mergedInput);
-        mergeConfirmLocalState(mergedInput, intent ?? savedIntent);
-        setFormFields(buildFormFieldsFromRules(ind, sc));
+        const mods = resolveActiveModulesForForm(sc, module_selection);
+        setFormFields(buildFormFieldsFromModules(ind, mods, sc));
         setEditMode(false);
-        setPendingIndustry(null);
-        setPendingScene(null);
         setSaveMessage("已保存到项目。可在下方使用「生成网站草稿」。");
+        setIntent(null);
+        router.refresh();
       } catch (e) {
         setError(e instanceof Error ? e.message : "Save failed.");
       }
@@ -233,11 +183,13 @@ export function ProjectCompileV2Card({ projectId, rawPrompt, savedIntent }: Proj
           user_confirmed: true,
         };
         await confirmIntentV2Action(projectId, rolled);
-        mergeConfirmLocalState(rolled, intent ?? savedIntent);
-        setFormFields(buildFormFieldsFromRules(rolled.industry, rolled.scene));
+        const mods = baselineModulesForIntent(rolled);
+        setFormFields(buildFormFieldsFromModules(rolled.industry, mods, rolled.scene));
         setHistoryOpen(false);
         setEditMode(false);
         setSaveMessage("已回滚并保存为新版本（历史已保留）。");
+        setIntent(null);
+        router.refresh();
       } catch (e) {
         setError(e instanceof Error ? e.message : "Rollback failed.");
       }
@@ -246,10 +198,8 @@ export function ProjectCompileV2Card({ projectId, rawPrompt, savedIntent }: Proj
 
   const onIndustryChange = (value: IndustryV2) => {
     setPendingIndustry(value);
-    setPendingScene((prev) => {
-      const cur = prev ?? defaultSceneForIndustry(value);
-      return scenesForIndustry(value).some((s) => s.value === cur) ? cur : defaultSceneForIndustry(value);
-    });
+    const dummyScene = value === "real_estate" ? "property_listing" : "visa_consultation";
+    setSelectedModules(getDefaultModulesForScene(dummyScene));
   };
 
   const versionUi = versionHeaderText(displayIntent);
@@ -326,228 +276,37 @@ export function ProjectCompileV2Card({ projectId, rawPrompt, savedIntent }: Proj
       ) : null}
 
       {displayIntent && !error ? (
-        <div className="mt-6 space-y-4">
-          <div className="rounded-xl border border-stone-200 bg-white p-4">
-            <p className="mb-3 text-xs font-semibold uppercase text-stone-500">编译结果</p>
-
-            {!editMode ? (
-              <div className="grid gap-3 text-sm sm:grid-cols-2">
-                <div>
-                  <p className="text-xs text-stone-500">Industry</p>
-                  <p className="font-semibold text-stone-900">{displayIntent.industry}</p>
-                </div>
-                <div>
-                  <p className="text-xs text-stone-500">Scene</p>
-                  <p className="font-semibold text-stone-900">{displayIntent.scene}</p>
-                </div>
-                <div>
-                  <p className="text-xs text-stone-500">Language</p>
-                  <p className="font-semibold text-stone-900">{displayIntent.language}</p>
-                </div>
-                <div>
-                  <p className="text-xs text-stone-500">保存状态</p>
-                  <p className={`font-semibold ${effectiveConfirmed ? "text-emerald-700" : "text-amber-700"}`}>
-                    {effectiveConfirmed ? "已确认" : "未确认"}
-                  </p>
-                </div>
-              </div>
-            ) : (
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div>
-                  <label htmlFor="hibiz-pending-industry" className="text-xs font-medium text-stone-600">
-                    Industry
-                  </label>
-                  <select
-                    id="hibiz-pending-industry"
-                    className="mt-1 w-full rounded-lg border border-stone-300 bg-white px-3 py-2 text-sm"
-                    value={pendingIndustry ?? displayIntent.industry}
-                    onChange={(e) => onIndustryChange(e.target.value as IndustryV2)}
-                  >
-                    <option value="real_estate">real_estate</option>
-                    <option value="immigration">immigration</option>
-                  </select>
-                </div>
-                <div>
-                  <label htmlFor="hibiz-pending-scene" className="text-xs font-medium text-stone-600">
-                    Scene
-                  </label>
-                  <select
-                    id="hibiz-pending-scene"
-                    className="mt-1 w-full rounded-lg border border-stone-300 bg-white px-3 py-2 text-sm"
-                    value={pendingScene ?? displayIntent.scene}
-                    onChange={(e) => setPendingScene(e.target.value as SceneV2)}
-                  >
-                    {scenesForIndustry(pendingIndustry ?? displayIntent.industry).map((s) => (
-                      <option key={s.value} value={s.value}>
-                        {s.label}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <div className="flex flex-wrap gap-2 sm:col-span-2">
-                  <button
-                    type="button"
-                    disabled={pending || !rawPrompt.trim()}
-                    onClick={() => handleCompile()}
-                    className="rounded-lg border border-indigo-300 bg-white px-4 py-2 text-sm font-medium text-indigo-900 hover:bg-indigo-50 disabled:opacity-50"
-                  >
-                    重新编译（LLM）
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => cancelEdit()}
-                    className="rounded-lg border border-stone-300 px-4 py-2 text-sm text-stone-700 hover:bg-stone-50"
-                  >
-                    取消编辑
-                  </button>
-                </div>
-              </div>
-            )}
-
-            {displayIntent && !editMode ? (
-              <button
-                type="button"
-                onClick={() => openEdit()}
-                className="mt-4 text-sm font-medium text-indigo-800 underline hover:text-indigo-950"
-              >
-                编辑 industry / scene
-              </button>
-            ) : null}
-          </div>
-
-          {editMode && pendingDirty && committedFieldsEdit && previewFields ? (
-            <div className="rounded-xl border border-stone-200 bg-stone-50/80 p-4">
-              <p className="mb-2 text-sm font-semibold text-stone-800">
-                当前编译推荐的字段（{committedFieldsEdit.confidence}%）· {committedFieldsEdit.selected_fields.length} 个
-              </p>
-              <p className="mb-2 text-xs text-stone-500">修改 scene 后下方为即时预览；点「重新编译」才会用 LLM 更新意图。</p>
-              <ul className="flex flex-wrap gap-2">
-                {committedFieldsEdit.selected_fields.map((f) => (
-                  <li
-                    key={f.id}
-                    className="rounded-full border border-stone-300 bg-white px-3 py-1 text-xs font-medium text-stone-800"
-                  >
-                    {f.label}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ) : null}
-
-          {previewFields ? (
-            <div className="rounded-xl border border-blue-300 bg-blue-50 p-4">
-              <p className="mb-2 text-sm font-semibold text-blue-950">
-                场景预览 — 推荐字段（{previewFields.confidence}%）· {previewFields.selected_fields.length} 个
-              </p>
-              <p className="mb-2 text-xs text-blue-900/80">
-                {editMode && pendingDirty
-                  ? "根据当前 industry / scene 即时生成；未点「重新编译」前 LLM 结果未变。"
-                  : "根据当前选择的 industry / scene 推荐。"}
-              </p>
-              <ul className="flex flex-wrap gap-2">
-                {previewFields.selected_fields.map((f) => (
-                  <li
-                    key={f.id}
-                    className="rounded-full border border-blue-200 bg-white px-3 py-1 text-xs font-medium text-blue-900"
-                  >
-                    {f.label}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ) : null}
-
-          {!editMode && readOnlyRecommended ? (
-            <div className="rounded-xl border border-stone-200 bg-white p-4">
-              <p className="mb-2 text-sm font-semibold text-stone-800">
-                推荐表单字段（{readOnlyRecommended.confidence}%）· {readOnlyRecommended.selected_fields.length} 个
-              </p>
-              <ul className="flex flex-wrap gap-2">
-                {readOnlyRecommended.selected_fields.map((f) => (
-                  <li
-                    key={f.id}
-                    className="rounded-full border border-stone-200 bg-stone-50 px-3 py-1 text-xs font-medium text-stone-800"
-                  >
-                    {f.label}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ) : null}
-
-          {showConfirm ? (
-            <button
-              type="button"
-              disabled={pending}
-              onClick={() => handleConfirm()}
-              className="w-full rounded-lg bg-emerald-700 px-4 py-3 text-sm font-semibold text-white hover:bg-emerald-800 disabled:opacity-60"
-            >
-              {pending ? "保存中…" : "✅ 确认并保存到项目"}
-            </button>
-          ) : null}
-
-          {effectiveConfirmed && !editMode && !pendingDirty ? (
-            <p className="text-center text-sm text-emerald-800">意图已确认。请使用下方「生成网站草稿」继续。</p>
-          ) : null}
-        </div>
+        <ProjectCompileV2CardBody
+          displayIntent={displayIntent}
+          editMode={editMode}
+          effectiveConfirmed={effectiveConfirmed}
+          pendingIndustry={pendingIndustry}
+          selectedModules={selectedModules}
+          setSelectedModules={setSelectedModules}
+          onIndustryChange={onIndustryChange}
+          openEdit={openEdit}
+          handleCompile={handleCompile}
+          cancelEdit={cancelEdit}
+          pending={pending}
+          rawPrompt={rawPrompt}
+          committedFieldsEdit={committedFieldsEdit}
+          previewFields={previewFields}
+          readOnlyRecommended={readOnlyRecommended}
+          editModePendingDirty={Boolean(editMode && pendingDirty)}
+          showConfirm={showConfirm}
+          handleConfirm={handleConfirm}
+          pendingDirty={Boolean(pendingDirty)}
+        />
       ) : null}
 
-      {historyOpen ? (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="hibiz-history-title"
-        >
-          <div className="max-h-[85vh] w-full max-w-lg overflow-y-auto rounded-2xl border border-stone-200 bg-white p-6 shadow-xl">
-            <div className="flex items-start justify-between gap-2">
-              <h3 id="hibiz-history-title" className="font-display text-lg font-semibold text-stone-900">
-                确认历史
-              </h3>
-              <button
-                type="button"
-                onClick={() => setHistoryOpen(false)}
-                className="rounded-lg px-2 py-1 text-sm text-stone-500 hover:bg-stone-100"
-              >
-                关闭
-              </button>
-            </div>
-            <p className="mt-2 text-xs text-stone-500">回滚会新增一条版本记录，不会删除旧历史。</p>
-            <ul className="mt-4 space-y-4">
-              {revisionsForModal.map((rev) => {
-                const isCurrent = rev.version === (displayIntent?.current_version ?? rev.version);
-                return (
-                  <li
-                    key={rev.version}
-                    className="rounded-xl border border-stone-100 bg-stone-50/80 p-4 text-sm"
-                  >
-                    <p className="font-medium text-stone-900">
-                      v{rev.version}
-                      {isCurrent ? (
-                        <span className="ml-2 rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-semibold text-emerald-800">
-                          当前
-                        </span>
-                      ) : null}
-                    </p>
-                    <p className="mt-1 text-stone-600">
-                      {rev.intent.industry}, {rev.intent.scene}
-                    </p>
-                    <p className="mt-1 text-xs text-stone-500">确认时间：{formatTimeShort(rev.confirmed_at)}</p>
-                    <button
-                      type="button"
-                      disabled={pending || isCurrent}
-                      onClick={() => handleRollback(rev)}
-                      className="mt-3 rounded-lg border border-indigo-200 bg-white px-3 py-1.5 text-xs font-medium text-indigo-900 hover:bg-indigo-50 disabled:cursor-not-allowed disabled:opacity-50"
-                    >
-                      回滚到此版本
-                    </button>
-                  </li>
-                );
-              })}
-            </ul>
-          </div>
-        </div>
-      ) : null}
+      <ProjectIntentHistoryModal
+        open={historyOpen}
+        onClose={() => setHistoryOpen(false)}
+        revisions={revisionsForModal}
+        displayIntent={displayIntent}
+        onRollback={handleRollback}
+        pending={pending}
+      />
     </div>
   );
 }
