@@ -14,24 +14,12 @@ services:
         sync: false
       - key: OPENAI_API_KEY
         sync: false
+      - key: PROCESS_TASKS_SECRET
+        sync: false
+      - key: ENABLE_REAL_GENERATION
+        value: "true"
       - key: RENDER_EXTERNAL_URL
         fromService:
           type: web
           name: crazycontent
           property: host
-
-  - type: background
-    name: crazycontent-tasks
-    env: node
-    plan: standard
-    buildCommand: npm install
-    startCommand: npm run process-tasks
-    envVars:
-      - key: NEXT_PUBLIC_SUPABASE_URL
-        sync: false
-      - key: NEXT_PUBLIC_SUPABASE_ANON_KEY
-        sync: false
-      - key: SUPABASE_SERVICE_ROLE_KEY
-        sync: false
-      - key: OPENAI_API_KEY
-        sync: false
