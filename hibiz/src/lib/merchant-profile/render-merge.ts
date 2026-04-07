@@ -35,7 +35,7 @@ export function safeExternalImageUrl(raw: string | undefined): string | null {
     return null;
   }
   const u = raw.trim();
-  if (u.startsWith("https://") || u.startsWith("http://")) {
+  if (u.startsWith("https://")) {  // ✅ 仅 HTTPS，拒绝 HTTP
     return u;
   }
   return null;
