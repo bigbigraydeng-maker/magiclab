@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { deleteMediaAsset, updateMediaCategory } from "@/app/app/projects/media-actions";
+import { applyImageToHero, deleteMediaAsset, updateMediaCategory } from "@/app/app/projects/media-actions";
 import { ImageUploader } from "@/components/media/ImageUploader";
 import { MediaGrid } from "@/components/media/MediaGrid";
 import { UnsplashSearch } from "@/components/media/UnsplashSearch";
@@ -45,6 +45,16 @@ export function MediaLibraryClient({ projectId, initialAssets }: MediaLibraryCli
     }
   };
 
+  const handleApplyToHero = async (asset: MediaAsset) => {
+    setError(null);
+    try {
+      await applyImageToHero(projectId, asset.url);
+      handleRefresh();
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "应用到 Hero 失败");
+    }
+  };
+
   return (
     <div className="mt-8">
       {error ? <p className="mb-4 rounded-lg bg-red-50 p-3 text-sm text-red-600">{error}</p> : null}
@@ -73,7 +83,12 @@ export function MediaLibraryClient({ projectId, initialAssets }: MediaLibraryCli
       </div>
 
       {tab === "library" ? (
-        <MediaGrid assets={initialAssets} onDelete={handleDelete} onCategoryChange={handleCategoryChange} />
+        <MediaGrid
+          assets={initialAssets}
+          onDelete={handleDelete}
+          onCategoryChange={handleCategoryChange}
+          onApplyToHero={handleApplyToHero}
+        />
       ) : null}
       {tab === "unsplash" ? <UnsplashSearch projectId={projectId} onSaved={handleRefresh} /> : null}
       {tab === "upload" ? <ImageUploader projectId={projectId} onUploaded={handleRefresh} /> : null}

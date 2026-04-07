@@ -7,11 +7,7 @@ const WORKFLOW_STEPS: { id: string; step: number; label: string; description: st
   { id: "workflow-merchant", step: 4, label: "Business Info", description: "完善商家信息" },
 ];
 
-const SECONDARY_LINKS: { label: string; path: string }[] = [
-  { label: "🖼️ 素材库", path: "/media" },
-  { label: "📊 数据报表", path: "/dashboard" },
-  { label: "🎬 社交媒体", path: "/social" },
-];
+const SECONDARY_LINKS: { label: string; path: string }[] = [{ label: "🧰 工具箱", path: "/toolkit" }];
 
 export interface ProjectWorkflowSidebarProps {
   projectId: string;

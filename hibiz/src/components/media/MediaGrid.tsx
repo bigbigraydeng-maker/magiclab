@@ -12,9 +12,17 @@ interface MediaGridProps {
   onCategoryChange?: (id: string, category: MediaCategory) => void;
   selectable?: boolean;
   onSelect?: (asset: MediaAsset) => void;
+  onApplyToHero?: (asset: MediaAsset) => void;
 }
 
-export function MediaGrid({ assets, onDelete, onCategoryChange, selectable, onSelect }: MediaGridProps) {
+export function MediaGrid({
+  assets,
+  onDelete,
+  onCategoryChange,
+  selectable,
+  onSelect,
+  onApplyToHero,
+}: MediaGridProps) {
   const [filter, setFilter] = useState<CategoryFilterValue>("all");
 
   const filtered = filter === "all" ? assets : assets.filter((a) => a.category === filter);
@@ -69,6 +77,19 @@ export function MediaGrid({ assets, onDelete, onCategoryChange, selectable, onSe
                     </button>
                   ) : null}
                 </div>
+
+                {onApplyToHero ? (
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onApplyToHero(asset);
+                    }}
+                    className="mt-2 w-full rounded border border-emerald-200 bg-emerald-50 py-1.5 text-[10px] font-medium text-emerald-800 hover:bg-emerald-100"
+                  >
+                    ⭐ 应用到 Hero
+                  </button>
+                ) : null}
 
                 {onCategoryChange ? (
                   <label className="mt-2 block text-[10px] text-stone-500">

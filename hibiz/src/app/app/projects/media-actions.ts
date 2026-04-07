@@ -9,6 +9,8 @@ import {
   type UnsplashPhoto,
 } from "@/lib/media/unsplash-client";
 import { isMediaCategory, parseMediaAsset, type MediaAsset, type MediaCategory } from "@/types/media-asset";
+import { parseMerchantProfile, type MerchantProfileV1 } from "@/types/merchant-profile";
+import { safeExternalImageUrl } from "@/lib/merchant-profile/render-merge";
 
 async function assertProjectOwner(projectId: string, userId: string): Promise<boolean> {
   const supabase = createClient();
@@ -265,4 +267,58 @@ export async function getMediaAssets(
   }
 
   return { assets };
+}
+
+/** 将图片 URL 写入 merchant_profile.hero_image_url，预览与公开页 Hero 即更新。 */
+export async function applyImageToHero(projectId: string, imageUrl: string): Promise<void> {
+  const safe = safeExternalImageUrl(imageUrl);
+  if (!safe) {
+    throw new Error("Invalid image URL (must be http/https).");
+  }
+
+  const supabase = createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) {
+    throw new Error("Not signed in.");
+  }
+
+  const ok = await assertProjectOwner(projectId, user.id);
+  if (!ok) {
+    throw new Error("Project not found or access denied.");
+  }
+
+  const { data: ms, error: msErr } = await supabase
+    .from("microsites")
+    .select("id, merchant_profile")
+    .eq("project_id", projectId)
+    .maybeSingle();
+
+  if (msErr || !ms) {
+    throw new Error("Microsite not found. Generate a site draft first.");
+  }
+
+  const existing = parseMerchantProfile(ms.merchant_profile);
+  const nextProfile: MerchantProfileV1 = {
+    ...(existing ?? { schema_version: 1 }),
+    schema_version: 1,
+    hero_image_url: safe,
+  };
+
+  const { error } = await supabase
+    .from("microsites")
+    .update({
+      merchant_profile: nextProfile as unknown as Record<string, unknown>,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", ms.id);
+
+  if (error) {
+    throw new Error(`Failed to update hero: ${error.message}`);
+  }
+
+  revalidatePath(`/app/projects/${projectId}`);
+  revalidatePath(`/app/projects/${projectId}/media`);
+  revalidatePath(`/app/projects/${projectId}/toolkit`);
 }

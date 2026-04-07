@@ -1,8 +1,12 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { saveUnsplashToLibrary, searchUnsplash } from "@/app/app/projects/media-actions";
-import { unsplashAttributionUrl, photographerUrl } from "@/lib/media/unsplash-client";
+import { applyImageToHero, saveUnsplashToLibrary, searchUnsplash } from "@/app/app/projects/media-actions";
+import {
+  photographerUrl,
+  triggerUnsplashDownload,
+  unsplashAttributionUrl,
+} from "@/lib/media/unsplash-client";
 import type { UnsplashPhoto } from "@/lib/media/unsplash-client";
 import type { MediaCategory } from "@/types/media-asset";
 import { CATEGORY_LABELS, MEDIA_CATEGORIES } from "@/types/media-asset";
@@ -22,6 +26,7 @@ export function UnsplashSearch({ projectId, onSaved, defaultCategory = "general"
   const [page, setPage] = useState(1);
   const [saveCategory, setSaveCategory] = useState<MediaCategory>(defaultCategory);
   const [saving, setSaving] = useState<string | null>(null);
+  const [applyingHero, setApplyingHero] = useState<string | null>(null);
   const [searchError, setSearchError] = useState<string | null>(null);
   const [saveError, setSaveError] = useState<string | null>(null); // MEDIUM-3: 保存错误提示
   const [pending, startTransition] = useTransition();
@@ -57,6 +62,22 @@ export function UnsplashSearch({ projectId, onSaved, defaultCategory = "general"
         setPage(nextPage);
       } catch (e) {
         setSearchError(e instanceof Error ? e.message : "加载失败");
+      }
+    });
+  };
+
+  const handleApplyHero = (photo: UnsplashPhoto) => {
+    setApplyingHero(photo.id);
+    setSaveError(null);
+    startTransition(async () => {
+      try {
+        await applyImageToHero(projectId, photo.urls.regular);
+        await triggerUnsplashDownload(photo.links.download_location);
+        onSaved?.();
+      } catch (e) {
+        setSaveError(e instanceof Error ? e.message : "应用到 Hero 失败");
+      } finally {
+        setApplyingHero(null);
       }
     });
   };
@@ -147,17 +168,25 @@ export function UnsplashSearch({ projectId, onSaved, defaultCategory = "general"
                   loading="lazy"
                 />
                 <div className="absolute inset-0 flex flex-col justify-between bg-black/0 p-2 transition-all group-hover:bg-black/40">
-                  <div className="text-right opacity-0 group-hover:opacity-100">
+                  <div className="flex flex-col items-end gap-1.5 opacity-100 sm:opacity-0 sm:group-hover:opacity-100">
+                    <button
+                      type="button"
+                      onClick={() => handleApplyHero(photo)}
+                      disabled={applyingHero === photo.id || saving === photo.id}
+                      className="rounded bg-emerald-600/95 px-3 py-1 text-xs font-medium text-white hover:bg-emerald-700"
+                    >
+                      {applyingHero === photo.id ? "应用中..." : "⭐ 应用到 Hero"}
+                    </button>
                     <button
                       type="button"
                       onClick={() => handleSave(photo)}
-                      disabled={saving === photo.id}
+                      disabled={saving === photo.id || applyingHero === photo.id}
                       className="rounded bg-white/90 px-3 py-1 text-xs font-medium text-stone-900 hover:bg-white"
                     >
                       {saving === photo.id ? "保存中..." : "+ 添加到素材库"}
                     </button>
                   </div>
-                  <div className="opacity-0 group-hover:opacity-100">
+                  <div className="opacity-100 sm:opacity-0 sm:group-hover:opacity-100">
                     <p className="text-xs text-white">
                       Photo by{" "}
                       <a

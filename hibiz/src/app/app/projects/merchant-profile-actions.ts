@@ -151,9 +151,10 @@ export async function updateMerchantProfileFromForm(formData: FormData): Promise
     schema_version: 1,
     ...(contact ? { contact } : {}),
     ...(property_promo ? { property_promo } : {}),
+    ...(existing?.hero_image_url ? { hero_image_url: existing.hero_image_url } : {}),
   };
 
-  const isEmpty = !contact && !property_promo;
+  const isEmpty = !contact && !property_promo && !existing?.hero_image_url;
 
   const { error: uErr } = await supabase
     .from("microsites")

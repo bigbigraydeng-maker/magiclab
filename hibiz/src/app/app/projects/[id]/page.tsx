@@ -14,6 +14,7 @@ import type { ClarificationPayload } from "@/types/compiled-intent";
 import { isRenderModelV1 } from "@/types/render-model";
 import { RenderMicrosite } from "@/components/microsite/RenderMicrosite";
 import { isFormFieldsFileV1 } from "@/lib/generation/form-presets";
+import { safeExternalImageUrl } from "@/lib/merchant-profile/render-merge";
 import { parseMerchantProfile } from "@/types/merchant-profile";
 import { getSkeletonById } from "@/data/skeletons";
 import { SkeletonPreviewPanel } from "@/components/skeleton-preview-panel";
@@ -195,6 +196,9 @@ export default async function ProjectDetailPage({ params, searchParams }: Projec
       ? microsite.draft_model
       : null;
   const heroForEdit = draftForEdit?.modules.find((m) => m.type === "hero");
+  const heroPreviewUrl =
+    safeExternalImageUrl(merchantProfile?.hero_image_url) ??
+    safeExternalImageUrl(merchantProfile?.property_promo?.image_url);
 
   const missingRaw =
     typeof searchParams.missing === "string" ? decodeURIComponent(searchParams.missing.trim()) : "";
@@ -477,6 +481,29 @@ export default async function ProjectDetailPage({ params, searchParams }: Projec
                 </p>
               </form>
             ) : null}
+          </div>
+        ) : null}
+
+        {hasDraftMicrosite ? (
+          <div className="mt-10 rounded-xl border border-stone-200 bg-white p-6 shadow-sm">
+            <h3 className="font-display text-base font-semibold text-stone-900">Hero 背景图</h3>
+            <p className="mt-1 text-sm text-stone-500">
+              专用 Hero 图优先于房源推广图显示在预览与站点顶部。可在素材库搜索 Unsplash 并点「应用到 Hero」。
+            </p>
+            {heroPreviewUrl ? (
+              <div className="mt-4 overflow-hidden rounded-lg border border-stone-200">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={heroPreviewUrl} alt="" className="max-h-48 w-full object-cover" />
+              </div>
+            ) : (
+              <p className="mt-4 text-sm text-stone-500">尚未设置 Hero 图；也可用下方房源推广图作为后备。</p>
+            )}
+            <Link
+              href={`/app/projects/${project.id}/media`}
+              className="mt-3 inline-block text-sm font-medium text-emerald-800 underline hover:text-emerald-950"
+            >
+              🖼️ 打开素材库选择或搜索 Unsplash →
+            </Link>
           </div>
         ) : null}
 

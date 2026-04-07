@@ -12,9 +12,7 @@ export function ProjectSubNav({ projectId }: ProjectSubNavProps) {
   const base = `/app/projects/${projectId}`;
   const items: { href: string; label: string }[] = [
     { href: base, label: "项目" },
-    { href: `${base}/media`, label: "素材" },
-    { href: `${base}/social`, label: "社媒" },
-    { href: `${base}/social/history`, label: "社媒历史" },
+    { href: `${base}/toolkit`, label: "工具箱" },
     { href: `${base}/dashboard`, label: "数据" },
     { href: `${base}/leads`, label: "线索" },
   ];
@@ -22,6 +20,9 @@ export function ProjectSubNav({ projectId }: ProjectSubNavProps) {
   function isActive(href: string): boolean {
     if (href === base) {
       return pathname === base;
+    }
+    if (href === `${base}/toolkit`) {
+      return pathname === `${base}/toolkit` || pathname.startsWith(`${base}/toolkit/`);
     }
     if (href === `${base}/social`) {
       return pathname === `${base}/social` || pathname.startsWith(`${base}/social?`);

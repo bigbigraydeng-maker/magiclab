@@ -9,7 +9,10 @@
       "Bash(npm run:*)",
       "WebSearch",
       "WebFetch(domain:lovart.info)",
-      "WebFetch(domain:unsplash.com)"
+      "WebFetch(domain:unsplash.com)",
+      "Bash(grep -l \"poster\" \"/c/Users/Zhong/Documents/trae_projects/magic lab/hibiz/src/app/app/projects/[id]\"/*.tsx)",
+      "Bash(cd C:UsersZhongDocumentstrae_projectsmagic labhibiz)",
+      "Bash(ls -lh \"C:\\\\Users\\\\Zhong\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\C--Users-Zhong-Documents-trae-projects-magic-lab-hibiz\\\\89589a6d-5b43-41f4-a188-713c69c1f77b\\\\tasks\"\" 2>/dev/null || echo \"Tasks directory not yet created \")"
     ]
   }
 }

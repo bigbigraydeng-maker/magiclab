@@ -39,6 +39,7 @@ export function RenderMicrosite({
   const accentText = hex ? "text-white/80" : isTeal ? "text-emerald-300" : "text-amber-200";
   const bulletAccent = hex?.accent ?? (isTeal ? "#10b981" : "#d97706");
   const heroImageUrl =
+    safeExternalImageUrl(merchantProfile?.hero_image_url) ??
     safeExternalImageUrl(merchantProfile?.property_promo?.image_url) ??
     safeExternalImageUrl(merchantProfile?.avatar_url) ??
     safeExternalImageUrl(merchantProfile?.logo_url);

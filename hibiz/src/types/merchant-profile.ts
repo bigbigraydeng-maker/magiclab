@@ -68,6 +68,8 @@ export interface MerchantProfileV1 {
   schema_version: 1;
   contact?: MerchantContactV1;
   property_promo?: PropertyPromoV1;
+  /** 站点 Hero 主图（HTTPS URL）；优先于 property_promo.image_url / avatar。 */
+  hero_image_url?: string;
   display_name?: string;
   company_name?: string;
   logo_url?: string;
@@ -200,6 +202,7 @@ export function parseMerchantProfile(raw: unknown): MerchantProfileV1 | null {
     }
   }
 
+  const hero_image_url = clampStr(o.hero_image_url, 2000) || undefined;
   const display_name = clampStr(o.display_name, 120) || undefined;
   const company_name = clampStr(o.company_name, 120) || undefined;
   const logo_url = clampStr(o.logo_url, 2000) || undefined;
@@ -249,6 +252,7 @@ export function parseMerchantProfile(raw: unknown): MerchantProfileV1 | null {
   const hasContact = Object.keys(contact).length > 0;
   const hasPromo = Object.keys(property_promo).length > 0;
   const hasTop =
+    Boolean(hero_image_url) ||
     Boolean(display_name) ||
     Boolean(company_name) ||
     Boolean(logo_url) ||
@@ -268,6 +272,7 @@ export function parseMerchantProfile(raw: unknown): MerchantProfileV1 | null {
     schema_version: 1,
     ...(hasContact ? { contact } : {}),
     ...(hasPromo ? { property_promo } : {}),
+    ...(hero_image_url ? { hero_image_url } : {}),
     ...(display_name ? { display_name } : {}),
     ...(company_name ? { company_name } : {}),
     ...(logo_url ? { logo_url } : {}),
