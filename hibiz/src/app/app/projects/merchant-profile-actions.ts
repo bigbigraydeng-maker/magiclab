@@ -148,10 +148,13 @@ export async function updateMerchantProfileFromForm(formData: FormData): Promise
   }
 
   const profile: MerchantProfileV1 = {
+    ...(existing ?? { schema_version: 1 }),  // ✅ 保留所有现有字段
     schema_version: 1,
-    ...(contact ? { contact } : {}),
-    ...(property_promo ? { property_promo } : {}),
-    ...(existing?.hero_image_url ? { hero_image_url: existing.hero_image_url } : {}),
+    // 然后覆盖表单修改的字段
+    ...(contact ? { contact } : { contact: existing?.contact }),
+    ...(property_promo ? { property_promo } : { property_promo: existing?.property_promo }),
+    // 保留 hero_image_url
+    hero_image_url: existing?.hero_image_url,
   };
 
   const isEmpty = !contact && !property_promo && !existing?.hero_image_url;
