@@ -148,16 +148,17 @@ export async function updateMerchantProfileFromForm(formData: FormData): Promise
   }
 
   const profile: MerchantProfileV1 = {
-    ...(existing ?? { schema_version: 1 }),  // ✅ 保留所有现有字段
+    ...(existing ?? { schema_version: 1 }),  // ✅ 保留所有现有字段（skeleton_id, theme, module_visibility 等）
     schema_version: 1,
-    // 然后覆盖表单修改的字段
-    ...(contact ? { contact } : { contact: existing?.contact }),
-    ...(property_promo ? { property_promo } : { property_promo: existing?.property_promo }),
+    // 仅当表单提交了新数据时才覆盖，否则继承现有值
+    ...(contact && { contact }),
+    ...(property_promo && { property_promo }),
     // 保留 hero_image_url
     hero_image_url: existing?.hero_image_url,
   };
 
-  const isEmpty = !contact && !property_promo && !existing?.hero_image_url;
+  // ✅ 仅当无现有数据且表单为空时才设为 null，否则保留所有字段
+  const isEmpty = !existing && !contact && !property_promo;
 
   const { error: uErr } = await supabase
     .from("microsites")
