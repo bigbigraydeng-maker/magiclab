@@ -30,10 +30,34 @@ function apiBaseForHost(hostname: string): string {
 
 /**
  * 从 TradeMe listing URL 提取 listing ID（纯数字部分）。
+ * 支持旧式 `/listing/123` 与房产页 `/property/.../.../351234567` 等路径。
  */
 export function extractListingId(url: string): string | null {
-  const m = url.match(/\/listing\/(\d{5,15})\b/i);
-  return m?.[1] ?? null;
+  const legacy = url.match(/\/listing\/(\d{5,15})\b/i);
+  if (legacy?.[1]) {
+    return legacy[1];
+  }
+
+  const saleTail = url.match(
+    /\/property\/[^/]+\/[^/]+\/[^/]+(?:\/[^/]+)*\/(\d{7,12})(?:\?|#|$|\/)/i,
+  );
+  if (saleTail?.[1]) {
+    return saleTail[1];
+  }
+
+  try {
+    const segs = new URL(url.trim()).pathname.split("/").filter(Boolean);
+    for (let i = segs.length - 1; i >= Math.max(0, segs.length - 4); i--) {
+      const raw = segs[i].split("?")[0];
+      if (/^\d{7,12}$/.test(raw)) {
+        return raw;
+      }
+    }
+  } catch {
+    /* ignore */
+  }
+
+  return null;
 }
 
 function buildOAuthHeader(

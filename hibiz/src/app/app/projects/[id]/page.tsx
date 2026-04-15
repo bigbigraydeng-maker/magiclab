@@ -72,7 +72,8 @@ const NOTICE_COPY: Record<string, string> = {
   builder_bootstrap_ready: "在线建站草稿已创建：Builder 模式已开启，可直接预览并开始编辑。",
   builder_bootstrap_error: "在线建站初始化失败，请重试。",
   trademe_no_url: "请先在「TradeMe listing URL」里粘贴房源链接（可直接点导入，成功后会写入资料；若仍提示此项说明输入框为空）。",
-  listing_import_fail: "未能从链接提取房源信息。请检查链接是否正确，或手动填写。",
+  listing_import_fail:
+    "未能从链接提取房源信息。请确认链接为 trademe.co.nz 房源页；服务器需 OPENAI_API_KEY（及建议 JINA_API_KEY）。也可在下方手动填写。",
   listing_imported: "已从链接导入房源信息（标题、描述、图片）。可在下方编辑；海报页可查看「提示词建议」。",
   /** 旧书签可能仍带此 notice；已不再拦截写入 */
   listing_extraction_failed: "若仍看到此提示：请重新导入一次。当前版本不再因「质量分」拒绝写入。",

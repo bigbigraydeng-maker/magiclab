@@ -341,14 +341,48 @@ export async function extractFromNextData(url: string): Promise<TradeMeListingDa
     }
   }
 
-  // 租房 / 新壳页面 props 往往更「瘦」，阈值略降以免全靠 Jina
-  if (!best || bestScore < 38) {
-    console.warn("[extractFromNextData] no listing candidate above threshold, bestScore=", bestScore);
+  if (!best) {
+    console.warn("[extractFromNextData] no listing candidate node");
     return null;
   }
 
-  const listing = mapPayloadToListing(best);
+  let listing = mapPayloadToListing(best);
   const images = filterAndRankListingImageUrls(listing.images, 12);
+  listing = { ...listing, images };
 
-  return { ...listing, images };
+  const signals = countListingSignals(listing);
+  if (bestScore < 20 && signals < 1) {
+    console.warn("[extractFromNextData] bestScore too low and no signals:", bestScore);
+    return null;
+  }
+  if (signals < 1) {
+    console.warn("[extractFromNextData] mapped listing has no usable fields, bestScore=", bestScore);
+    return null;
+  }
+  if (signals < 2 && bestScore < 30) {
+    console.warn("[extractFromNextData] weak mapping, bestScore=", bestScore, "signals=", signals);
+    return null;
+  }
+
+  return listing;
+}
+
+function countListingSignals(listing: TradeMeListingData): number {
+  let n = 0;
+  if (listing.title.trim().length >= 5) {
+    n++;
+  }
+  if (listing.description.trim().length >= 30) {
+    n++;
+  }
+  if (listing.images.length > 0) {
+    n++;
+  }
+  if ((listing.address?.trim().length ?? 0) >= 5) {
+    n++;
+  }
+  if ((listing.price_hint?.trim().length ?? 0) >= 3) {
+    n++;
+  }
+  return n;
 }

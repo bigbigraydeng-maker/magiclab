@@ -15,7 +15,8 @@ const NOTICE_COPY: Record<string, string> = {
   create_project_failed: "无法创建草稿项目，请稍后重试。",
   create_microsite_failed: "无法创建存储记录，请稍后重试。",
   trademe_no_url: "链接为空，请重新粘贴后再提交。",
-  listing_import_fail: "未能从链接提取房源信息。请检查链接或稍后重试。",
+  listing_import_fail:
+    "未能从链接提取房源信息。请确认链接为 trademe.co.nz 房源页；部署环境需配置 OPENAI_API_KEY，并建议配置 JINA_API_KEY 以提高成功率。",
   merchant_no_microsite: "内部错误：未找到存储记录。请重试。",
   merchant_save_error: "保存失败，请重试。",
   listing_imported: "已生成海报素材；打开海报页后可在「提示词建议」里复制给外部 LLM 继续润色。",

@@ -12,7 +12,8 @@ export const dynamic = "force-dynamic";
 
 const NOTICE_COPY: Record<string, string> = {
   trademe_no_url: "请先粘贴 TradeMe 房源链接，再点「从链接导入房源信息」。",
-  listing_import_fail: "未能从链接提取房源信息。请检查链接是否正确，或稍后重试。",
+  listing_import_fail:
+    "未能从链接提取房源信息。请确认链接为 trademe.co.nz 房源页；部署环境需 OPENAI_API_KEY，并建议配置 JINA_API_KEY。",
   listing_imported: "已抓取并写入标题、描述、图片与中英海报要点。可在下方核对，再打开可打印海报。",
   merchant_no_microsite: "本项目还没有微站记录。请先在项目页生成微站草稿，再使用此工具。",
   merchant_save_error: "保存失败，请重试。",

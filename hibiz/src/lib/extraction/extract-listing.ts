@@ -136,6 +136,61 @@ export function extractDescriptionFallbackFromMarkdown(markdown: string): string
   return best ? best.slice(0, 3500) : "";
 }
 
+/** OpenAI 失败时：从 Markdown 取一行作标题兜底 */
+export function extractTitleFallbackFromMarkdown(markdown: string): string {
+  const md = markdown.replace(/^\uFEFF/, "").trim();
+  const h1 = md.match(/^#\s+(.+)$/m);
+  if (h1?.[1]) {
+    const t = h1[1].trim();
+    if (t.length >= 5 && t.length <= 200) {
+      return t;
+    }
+  }
+  const anyHeading = md.match(/^#{1,3}\s+(.+)$/m);
+  if (anyHeading?.[1]) {
+    const t = anyHeading[1].trim();
+    if (t.length >= 5 && t.length <= 200) {
+      return t;
+    }
+  }
+  const line = md
+    .split("\n")
+    .map((l) => l.trim())
+    .find(
+      (l) =>
+        l.length > 8 &&
+        l.length <= 200 &&
+        !/^url\s*source:/i.test(l) &&
+        !/^https?:\/\//i.test(l) &&
+        !/^#{1,6}\s/.test(l),
+    );
+  return line ? line.slice(0, 200) : "";
+}
+
+function buildListingFromMarkdownFallback(markdown: string, images: string[]): TradeMeListingData {
+  let description = sanitizeListingDescription(extractDescriptionFallbackFromMarkdown(markdown));
+  if (!description) {
+    description = sanitizeListingDescription(markdown.slice(0, 3500));
+  }
+  let title = extractTitleFallbackFromMarkdown(markdown).trim();
+  if (!title && description.length > 24) {
+    title = description.slice(0, 100).trim();
+  }
+  return {
+    title,
+    description,
+    address: null,
+    bedrooms: null,
+    bathrooms: null,
+    price_hint: null,
+    images,
+    agent_name: null,
+    agent_company: null,
+    agent_phone: null,
+    agent_photo_url: null,
+  };
+}
+
 function sanitizeAgentPhotoUrl(raw: string | null): string | null {
   if (!raw?.trim()) {
     return null;
@@ -202,8 +257,21 @@ export async function extractTradeMeListing(url: string): Promise<ExtractTradeMe
   const rawUrls = extractHttpsImageUrlsFromMarkdown(markdown);
   const images = filterAndRankListingImageUrls(rawUrls, MAX_IMAGES);
 
-  const rawListing = await extractListingJsonFromMarkdown(markdown);
-  const parsed = parseTradeMeListingData(rawListing);
+  let parsed: TradeMeListingData;
+  try {
+    const rawListing = await extractListingJsonFromMarkdown(markdown);
+    parsed = parseTradeMeListingData(rawListing);
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : String(e);
+    console.warn("[extractTradeMeListing] LLM JSON extract failed:", msg);
+    if (markdown.trim().length < 120) {
+      throw e instanceof Error ? e : new Error(msg);
+    }
+    return {
+      listing: buildListingFromMarkdownFallback(markdown, images),
+      markdown,
+    };
+  }
 
   let description = sanitizeListingDescription(parsed.description.trim());
   if (!description) {
