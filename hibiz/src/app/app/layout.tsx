@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { safeLoginNextPath } from "@/lib/auth/safe-login-next";
 import { createClient } from "@/lib/supabase/server";
 import { HIBIZ_LOGIN_NEXT_HEADER } from "@/lib/supabase/middleware";
+import { AppSignOutButton } from "./app-sign-out-button";
 import { signOutAction } from "./actions";
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
@@ -34,9 +35,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
               New
             </Link>
             <form action={signOutAction}>
-              <button type="submit" className="text-stone-500 hover:text-stone-800">
-                Sign out
-              </button>
+              <AppSignOutButton />
             </form>
           </nav>
         </div>

@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { makeMicrositeSlug } from "@/lib/generation/slugs";
+import { sanitizePastedTradeMeUrl } from "@/lib/extraction/trademe-url-sanitize";
 import { importListingFromUrl } from "../projects/merchant-profile-actions";
 
 function clamp(s: string, max: number): string {
@@ -16,7 +17,7 @@ const STANDALONE_PATH = "/app/poster-from-trademe";
  * 不经过「生成微站」：新建最小 project + microsites 占位行，再执行与项目内相同的 TradeMe 导入，成功则进入可打印海报页。
  */
 export async function submitPosterFromTradeMeStandalone(formData: FormData): Promise<void> {
-  const rawUrl = clamp(String(formData.get("trademe_url") ?? ""), 500);
+  const rawUrl = clamp(sanitizePastedTradeMeUrl(String(formData.get("trademe_url") ?? "")), 500);
   if (!rawUrl) {
     redirect(`${STANDALONE_PATH}?notice=no_url`);
   }

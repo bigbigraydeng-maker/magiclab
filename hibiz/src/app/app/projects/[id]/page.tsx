@@ -21,6 +21,7 @@ import { safeExternalImageUrl } from "@/lib/merchant-profile/render-merge";
 import { parseMerchantProfile } from "@/types/merchant-profile";
 import { getSkeletonById } from "@/data/skeletons";
 import { SkeletonPreviewPanel } from "@/components/skeleton-preview-panel";
+import { FormPendingHint, FormSubmitPendingButton } from "@/components/ui/form-submit-pending";
 import { ProjectCompileV2Card } from "@/components/project-compile-v2-card";
 import { parseCompiledIntentV2 } from "@/types/compiled-intent-v2";
 
@@ -234,12 +235,13 @@ export default async function ProjectDetailPage({ params, searchParams }: Projec
         <div className="flex flex-wrap items-center gap-2">
           <form action={createWebsiteBuilderDraftFromForm}>
             <input type="hidden" name="project_id" value={project.id} />
-            <button
-              type="submit"
+            <FormSubmitPendingButton
+              pendingLabel="启用中…"
               className="shrink-0 rounded-lg border border-violet-300 bg-violet-50 px-4 py-2 text-sm font-semibold text-violet-900 shadow-sm hover:bg-violet-100"
             >
               启用在线建站（Builder）
-            </button>
+            </FormSubmitPendingButton>
+            <FormPendingHint>正在写入草稿与 Builder 占位，请勿重复点击。</FormPendingHint>
           </form>
           {hasDraftMicrosite ? (
             <Link
@@ -336,12 +338,13 @@ export default async function ProjectDetailPage({ params, searchParams }: Projec
         {canAnalyse ? (
           <form action={compileIntentFromForm} className="mt-6">
             <input type="hidden" name="project_id" value={project.id} />
-            <button
-              type="submit"
+            <FormSubmitPendingButton
+              pendingLabel="分析中…"
               className="rounded-lg bg-emerald-800 px-5 py-2.5 text-sm font-semibold text-white hover:bg-emerald-900"
             >
               Analyse my request
-            </button>
+            </FormSubmitPendingButton>
+            <FormPendingHint className="mt-2 text-xs font-medium text-amber-800">规则编译中，通常几秒内完成。</FormPendingHint>
             <p className="mt-2 text-xs text-stone-500">Runs the rule-based compiler (no LLM).</p>
           </form>
         ) : null}
@@ -460,13 +463,16 @@ export default async function ProjectDetailPage({ params, searchParams }: Projec
             {canPublish ? (
               <form action={publishProjectFromForm} className="mt-6 flex flex-wrap items-center gap-3">
                 <input type="hidden" name="project_id" value={project.id} />
-                <button
-                  type="submit"
+                <FormSubmitPendingButton
+                  pendingLabel={isPublished ? "正在更新线上站点…" : "正在发布…"}
                   className="rounded-lg bg-stone-900 px-5 py-2.5 text-sm font-semibold text-white hover:bg-stone-800"
                 >
                   {isPublished ? "Update live site from draft" : "Publish (go live)"}
-                </button>
-                <p className="text-xs text-stone-500">
+                </FormSubmitPendingButton>
+                <FormPendingHint className="w-full text-xs font-medium text-amber-800">
+                  正在复制草稿到公开页，请勿重复点击。
+                </FormPendingHint>
+                <p className="w-full text-xs text-stone-500">
                   Copies the current draft to the public page and enables the lead form for visitors.
                 </p>
               </form>
@@ -573,12 +579,13 @@ export default async function ProjectDetailPage({ params, searchParams }: Projec
                   maxLength={80}
                 />
               </div>
-              <button
-                type="submit"
+              <FormSubmitPendingButton
+                pendingLabel="保存中…"
                 className="w-fit rounded-lg border border-stone-300 bg-stone-50 px-5 py-2.5 font-semibold text-stone-900 hover:bg-stone-100"
               >
                 Save hero
-              </button>
+              </FormSubmitPendingButton>
+              <FormPendingHint className="text-xs font-medium text-amber-800">正在写入草稿 Hero 文案。</FormPendingHint>
             </form>
           </div>
         ) : null}
@@ -843,12 +850,15 @@ export default async function ProjectDetailPage({ params, searchParams }: Projec
                 </div>
               ) : null}
 
-              <button
-                type="submit"
+              <FormSubmitPendingButton
+                pendingLabel="保存中…"
                 className="w-fit rounded-lg bg-emerald-800 px-5 py-2.5 text-sm font-semibold text-white hover:bg-emerald-900"
               >
                 Save business details
-              </button>
+              </FormSubmitPendingButton>
+              <FormPendingHint className="text-xs font-medium text-amber-800">
+                正在写入商家资料；若含 TradeMe 图床代理，可能需十余秒，请勿重复点击。
+              </FormPendingHint>
             </form>
           </div>
         ) : null}

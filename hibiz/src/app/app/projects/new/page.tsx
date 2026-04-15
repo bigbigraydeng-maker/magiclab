@@ -3,6 +3,7 @@ import { Suspense } from "react";
 import { INDUSTRIES } from "@/types/hibiz";
 import { TEMPLATE_PRESETS_ALL } from "@/data/template-presets";
 import { getSkeletonsByIndustry } from "@/data/skeletons";
+import { FormPendingHint, FormSubmitPendingButton } from "@/components/ui/form-submit-pending";
 import { createProjectWithIntent } from "../actions";
 import { SkeletonCreateWizard } from "@/components/skeleton-create-wizard";
 
@@ -83,12 +84,13 @@ function AdvancedNewProjectForm({ searchParams }: NewProjectPageProps) {
           />
         </div>
 
-        <button
-          type="submit"
+        <FormSubmitPendingButton
+          pendingLabel="创建中…"
           className="w-full rounded-lg bg-emerald-800 py-3 text-sm font-semibold text-white hover:bg-emerald-900 sm:w-auto sm:px-8"
         >
           保存并继续
-        </button>
+        </FormSubmitPendingButton>
+        <FormPendingHint className="text-xs font-medium text-amber-800">正在创建项目与意图草稿，请勿重复点击。</FormPendingHint>
       </form>
     </div>
   );

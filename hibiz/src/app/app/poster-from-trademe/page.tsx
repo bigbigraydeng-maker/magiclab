@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { submitPosterFromTradeMeStandalone } from "./actions";
+import { PosterFromTradeMeForm } from "./poster-from-trademe-form";
 
 export const metadata = {
   title: "TradeMe → 海报（免微站）— HiBiz",
@@ -51,29 +51,7 @@ export default function PosterFromTradeMePage({ searchParams }: PosterFromTradeM
         </p>
       ) : null}
 
-      <form action={submitPosterFromTradeMeStandalone} className="mt-8 space-y-4 rounded-2xl border border-stone-200 bg-white p-6 shadow-sm">
-        <div>
-          <label htmlFor="trademe_url" className="block text-sm font-medium text-stone-800">
-            TradeMe 房源链接
-          </label>
-          <input
-            id="trademe_url"
-            name="trademe_url"
-            type="url"
-            required
-            placeholder="https://www.trademe.co.nz/a/property/…"
-            className="mt-2 w-full rounded-lg border border-stone-300 px-3 py-2.5 font-mono text-sm text-stone-900 outline-none ring-emerald-800 focus:ring-2"
-            maxLength={500}
-            autoComplete="off"
-          />
-        </div>
-        <button
-          type="submit"
-          className="w-full rounded-lg bg-emerald-800 py-3 text-sm font-semibold text-white hover:bg-emerald-900 sm:w-auto sm:px-8"
-        >
-          抓取并生成海报
-        </button>
-      </form>
+      <PosterFromTradeMeForm />
 
       <p className="mt-8 text-center text-sm text-stone-500">
         <Link href="/app/projects" className="text-emerald-800 underline hover:text-emerald-950">

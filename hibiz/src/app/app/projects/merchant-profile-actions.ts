@@ -6,6 +6,7 @@ import { redirect } from "next/navigation";
 import { normalizePosterTemplateId } from "@/data/poster-templates";
 import { buildMerchantProfileFromListing, patchHeroDraftFromListing } from "@/lib/extraction/auto-fill";
 import { extractTradeMeListingMultiLayer } from "@/lib/extraction/extraction-layers";
+import { sanitizePastedTradeMeUrl } from "@/lib/extraction/trademe-url-sanitize";
 import { proxyImagesToStorage } from "@/lib/extraction/image-proxy";
 import { generatePosterBlurbs } from "@/lib/extraction/poster-blurb";
 import type { TradeMeListingData } from "@/lib/extraction/trademe-schema";
@@ -54,7 +55,7 @@ function buildPropertyPromoFromForm(
   const headline = clamp(String(formData.get("promo_headline") ?? ""), 120);
   const details = clamp(String(formData.get("promo_details") ?? ""), 2000);
   const image_url = clamp(String(formData.get("promo_image_url") ?? ""), 2000);
-  const trademe_url = clamp(String(formData.get("promo_trademe_url") ?? ""), 500);
+  const trademe_url = clamp(sanitizePastedTradeMeUrl(String(formData.get("promo_trademe_url") ?? "")), 500);
   const poster_template_id = normalizePosterTemplateId(String(formData.get("poster_template_id") ?? ""));
   const poster_locale = String(formData.get("poster_locale") ?? "zh") === "en" ? "en" : "zh";
   const listing_agent_name = clamp(String(formData.get("listing_agent_name") ?? ""), 120);
@@ -305,8 +306,9 @@ export async function importListingFromUrl(
   const fromDb =
     existing?.property_promo?.trademe_url?.trim() ??
     (typeof rawPromo?.trademe_url === "string" ? rawPromo.trademe_url.trim() : "");
-  const fromInput = typeof urlFromInput === "string" ? clamp(urlFromInput, 500) : "";
-  const url = fromInput || fromDb;
+  const fromInput = typeof urlFromInput === "string" ? clamp(sanitizePastedTradeMeUrl(urlFromInput), 500) : "";
+  const fromDbSanitized = fromDb ? sanitizePastedTradeMeUrl(fromDb) : "";
+  const url = (fromInput || fromDbSanitized).trim();
   if (!url) {
     redirect(`${errBase}?notice=trademe_no_url`);
   }

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { SocialPostWorkspace } from "@/components/social/SocialPostWorkspace";
+import { FormPendingHint, FormSubmitPendingButton } from "@/components/ui/form-submit-pending";
 import { generateSocialPost } from "@/app/app/projects/social-actions";
 import { parseMerchantProfile } from "@/types/merchant-profile";
 import {
@@ -177,12 +178,12 @@ export default async function ProjectSocialPage({ params, searchParams }: Social
             将使用当前微站中的商家资料（含中英文简介、推广信息）。生成后可在下一步下载海报与复制各平台文案。
           </p>
           <div className="flex flex-wrap gap-3">
-            <button
-              type="submit"
+            <FormSubmitPendingButton
+              pendingLabel="生成中…"
               className="rounded-lg bg-emerald-800 px-5 py-2.5 text-sm font-semibold text-white hover:bg-emerald-900"
             >
               生成
-            </button>
+            </FormSubmitPendingButton>
             <Link
               href={`/app/projects/${params.id}/social`}
               className="rounded-lg border border-stone-300 px-5 py-2.5 text-sm font-medium text-stone-800 hover:bg-stone-50"
@@ -190,6 +191,9 @@ export default async function ProjectSocialPage({ params, searchParams }: Social
               取消
             </Link>
           </div>
+          <FormPendingHint className="mt-2 text-xs font-medium text-amber-800">
+            正在调用 OpenAI，请勿重复点击或关闭页面。
+          </FormPendingHint>
         </form>
       </div>
     );

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useMemo, useState } from "react";
+import { useFormStatus } from "react-dom";
 import { createProjectFromSkeleton } from "@/app/app/projects/skeleton-create-actions";
 import { ModuleToggleList } from "@/components/module-toggle-list";
 import { PropertyListingEditor } from "@/components/property-listing-editor";
@@ -227,9 +228,7 @@ export function SkeletonCreateWizard({ realEstateSkeletons }: SkeletonCreateWiza
               <button type="button" onClick={() => go("info")} className="rounded-lg border border-stone-200 px-4 py-2 text-sm">
                 返回修改
               </button>
-              <button type="submit" formNoValidate className="rounded-lg bg-emerald-800 px-6 py-2 text-sm font-semibold text-white">
-                创建项目
-              </button>
+              <SkeletonWizardSubmitButton />
             </div>
           </div>
         ) : null}
@@ -240,4 +239,19 @@ export function SkeletonCreateWizard({ realEstateSkeletons }: SkeletonCreateWiza
 
 function StepTab({ label, active }: { label: string; active: boolean }) {
   return <span className={active ? "font-semibold text-emerald-900" : ""}>{label}</span>;
+}
+
+function SkeletonWizardSubmitButton() {
+  const { pending } = useFormStatus();
+  return (
+    <button
+      type="submit"
+      formNoValidate
+      disabled={pending}
+      aria-busy={pending}
+      className="rounded-lg bg-emerald-800 px-6 py-2 text-sm font-semibold text-white disabled:cursor-wait disabled:opacity-80"
+    >
+      {pending ? "创建中…" : "创建项目"}
+    </button>
+  );
 }

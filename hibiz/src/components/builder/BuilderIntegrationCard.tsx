@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { updateBuilderIntegrationFromForm } from "@/app/app/projects/merchant-profile-actions";
+import { FormPendingHint, FormSubmitPendingButton } from "@/components/ui/form-submit-pending";
 import type { MerchantProfileV1 } from "@/types/merchant-profile";
 
 export interface BuilderIntegrationCardProps {
@@ -65,12 +66,12 @@ export function BuilderIntegrationCard({ projectId, siteSlug, merchantProfile }:
           <p className="mt-1 text-xs text-stone-500">留空则使用 <span className="font-mono">{defaultUrlPath}</span>，须与 Builder 中 Targeting 一致。</p>
         </div>
         <div className="flex flex-wrap items-center gap-3">
-          <button
-            type="submit"
+          <FormSubmitPendingButton
+            pendingLabel="保存中…"
             className="rounded-lg bg-violet-900 px-4 py-2 text-sm font-semibold text-white hover:bg-violet-950"
           >
             保存 Builder 设置
-          </button>
+          </FormSubmitPendingButton>
           <Link
             href={`/app/projects/${projectId}?preview=1`}
             className="text-sm font-medium text-violet-800 underline hover:text-violet-950"
@@ -83,6 +84,7 @@ export function BuilderIntegrationCard({ projectId, siteSlug, merchantProfile }:
             </Link>
           ) : null}
         </div>
+        <FormPendingHint className="mt-2 text-xs font-medium text-amber-800">正在写入 Builder 配置。</FormPendingHint>
       </form>
     </div>
   );
