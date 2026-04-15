@@ -209,6 +209,19 @@ export default async function ProjectSocialPage({ params, searchParams }: Social
         选择内容类型，生成中英双语、按平台字数限制的文案；随后可预览海报、下载 PNG、复制文案或上传到项目。
       </p>
 
+      <div className="mt-10 rounded-2xl border border-violet-200 bg-violet-50/80 p-6 shadow-sm">
+        <p className="font-display text-lg font-semibold text-violet-950">自然语言 + 自有文件</p>
+        <p className="mt-1 text-sm text-violet-900/90">
+          写一句话说明要发什么，上传你自己的图片或 .txt/.md，生成 FB / IG / LinkedIn / 小红书文案与配图建议（不自动发帖）。
+        </p>
+        <Link
+          href={`/app/projects/${params.id}/social/nl`}
+          className="mt-4 inline-flex rounded-lg bg-violet-800 px-4 py-2 text-sm font-semibold text-white hover:bg-violet-900"
+        >
+          打开「自然语言」生成器 →
+        </Link>
+      </div>
+
       <ul className="mt-10 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
         {CARD_COPY.map((c) => (
           <li key={c.type}>

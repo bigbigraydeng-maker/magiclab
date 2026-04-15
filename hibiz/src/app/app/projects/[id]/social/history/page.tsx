@@ -17,6 +17,7 @@ const TYPE_LABEL: Record<string, string> = {
   open_home: "开放看房",
   market_update: "市场快报",
   buying_tips: "买房贴士",
+  nl_upload: "自然语言+素材",
 };
 
 export default async function SocialHistoryPage({ params, searchParams }: SocialHistoryPageProps) {

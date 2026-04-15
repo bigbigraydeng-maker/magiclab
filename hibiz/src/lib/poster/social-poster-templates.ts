@@ -9,6 +9,7 @@ const HEADLINE: Record<SocialContentType, { line1: string; line1Zh: string }> = 
   open_home: { line1: "OPEN HOME", line1Zh: "开放看房" },
   market_update: { line1: "MARKET UPDATE", line1Zh: "市场快报" },
   buying_tips: { line1: "BUYING TIPS", line1Zh: "买房贴士" },
+  nl_upload: { line1: "YOUR STORY", line1Zh: "品牌动态" },
 };
 
 export function getSocialPosterColors(profile: MerchantProfileV1): {

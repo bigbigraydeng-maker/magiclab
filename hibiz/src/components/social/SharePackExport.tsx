@@ -113,6 +113,22 @@ export function SharePackExport({ captions, projectId, postId, captureRef }: Sha
       <h3 className="font-display text-lg font-semibold text-stone-900">分享包</h3>
       <p className="mt-1 text-xs text-stone-500">按平台查看文案、复制或下载海报；移动端可尝试系统分享。</p>
 
+      {captions.image_plan ? (
+        <div className="mt-4 rounded-lg border border-stone-200 bg-stone-50/90 p-4">
+          <p className="text-sm font-semibold text-stone-900">配图与顺序建议（基于你上传的素材）</p>
+          <div className="mt-3 grid gap-4 md:grid-cols-2">
+            <div>
+              <p className="text-xs font-medium text-stone-600">中文</p>
+              <pre className="mt-1 max-h-40 overflow-auto whitespace-pre-wrap text-sm text-stone-800">{captions.image_plan.zh}</pre>
+            </div>
+            <div>
+              <p className="text-xs font-medium text-stone-600">English</p>
+              <pre className="mt-1 max-h-40 overflow-auto whitespace-pre-wrap text-sm text-stone-800">{captions.image_plan.en}</pre>
+            </div>
+          </div>
+        </div>
+      ) : null}
+
       <div className="mt-4 flex flex-wrap gap-2">
         {PLATFORM_TABS.map((t) => (
           <button

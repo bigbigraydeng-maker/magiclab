@@ -1,6 +1,6 @@
 import OpenAI from "openai";
 import type { MerchantProfileV1, PropertyListing } from "@/types/merchant-profile";
-import type { PlatformCaptions, SocialCaptionsV1, SocialContentType } from "@/types/social-content";
+import type { PlatformCaptions, SocialCaptionsV1, SocialContentType, SocialImagePlan } from "@/types/social-content";
 
 const PLATFORM_MAX: Record<keyof SocialCaptionsV1["platforms"], { en: number; zh: number }> = {
   facebook: { en: 500, zh: 500 },
@@ -15,6 +15,7 @@ const CONTENT_LABELS: Record<SocialContentType, { en: string; zh: string }> = {
   open_home: { en: "Open home invitation", zh: "开放看房日邀请" },
   market_update: { en: "Local market snapshot / weekly update", zh: "本地楼市简报 / 周报" },
   buying_tips: { en: "Practical tips for buyers in NZ", zh: "新西兰买房实用贴士" },
+  nl_upload: { en: "User-directed post from own files", zh: "自然语言 + 用户自有素材" },
 };
 
 function truncateToMaxChars(s: string, max: number): string {
@@ -32,7 +33,8 @@ function clampPlatform(c: PlatformCaptions, max: { en: number; zh: number }): Pl
   };
 }
 
-function parseSocialCaptionsFromJson(raw: string): SocialCaptionsV1 {
+/** Exported for nl_upload multimodal flow (same JSON shape + optional image_plan). */
+export function parseSocialCaptionsFromJson(raw: string): SocialCaptionsV1 {
   let parsed: unknown;
   try {
     parsed = JSON.parse(raw) as unknown;
@@ -74,7 +76,21 @@ function parseSocialCaptionsFromJson(raw: string): SocialCaptionsV1 {
     }
   }
 
-  return { schema_version: 1, platforms: out };
+  let image_plan: SocialImagePlan | undefined;
+  const ip = o.image_plan;
+  if (ip && typeof ip === "object") {
+    const im = ip as Record<string, unknown>;
+    const zh = typeof im.zh === "string" ? im.zh.trim() : "";
+    const en = typeof im.en === "string" ? im.en.trim() : "";
+    if (zh || en) {
+      image_plan = {
+        zh: truncateToMaxChars(zh, 2000),
+        en: truncateToMaxChars(en, 2000),
+      };
+    }
+  }
+
+  return { schema_version: 1, platforms: out, ...(image_plan ? { image_plan } : {}) };
 }
 
 function listingSummary(listing: PropertyListing | null | undefined): string {

@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { generateSocialCopy } from "@/lib/generation/openai-social-copy";
+import { generateNlSocialCopy } from "@/lib/generation/openai-social-nl";
 import { validateImageUpload } from "@/lib/upload/validate-image";
 import { parseMerchantProfile, type PropertyListing } from "@/types/merchant-profile";
 import { isSocialContentType, type SocialCaptionsV1 } from "@/types/social-content";
@@ -90,6 +91,83 @@ export async function generateSocialPost(formData: FormData): Promise<void> {
   }
 
   revalidatePath(`/app/projects/${projectId}/social`);
+  revalidatePath(`/app/projects/${projectId}/social/history`);
+  redirect(`/app/projects/${projectId}/social?post=${inserted.id}`);
+}
+
+export async function generateSocialNlPost(formData: FormData): Promise<void> {
+  const projectId = formFieldString(formData, "project_id");
+  const prompt = formFieldString(formData, "prompt");
+
+  if (!projectId) {
+    redirect("/app/projects");
+  }
+
+  if (prompt.length < 3) {
+    redirect(`/app/projects/${projectId}/social/nl?notice=nl_prompt_short`);
+  }
+
+  const supabase = createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) {
+    redirect(`/login?next=${encodeURIComponent(`/app/projects/${projectId}/social/nl`)}`);
+  }
+
+  const ownerOk = await assertProjectOwner(supabase, projectId, user.id);
+  if (!ownerOk) {
+    redirect("/app/projects");
+  }
+
+  const { data: project } = await supabase.from("projects").select("name").eq("id", projectId).maybeSingle();
+  const projectName = project?.name?.trim() || "Project";
+
+  const { data: ms } = await supabase.from("microsites").select("merchant_profile").eq("project_id", projectId).maybeSingle();
+  const profile = parseMerchantProfile(ms?.merchant_profile) ?? {
+    schema_version: 1 as const,
+  };
+
+  const rawFiles = formData.getAll("files");
+  const files: File[] = [];
+  for (const entry of rawFiles) {
+    if (entry instanceof File && entry.size > 0) {
+      files.push(entry);
+    }
+  }
+  if (files.length > 12) {
+    redirect(`/app/projects/${projectId}/social/nl?notice=nl_too_many_files`);
+  }
+
+  let captions: SocialCaptionsV1;
+  try {
+    captions = await generateNlSocialCopy({
+      userPrompt: prompt,
+      profile,
+      projectName,
+      files,
+    });
+  } catch {
+    redirect(`/app/projects/${projectId}/social/nl?notice=nl_gen_error`);
+  }
+
+  const { data: inserted, error: insErr } = await supabase
+    .from("social_posts")
+    .insert({
+      project_id: projectId,
+      content_type: "nl_upload",
+      captions,
+      status: "active",
+    })
+    .select("id")
+    .maybeSingle();
+
+  if (insErr || !inserted?.id) {
+    redirect(`/app/projects/${projectId}/social/nl?notice=save_error`);
+  }
+
+  revalidatePath(`/app/projects/${projectId}/social`);
+  revalidatePath(`/app/projects/${projectId}/social/nl`);
   revalidatePath(`/app/projects/${projectId}/social/history`);
   redirect(`/app/projects/${projectId}/social?post=${inserted.id}`);
 }
