@@ -94,6 +94,11 @@ export function scoreListingImageUrl(url: string): number {
     score += 15;
   }
 
+  // 已通过 image-proxy 写入 Supabase 的房源图：路径不含 tmcdn 等关键词，原先会低于 minScore 被整页过滤掉
+  if (/listing-images\//i.test(lower) || /\/object\/public\/listing-images\//i.test(lower)) {
+    score += 55;
+  }
+
   return score;
 }
 
@@ -115,8 +120,11 @@ export function filterAndRankListingImageUrls(urls: string[], max = 12, minScore
     return true;
   });
 
-  return unique
-    .filter((u) => scoreListingImageUrl(u) >= minScore)
-    .sort((a, b) => scoreListingImageUrl(b) - scoreListingImageUrl(a))
-    .slice(0, max);
+  const ranked = unique.sort((a, b) => scoreListingImageUrl(b) - scoreListingImageUrl(a));
+  const strict = ranked.filter((u) => scoreListingImageUrl(u) >= minScore).slice(0, max);
+  if (strict.length > 0) {
+    return strict;
+  }
+  // 仍为空时放宽分数阈值（仍排除 junk），避免外链图启发式分数偏低或自托管图 URL 无 tmcdn 关键词时海报无图
+  return ranked.slice(0, max);
 }

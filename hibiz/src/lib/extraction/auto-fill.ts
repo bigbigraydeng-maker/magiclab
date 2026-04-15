@@ -4,6 +4,59 @@ import type { RenderModelV1 } from "@/types/render-model";
 
 const HERO_TITLE_MAX = 80;
 const HERO_SUBTITLE_MAX = 200;
+const PROMO_HEADLINE_MAX = 200;
+const PROMO_DETAILS_MAX = 2000;
+
+/** 从 listing URL 取末段数字 listingId，作标题兜底（避免免微站项目名「TradeMe 海报」占满海报主标题） */
+function headlineFallbackFromTrademeUrl(trademeUrl: string): string | null {
+  try {
+    const u = new URL(trademeUrl.trim());
+    const segs = u.pathname.split("/").filter(Boolean);
+    const last = segs[segs.length - 1];
+    if (last && /^\d+$/.test(last)) {
+      return `TradeMe 房源 · #${last}`;
+    }
+  } catch {
+    /* ignore */
+  }
+  return null;
+}
+
+/**
+ * 写入 property_promo.headline：优先标题，其次地址、价格/卧室、URL 末段 ID，最后固定文案。
+ */
+export function resolvePromoHeadlineFromListing(listing: TradeMeListingData, trademeUrl: string): string {
+  const t = listing.title.trim();
+  if (t.length > 0) {
+    return t.slice(0, PROMO_HEADLINE_MAX);
+  }
+  const addr = listing.address?.trim() ?? "";
+  if (addr.length > 0) {
+    return addr.slice(0, PROMO_HEADLINE_MAX);
+  }
+  const hints: string[] = [];
+  if (listing.price_hint?.trim()) {
+    hints.push(listing.price_hint.trim());
+  }
+  if (listing.bedrooms !== null && listing.bedrooms !== undefined) {
+    hints.push(`${listing.bedrooms} 卧`);
+  }
+  if (hints.length > 0) {
+    return hints.join(" · ").slice(0, PROMO_HEADLINE_MAX);
+  }
+  return headlineFallbackFromTrademeUrl(trademeUrl)?.slice(0, PROMO_HEADLINE_MAX) ?? "TradeMe 房源";
+}
+
+function resolvePromoDetailsFromListing(listing: TradeMeListingData): string {
+  const body = listing.description.trim();
+  if (body.length > 0) {
+    return body.slice(0, PROMO_DETAILS_MAX);
+  }
+  const addr = listing.address?.trim();
+  const price = listing.price_hint?.trim();
+  const lines = [addr, price].filter((x): x is string => Boolean(x && x.length > 0));
+  return lines.join("\n\n").slice(0, PROMO_DETAILS_MAX);
+}
 
 export interface BuildListingProfileOptions {
   /** 二次 LLM 生成的中英海报要点正文 */
@@ -22,10 +75,13 @@ export function buildMerchantProfileFromListing(
   const prevPromo = existing?.property_promo;
   const locale = prevPromo?.poster_locale === "en" ? "en" : "zh";
 
+  const headline = resolvePromoHeadlineFromListing(listing, trademeUrl);
+  const details = resolvePromoDetailsFromListing(listing);
+
   const property_promo: PropertyPromoV1 = {
     ...prevPromo,
-    headline: listing.title,
-    details: listing.description,
+    headline,
+    details,
     trademe_image_urls: listing.images,
     trademe_url: trademeUrl.trim(),
     poster_locale: locale,
@@ -60,9 +116,10 @@ export function patchHeroDraftFromListing(currentDraftModel: RenderModelV1, list
     return currentDraftModel;
   }
 
-  const titleSlice = listing.title.trim().slice(0, HERO_TITLE_MAX);
+  const heroTitle = resolvePromoHeadlineFromListing(listing, "");
+  const titleSlice = heroTitle.slice(0, HERO_TITLE_MAX);
   const subtitleSlice = listing.description.trim().slice(0, HERO_SUBTITLE_MAX);
-  const altText = listing.title.trim();
+  const altText = heroTitle.slice(0, 120);
 
   return {
     ...currentDraftModel,
