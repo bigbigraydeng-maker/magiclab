@@ -15,6 +15,7 @@
     "db:apply:api": "node scripts/apply-schema-api.mjs"
   },
   "dependencies": {
+    "@builder.io/sdk-react-nextjs": "^0.25.0",
     "@supabase/ssr": "^0.10.0",
     "@supabase/supabase-js": "^2.101.1",
     "html-to-image": "^1.11.13",

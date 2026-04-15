@@ -5,6 +5,9 @@ import { compileIntentFromForm } from "../intent-actions";
 import { publishProjectFromForm } from "../publish-actions";
 import { updateHeroDraftFromForm } from "../draft-hero-actions";
 import { updateMerchantProfileFromForm } from "../merchant-profile-actions";
+import { BuilderMicrositeSection } from "@/components/builder/BuilderMicrositeSection";
+import { BuilderIntegrationCard } from "@/components/builder/BuilderIntegrationCard";
+import { createWebsiteBuilderDraftFromForm } from "../website-builder-actions";
 import { ImportTradeMeButton } from "./import-trademe-button";
 import { POSTER_TEMPLATES } from "@/data/poster-templates";
 import { GenerateMicrositeForm } from "../generate-microsite-form";
@@ -84,6 +87,11 @@ const NOTICE_COPY: Record<string, string> = {
   merchant_saved: "Business details saved. They appear on the contact section and poster; republish to refresh the live site.",
   merchant_no_microsite: "Generate a microsite first, then add business details.",
   merchant_save_error: "Could not save business details. Try again.",
+  builder_saved: "Builder.io 区块设置已保存。打开草稿预览或公开页查看。",
+  builder_save_error: "无法保存 Builder 设置，请重试。",
+  builder_no_microsite: "请先生成微站草稿，再配置 Builder。",
+  builder_bootstrap_ready: "在线建站草稿已创建：Builder 模式已开启，可直接预览并开始编辑。",
+  builder_bootstrap_error: "在线建站初始化失败，请重试。",
   trademe_no_url: "请先在「TradeMe listing URL」里粘贴房源链接（可直接点导入，成功后会写入资料；若仍提示此项说明输入框为空）。",
   listing_import_fail: "未能从链接提取房源信息。请检查链接是否正确，或手动填写。",
   listing_imported: "已从链接导入房源信息（标题、描述、图片）。可在下方编辑。",
@@ -108,7 +116,7 @@ export default async function ProjectDetailPage({ params, searchParams }: Projec
   if (searchParams.preview === "1") {
     const { data: ms } = await supabase
       .from("microsites")
-      .select("draft_model, merchant_profile")
+      .select("draft_model, merchant_profile, slug")
       .eq("project_id", params.id)
       .maybeSingle();
     const { data: formForPreview } = await supabase.from("forms").select("fields").eq("project_id", params.id).limit(1).maybeSingle();
@@ -130,6 +138,15 @@ export default async function ProjectDetailPage({ params, searchParams }: Projec
 
     const previewMerchant = parseMerchantProfile(ms?.merchant_profile);
     const previewSkeleton = previewMerchant?.skeleton_id ? getSkeletonById(previewMerchant.skeleton_id) : undefined;
+    const builderUrlPath =
+      previewMerchant?.builder_url_path_override?.trim() ||
+      (ms?.slug ? `/site/${ms.slug}` : "/site/");
+    const showBuilderInPreview = previewMerchant?.builder_section_enabled === true;
+    const builderAfterPreview = previewMerchant?.builder_section_position === "after";
+    const previewSearchParams = searchParams as unknown as Record<string, string | string[] | undefined>;
+    const builderPreviewBlock = showBuilderInPreview ? (
+      <BuilderMicrositeSection urlPath={builderUrlPath} searchParams={previewSearchParams} />
+    ) : null;
 
     return (
       <>
@@ -141,6 +158,7 @@ export default async function ProjectDetailPage({ params, searchParams }: Projec
         {previewSkeleton && previewMerchant ? (
           <SkeletonPreviewPanel projectId={project.id} skeleton={previewSkeleton} profile={previewMerchant} />
         ) : null}
+        {!builderAfterPreview ? builderPreviewBlock : null}
         <RenderMicrosite
           model={draft}
           formFields={formFields}
@@ -148,6 +166,7 @@ export default async function ProjectDetailPage({ params, searchParams }: Projec
           merchantProfile={previewMerchant}
           editableProjectId={previewMerchant?.skeleton_id ? project.id : null}
         />
+        {builderAfterPreview ? builderPreviewBlock : null}
       </>
     );
   }
@@ -233,6 +252,8 @@ export default async function ProjectDetailPage({ params, searchParams }: Projec
     searchParams.notice === "hero_save_error" ||
     searchParams.notice === "merchant_no_microsite" ||
     searchParams.notice === "merchant_save_error" ||
+    searchParams.notice === "builder_save_error" ||
+    searchParams.notice === "builder_bootstrap_error" ||
     searchParams.notice === "listing_import_fail" ||
     searchParams.notice === "listing_extraction_failed";
 
@@ -248,14 +269,25 @@ export default async function ProjectDetailPage({ params, searchParams }: Projec
           <h1 className="font-display text-2xl font-semibold text-stone-900">{project.name}</h1>
           <p className="mt-1 text-sm uppercase tracking-wide text-stone-500">{project.status}</p>
         </div>
-        {hasDraftMicrosite ? (
-          <Link
-            href={`/app/projects/${project.id}/leads`}
-            className="shrink-0 rounded-lg border border-stone-200 bg-white px-4 py-2 text-sm font-medium text-emerald-900 shadow-sm hover:bg-stone-50"
-          >
-            Submissions →
-          </Link>
-        ) : null}
+        <div className="flex flex-wrap items-center gap-2">
+          <form action={createWebsiteBuilderDraftFromForm}>
+            <input type="hidden" name="project_id" value={project.id} />
+            <button
+              type="submit"
+              className="shrink-0 rounded-lg border border-violet-300 bg-violet-50 px-4 py-2 text-sm font-semibold text-violet-900 shadow-sm hover:bg-violet-100"
+            >
+              启用在线建站（Builder）
+            </button>
+          </form>
+          {hasDraftMicrosite ? (
+            <Link
+              href={`/app/projects/${project.id}/leads`}
+              className="shrink-0 rounded-lg border border-stone-200 bg-white px-4 py-2 text-sm font-medium text-emerald-900 shadow-sm hover:bg-stone-50"
+            >
+              Submissions →
+            </Link>
+          ) : null}
+        </div>
       </div>
 
       {notice ? (
@@ -481,6 +513,11 @@ export default async function ProjectDetailPage({ params, searchParams }: Projec
                 </p>
               </form>
             ) : null}
+            <BuilderIntegrationCard
+              projectId={project.id}
+              siteSlug={microsite?.slug ?? ""}
+              merchantProfile={merchantProfile}
+            />
           </div>
         ) : null}
 

@@ -81,6 +81,12 @@ export interface MerchantProfileV1 {
   /** module id → visible (hero/footer ignored when forcing on) */
   module_visibility?: Record<string, boolean>;
   property_listings?: PropertyListing[];
+  /** When true, load optional Builder.io section for this microsite (requires `NEXT_PUBLIC_BUILDER_API_KEY`). */
+  builder_section_enabled?: boolean;
+  /** Override Builder targeting `urlPath` (default: `/site/{microsite slug}`). Max 500 chars. */
+  builder_url_path_override?: string;
+  /** Where to render the Builder section relative to `RenderMicrosite`. Default `before`. */
+  builder_section_position?: "before" | "after";
 }
 
 function clampStr(s: unknown, max: number): string {
@@ -249,6 +255,15 @@ export function parseMerchantProfile(raw: unknown): MerchantProfileV1 | null {
     }
   }
 
+  const builder_section_enabled = o.builder_section_enabled === true;
+  const builder_url_path_override = clampStr(o.builder_url_path_override, 500) || undefined;
+  const builder_section_position =
+    o.builder_section_position === "after"
+      ? "after"
+      : o.builder_section_position === "before"
+        ? "before"
+        : undefined;
+
   const hasContact = Object.keys(contact).length > 0;
   const hasPromo = Object.keys(property_promo).length > 0;
   const hasTop =
@@ -262,7 +277,8 @@ export function parseMerchantProfile(raw: unknown): MerchantProfileV1 | null {
     Boolean(skeleton_id) ||
     Boolean(theme_overrides) ||
     Boolean(module_visibility) ||
-    Boolean(property_listings?.length);
+    Boolean(property_listings?.length) ||
+    builder_section_enabled;
 
   if (!hasContact && !hasPromo && !hasTop) {
     return null;
@@ -283,5 +299,8 @@ export function parseMerchantProfile(raw: unknown): MerchantProfileV1 | null {
     ...(theme_overrides ? { theme_overrides } : {}),
     ...(module_visibility ? { module_visibility } : {}),
     ...(property_listings ? { property_listings } : {}),
+    ...(builder_section_enabled ? { builder_section_enabled: true } : {}),
+    ...(builder_url_path_override ? { builder_url_path_override } : {}),
+    ...(builder_section_position ? { builder_section_position } : {}),
   };
 }

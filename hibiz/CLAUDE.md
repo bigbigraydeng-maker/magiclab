@@ -3,9 +3,10 @@
 ## 产品
 
 - **HiBiz**（Magic Lab 旗下）：新西兰本地商家的 AI 微站 + 表单引擎。
-- Phase 1 行业：**房地产**、**留学移民**；无餐厅。
+- Phase 1 行业：**房地产**（获客工作台首期聚焦）；**留学移民**暂缓主推；无餐厅。工作台规划见 [WORKBENCH_PLAN.md](./WORKBENCH_PLAN.md)。
 - 详细规格见 Obsidian：`01-Magiclab/Projects/HiBiz/`。
 - 项目全景见 [PROJECT.md](./PROJECT.md)，路线图见 [ROADMAP.md](./ROADMAP.md)。
+- **集成方向（工程）**：功能上优先 **建站 + 表单**；独立站侧封装 **Plasmic / Builder.io / 无头 CMS** 补可编辑块与多页，少接整站外链 SaaS。表单在自有引擎外可选 **Tally/Typeform 嵌入 + Webhook** 或 **Formbricks 自托管**。详见 [WORKBENCH_PLAN.md](./WORKBENCH_PLAN.md) §0。
 
 ## 技术栈
 
@@ -66,6 +67,7 @@
 | 骨架类型 | `src/types/skeleton.ts`（待创建） |
 | 骨架数据 | `src/data/skeletons/`（待创建） |
 | 骨架 AI 填充 | `src/lib/generation/skeleton-fill.ts`（待创建） |
+| Builder.io 可选区块（公开微站） | `src/components/builder/BuilderMicrositeSection.tsx`；`merchant_profile.builder_section_*` |
 
 ## 约定
 

@@ -181,6 +181,75 @@ export async function updateMerchantProfileFromForm(formData: FormData): Promise
   redirect(`/app/projects/${projectId}?notice=merchant_saved`);
 }
 
+export async function updateBuilderIntegrationFromForm(formData: FormData): Promise<void> {
+  const projectId = formData.get("project_id");
+  if (typeof projectId !== "string" || projectId.length === 0) {
+    return;
+  }
+
+  const supabase = createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) {
+    redirect(`/login?next=${encodeURIComponent(`/app/projects/${projectId}`)}`);
+  }
+
+  const { data: ms, error: msErr } = await supabase
+    .from("microsites")
+    .select("id, slug, merchant_profile")
+    .eq("project_id", projectId)
+    .maybeSingle();
+
+  if (msErr || !ms) {
+    redirect(`/app/projects/${projectId}?notice=builder_no_microsite`);
+  }
+
+  const existing = parseMerchantProfile(ms.merchant_profile);
+  const enabled = formData.get("builder_section_enabled") === "on";
+  const positionRaw = String(formData.get("builder_section_position") ?? "before");
+  const position: "before" | "after" = positionRaw === "after" ? "after" : "before";
+  const overrideRaw = clamp(String(formData.get("builder_url_path_override") ?? ""), 500);
+
+  const profile: MerchantProfileV1 = {
+    ...(existing ?? { schema_version: 1 }),
+    schema_version: 1,
+  };
+
+  if (enabled) {
+    profile.builder_section_enabled = true;
+    profile.builder_section_position = position;
+    if (overrideRaw) {
+      profile.builder_url_path_override = overrideRaw;
+    } else {
+      delete profile.builder_url_path_override;
+    }
+  } else {
+    delete profile.builder_section_enabled;
+    delete profile.builder_url_path_override;
+    delete profile.builder_section_position;
+  }
+
+  const { error: uErr } = await supabase
+    .from("microsites")
+    .update({
+      merchant_profile: profile as unknown as Record<string, unknown>,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", ms.id);
+
+  if (uErr) {
+    redirect(`/app/projects/${projectId}?notice=builder_save_error`);
+  }
+
+  revalidatePath(`/app/projects/${projectId}`);
+  if (ms.slug) {
+    revalidatePath(`/site/${ms.slug}`);
+  }
+
+  redirect(`/app/projects/${projectId}?notice=builder_saved`);
+}
+
 /**
  * 从 TradeMe 链接提取房源信息（Jina + LLM）并写入 merchant_profile；若有草稿则同步 hero。
  * `urlFromInput`：可选，与输入框一致；非空时优先于库里已保存的链接。

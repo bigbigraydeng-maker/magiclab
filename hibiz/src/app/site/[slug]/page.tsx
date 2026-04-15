@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
+import { BuilderMicrositeSection } from "@/components/builder/BuilderMicrositeSection";
 import { RenderMicrosite } from "@/components/microsite/RenderMicrosite";
 import { isFormFieldsFileV1 } from "@/lib/generation/form-presets";
 import { parseMerchantProfile } from "@/types/merchant-profile";
@@ -8,6 +9,7 @@ import { isRenderModelV1 } from "@/types/render-model";
 
 interface PublicSitePageProps {
   params: { slug: string };
+  searchParams: Record<string, string | string[] | undefined>;
 }
 
 export async function generateMetadata({ params }: PublicSitePageProps): Promise<Metadata> {
@@ -24,7 +26,7 @@ export async function generateMetadata({ params }: PublicSitePageProps): Promise
   return { title: "Site" };
 }
 
-export default async function PublicSitePage({ params }: PublicSitePageProps) {
+export default async function PublicSitePage({ params, searchParams }: PublicSitePageProps) {
   const supabase = createClient();
   const { data: row } = await supabase
     .from("microsites_published")
@@ -48,12 +50,25 @@ export default async function PublicSitePage({ params }: PublicSitePageProps) {
   const formId = formRow?.id ?? null;
   const merchantProfile = parseMerchantProfile(row.merchant_profile);
 
+  const builderUrlPath =
+    merchantProfile?.builder_url_path_override?.trim() || `/site/${params.slug}`;
+  const showBuilderSection = merchantProfile?.builder_section_enabled === true;
+  const builderAfter = merchantProfile?.builder_section_position === "after";
+
+  const builderBlock = showBuilderSection ? (
+    <BuilderMicrositeSection urlPath={builderUrlPath} searchParams={searchParams} />
+  ) : null;
+
   return (
-    <RenderMicrosite
-      model={row.published_model}
-      formFields={formFields}
-      interactiveForm={formId ? { formId, projectId: row.project_id } : null}
-      merchantProfile={merchantProfile}
-    />
+    <>
+      {!builderAfter ? builderBlock : null}
+      <RenderMicrosite
+        model={row.published_model}
+        formFields={formFields}
+        interactiveForm={formId ? { formId, projectId: row.project_id } : null}
+        merchantProfile={merchantProfile}
+      />
+      {builderAfter ? builderBlock : null}
+    </>
   );
 }
