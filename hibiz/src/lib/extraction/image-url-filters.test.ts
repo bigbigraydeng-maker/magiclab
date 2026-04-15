@@ -1,11 +1,23 @@
 import { describe, expect, it } from "vitest";
-import { filterAndRankListingImageUrls, scoreListingImageUrl } from "./image-url-filters";
+import {
+  filterAndRankListingImageUrls,
+  isJunkListingImageUrl,
+  scoreListingImageUrl,
+} from "./image-url-filters";
 
 describe("scoreListingImageUrl", () => {
   it("scores Supabase listing-images proxy URLs above strict threshold", () => {
     const u =
       "https://abcdefgh.supabase.co/storage/v1/object/public/listing-images/proj-1/a1b2c3d4-e5f6.jpg";
     expect(scoreListingImageUrl(u)).toBeGreaterThanOrEqual(14);
+  });
+});
+
+describe("isJunkListingImageUrl", () => {
+  it("rejects TradeMe listing page URLs mistaken for images", () => {
+    const pageUrl =
+      "https://www.trademe.co.nz/a/property/residential/sale/canterbury/selwyn/prebbleton/listing/5838241272";
+    expect(isJunkListingImageUrl(pageUrl)).toBe(true);
   });
 });
 

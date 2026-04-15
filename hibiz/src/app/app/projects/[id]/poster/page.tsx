@@ -150,6 +150,9 @@ export default async function PosterPage({ params, searchParams }: PosterPagePro
 
   const noticeRaw = searchParams.notice;
   const notice = typeof noticeRaw === "string" ? noticeRaw : undefined;
+  const posterDebugRaw = searchParams.poster_debug;
+  const showPosterDebug =
+    typeof posterDebugRaw === "string" && (posterDebugRaw === "1" || posterDebugRaw.toLowerCase() === "true");
   const posterNotice = notice ? (POSTER_NOTICE_COPY[notice] ?? null) : null;
   const listingDerivedPrompt = buildPosterLlmPromptSuggestionFromPromo(promo);
   const readiness = assessPropertyPosterReadiness({
@@ -169,8 +172,13 @@ export default async function PosterPage({ params, searchParams }: PosterPagePro
         </Link>
         <h1 className="mt-4 font-display text-2xl font-semibold text-stone-900">Promotion poster</h1>
         <p className="mt-1 max-w-xl text-sm text-stone-600">
-          版式按 TradeMe 常见结构分区：地址、标题、最多三张主图、价格与卧卫（若有）、短摘要、中介信息；其余请扫码查看完整 listing。正文优先显示导入生成的中英摘要（可在项目页切换语言）。
+          海报内容<strong>只来自</strong>项目里已保存的房源资料（TradeMe 导入或手工填写）。若导入失败或字段为空，版面上就会缺图、缺地址——这不是“生成失败”，而是<strong>没有数据可渲染</strong>。扫码可在 TradeMe 上查看完整信息。
         </p>
+        {!showPosterDebug ? (
+          <p className="mt-2 text-xs text-stone-500">
+            技术排查：在 URL 后加 <code className="rounded bg-stone-100 px-1">?poster_debug=1</code> 可展开「7 块字段」数据源检查。
+          </p>
+        ) : null}
         {readiness.level === "weak" ? (
           <div className="mt-3 rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-950">
             <p className="font-semibold text-amber-950">当前预览仅为草稿，不适合作为开放日/朋友圈可发放海报</p>
@@ -204,22 +212,24 @@ export default async function PosterPage({ params, searchParams }: PosterPagePro
           </Link>
         </p>
         <PosterPrintBar />
-        <PosterMappingDebugPanel
-          headlineDisplay={headline}
-          listingAddress={promo?.listing_address?.trim() ?? null}
-          posterImageUrls={posterImageUrls}
-          totalRankedImages={rankedImages.length}
-          listingPriceHint={promo?.listing_price_hint?.trim() ?? null}
-          listingBedrooms={promo?.listing_bedrooms ?? null}
-          listingBathrooms={promo?.listing_bathrooms ?? null}
-          shortDetails={posterDetailsShort}
-          detailsSourceLabel={posterDetailsSourceLabel(promo)}
-          agentName={listingAgentName}
-          agentCompany={listingAgentCompany}
-          agentPhone={listingAgentPhone}
-          agentPhotoUrl={listingAgentPhotoUrl}
-          trademeUrl={trademe}
-        />
+        {showPosterDebug ? (
+          <PosterMappingDebugPanel
+            headlineDisplay={headline}
+            listingAddress={promo?.listing_address?.trim() ?? null}
+            posterImageUrls={posterImageUrls}
+            totalRankedImages={rankedImages.length}
+            listingPriceHint={promo?.listing_price_hint?.trim() ?? null}
+            listingBedrooms={promo?.listing_bedrooms ?? null}
+            listingBathrooms={promo?.listing_bathrooms ?? null}
+            shortDetails={posterDetailsShort}
+            detailsSourceLabel={posterDetailsSourceLabel(promo)}
+            agentName={listingAgentName}
+            agentCompany={listingAgentCompany}
+            agentPhone={listingAgentPhone}
+            agentPhotoUrl={listingAgentPhotoUrl}
+            trademeUrl={trademe}
+          />
+        ) : null}
         <PosterPromptPanel
           templateId={templateId}
           listingDerivedPrompt={listingDerivedPrompt}

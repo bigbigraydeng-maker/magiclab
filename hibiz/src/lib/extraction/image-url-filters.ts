@@ -68,6 +68,11 @@ export function isJunkListingImageUrl(url: string): boolean {
     return true;
   }
 
+  /** 房源/分类页 HTML 链接被误抓成「图」——不是图片直链，必须从列表剔除 */
+  if (/\.trademe\.co\.nz\/a\/property/i.test(lower) || /\.tmsandbox\.co\.nz\/a\/property/i.test(lower)) {
+    return true;
+  }
+
   return false;
 }
 
@@ -95,11 +100,6 @@ export function scoreListingImageUrl(url: string): number {
 
   if (/logo|spotlight|brand|favicon|wordmark|sprite|badge|kiwi|icon\/|icons\//i.test(lower)) {
     score -= 50;
-  }
-
-  // 房源页 HTML URL 误当图链
-  if (/trademe\.co\.nz\/a\/property/i.test(lower)) {
-    score -= 40;
   }
 
   if (/tmcdn|cloudfront|trademe-images|listingimage|propertyimage|gallery|resize|photoserver|listingphoto/i.test(lower)) {
