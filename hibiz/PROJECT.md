@@ -1,19 +1,25 @@
 # HiBiz — 产品与技术全景
 
-> 最后更新：2026-04-08
+> 最后更新：2026-04-15
 
 ## 一句话
 
-HiBiz 让新西兰本地商家用一句话生成专业微站和留资表单；并面向 **澳新** 商家扩展 **获客工作台**（战役编排、任务与社媒/SEO 执行面），**首期聚焦房产中介**。
+HiBiz 面向 **澳大利亚与新西兰** 本地商家：用一句话生成可发布的留资微站与独立表单；登录后还可 **一键生成最小建站草稿**，并用 **Builder.io** 增加可选可视化区块（不把整站托管到外链 SaaS）。同期推进 **获客工作台**（战役编排、任务与社媒/SEO 执行面），**首期垂直主推房产中介**；**留学移民模板仍在产品中，对外营销与投放暂缓**。
 
 ## 产品定位
 
 | 维度 | 定义 |
 |------|------|
-| 目标用户 | 澳大利亚与新西兰本地中小商家；**工作台首期：房产中介**（留学移民垂直暂缓主推） |
-| 核心价值 | 自然语言输入 → 可发布留资微站；**工作台** → 可验收的获客战役与落地页联动 |
-| 竞品差异 | 不是 Wix/Webflow 式自由建站；是行业垂直的 AI 填槽 + 模板渲染；工作台不是通用 AI OS，而是 **获客交付与执行清单** |
+| 目标用户 | 澳大利亚与新西兰本地中小商家；**GTM / 工作台首期：房产中介**（留学移民：模板可用，市场主推暂缓） |
+| 核心价值 | 自然语言输入 → 可发布留资微站；可选 Builder 封装增强页面；**工作台** → 可验收的获客战役与落地页联动 |
+| 竞品差异 | 不是 Wix/Webflow 式自由建站；是行业垂直的 AI 填槽 + 模板渲染；可插第三方可视化块；工作台不是通用 AI OS，而是 **获客交付与执行清单** |
 | 商业模式 | 免费生成 + 付费增值（自定义域名、数据导出、通知等，预留） |
+
+## 对外首页叙事（与 `src/app/page.tsx` 一致）
+
+- **地域**：首屏与脚注均表述为 **Australia & New Zealand**（澳新本地商家），合规提示为 **澳新取向**（非仅新西兰）。
+- **行业**：两个 Phase 1 垂直（无餐饮）——**房地产**为 **Current focus**；**留学移民**为 **Templates · limited promotion**（预设仍可用，不作为当前对外主推行业）。
+- **能力**：保留「一句话 → 确认意图 → 发布链接与留资」主线；并说明登录后可 **一键草稿 + 可选 Builder.io 区块**。
 
 工作台与 **第三方集成优先级**（建站/表单封装）见 [WORKBENCH_PLAN.md](./WORKBENCH_PLAN.md)（§0）。
 
@@ -79,6 +85,7 @@ IndustryPreset / TemplatePreset：配置数据，非用户实例
 | Auth | Supabase Auth (Magic Link) | 极简登录 |
 | Database | Supabase Postgres + RLS | 行级安全 |
 | AI | OpenAI API (gpt-4o-mini) | Structured Output |
+| 可选可视化建站 | Builder.io（`@builder.io/sdk-react-nextjs`） | 公开微站可选区块；`merchant_profile` 开关与 urlPath 定向 |
 | URL 提取 | TradeMe API (OAuth 1.0a) + Jina Reader + OpenAI | 三层 fallback 提取 |
 | Deploy | Render Web Service | SSR, Root Directory: `hibiz/` |
 | 安全 | 蜜罐字段 + 限流函数 + RLS | 防滥用 |
@@ -208,6 +215,8 @@ draft → intent_drafting → intent_ready → generating → ready_draft → pu
 | `20260405120000_merchant_profile.sql` | `merchant_profile` + 更新视图 |
 
 ## 行业预设（Phase 1）
+
+**GTM 说明**：以下为产品与模板能力清单。对外营销与产品迭代当前以 **房地产** 为主；**留学移民** 场景仍可在应用内选择，但不作为首要获客行业宣传。
 
 ### 房地产 (real_estate)
 
