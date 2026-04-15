@@ -180,7 +180,11 @@ export default async function PosterPage({ params, searchParams }: PosterPagePro
           </Link>
         </p>
         <PosterPrintBar />
-        <PosterPromptPanel templateId={templateId} listingDerivedPrompt={listingDerivedPrompt} />
+        <PosterPromptPanel
+          templateId={templateId}
+          listingDerivedPrompt={listingDerivedPrompt}
+          projectEditHref={`/app/projects/${project.id}`}
+        />
       </div>
 
       <PosterDesignedLayout

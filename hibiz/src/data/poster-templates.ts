@@ -1,5 +1,5 @@
 /**
- * 海报视觉模板 + 配套文案提示词（可复制到 ChatGPT 等优化标题/卖点）
+ * 海报视觉模板 + 配套文案提示词（仅作复制到外部 LLM 的参考；不会自动调用 AI 或写库）
  */
 
 export type PosterTemplateId = "coastal_editorial" | "grid_gallery" | "minimal_luxury";
@@ -11,7 +11,7 @@ export interface PosterTemplateMeta {
   designNote: string;
   /** 给商家的中文提示词：如何写 headline / details */
   merchantCopyGuide: string;
-  /** 给 LLM 的系统向提示片段（用户可整段粘贴） */
+  /** 给外部 LLM 的参考片段（需用户自行复制；生成后须回项目页手动粘贴保存） */
   llmPromptSnippet: string;
 }
 
@@ -28,7 +28,9 @@ export const POSTER_TEMPLATES: PosterTemplateMeta[] = [
 - 区域与房型：
 - 开放日或预约方式：
 - TradeMe 链接中的关键数字（若已知）：
-输出 JSON：{"headline_zh","subtitle_en","bullets_en":[]}`,
+输出 JSON：{"headline_zh","subtitle_en","bullets_en":[]}
+
+（生成后请把 headline_zh 等复制到 HiBiz 项目页「房源推广」的 Headline / 摘要里保存；本工具不会自动写入。）`,
   },
   {
     id: "grid_gallery",
