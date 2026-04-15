@@ -23,12 +23,23 @@ function headlineFallbackFromTrademeUrl(trademeUrl: string): string | null {
 }
 
 /**
- * 写入 property_promo.headline：优先标题，其次地址、价格/卧室、URL 末段 ID，最后固定文案。
+ * 写入 property_promo.headline：优先标题，其次正文首行（常为营销句）、地址、价格/卧室、URL 末段 ID。
  */
 export function resolvePromoHeadlineFromListing(listing: TradeMeListingData, trademeUrl: string): string {
   const t = listing.title.trim();
   if (t.length > 0) {
     return t.slice(0, PROMO_HEADLINE_MAX);
+  }
+  const desc = listing.description.trim();
+  if (desc.length >= 20) {
+    const firstLine =
+      desc
+        .split(/\r?\n+/)
+        .map((s) => s.trim())
+        .find((s) => s.length >= 15 && !/^(listed|auction|closing|open home|contact)\b/i.test(s)) ?? "";
+    if (firstLine.length > 0) {
+      return firstLine.slice(0, PROMO_HEADLINE_MAX);
+    }
   }
   const addr = listing.address?.trim() ?? "";
   if (addr.length > 0) {

@@ -16,10 +16,10 @@ describe("filterAndRankListingImageUrls", () => {
     expect(filterAndRankListingImageUrls([u], 6)).toEqual([u]);
   });
 
-  it("falls back to best-effort order when no URL meets minScore", () => {
+  it("returns empty when every URL is low-confidence (avoids showing arbitrary icons as listing photos)", () => {
     const low = "https://example.org/a.jpg";
-    expect(scoreListingImageUrl(low)).toBeLessThan(14);
+    expect(scoreListingImageUrl(low)).toBeLessThan(18);
     const out = filterAndRankListingImageUrls([low], 3);
-    expect(out).toEqual([low]);
+    expect(out).toEqual([]);
   });
 });

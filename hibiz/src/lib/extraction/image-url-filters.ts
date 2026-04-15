@@ -19,6 +19,12 @@ const JUNK_SUBSTRINGS = [
   "kiwi",
   "/images/common/",
   "nav-",
+  "mascot",
+  "illustration",
+  "tmspark",
+  "trust-badge",
+  "empty-state",
+  "onboarding",
 ];
 
 function pathnameLower(url: string): string {
@@ -57,6 +63,11 @@ export function isJunkListingImageUrl(url: string): boolean {
     return true;
   }
 
+  /** 主站 /images/ 下多为 UI、吉祥物、信任标，非房源相册（真图多在 tmcdn photoserver / images.trademe） */
+  if (/^https:\/\/www\.trademe\.co\.nz\/images\//i.test(lower) && !/photoserver/i.test(lower)) {
+    return true;
+  }
+
   return false;
 }
 
@@ -69,15 +80,16 @@ export function scoreListingImageUrl(url: string): number {
     score += 8;
   }
 
+  /** 勿用裸子串 `image`：会匹配几乎所有路径里的 /images/，把站点吉祥物图误判成高分房源图 */
   if (
-    /listing|gallery|photo|property|resize|image|cdn|tmcdn|cloudfront|trademe-images|listingimage|propertyimage/i.test(
+    /listing|gallery|photoserver|listingphoto|propertyimage|listingimage|property|resize|cdn|tmcdn|cloudfront|trademe-images|trademeproperty/i.test(
       lower,
     )
   ) {
     score += 12;
   }
 
-  if (/tmcdn|images\.trademe|trademeproperty|photo/i.test(lower)) {
+  if (/tmcdn|images\.trademe|trademeproperty|photoserver|photo(?![a-z])/i.test(lower)) {
     score += 6;
   }
 
@@ -90,7 +102,7 @@ export function scoreListingImageUrl(url: string): number {
     score -= 40;
   }
 
-  if (/tmcdn|cloudfront|trademe-images|listingimage|propertyimage|gallery|resize|photo/i.test(lower)) {
+  if (/tmcdn|cloudfront|trademe-images|listingimage|propertyimage|gallery|resize|photoserver|listingphoto/i.test(lower)) {
     score += 15;
   }
 
@@ -106,7 +118,9 @@ export function scoreListingImageUrl(url: string): number {
  * 去噪、按分数排序、截断数量。
  * `minScore`：低于此分的 URL 丢弃，避免仅剩站点品牌图（分数往往仍 >0）被当成「房源图」。
  */
-export function filterAndRankListingImageUrls(urls: string[], max = 12, minScore = 14): string[] {
+const FALLBACK_MIN_SCORE = 12;
+
+export function filterAndRankListingImageUrls(urls: string[], max = 12, minScore = 18): string[] {
   const seen = new Set<string>();
   const unique = urls.filter((u) => {
     const t = u.trim();
@@ -125,6 +139,10 @@ export function filterAndRankListingImageUrls(urls: string[], max = 12, minScore
   if (strict.length > 0) {
     return strict;
   }
-  // 仍为空时放宽分数阈值（仍排除 junk），避免外链图启发式分数偏低或自托管图 URL 无 tmcdn 关键词时海报无图
-  return ranked.slice(0, max);
+  /** 放宽时仍要求最低分，避免把站点装饰图（分数 ~8–12）当成房源主图 */
+  const relaxed = ranked.filter((u) => scoreListingImageUrl(u) >= FALLBACK_MIN_SCORE).slice(0, max);
+  if (relaxed.length > 0) {
+    return relaxed;
+  }
+  return [];
 }
