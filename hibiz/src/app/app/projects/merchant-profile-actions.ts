@@ -52,8 +52,20 @@ function buildPropertyPromoFromForm(
   existingPromo: PropertyPromoV1 | undefined,
   rawMerchantProfile: unknown,
 ): PropertyPromoV1 | undefined {
-  const headline = clamp(String(formData.get("promo_headline") ?? ""), 120);
+  const headline = clamp(String(formData.get("promo_headline") ?? ""), 200);
   const details = clamp(String(formData.get("promo_details") ?? ""), 2000);
+  const listing_address = clamp(String(formData.get("listing_address") ?? ""), 500);
+  const listing_price_hint = clamp(String(formData.get("listing_price_hint") ?? ""), 160);
+  const bedsRaw = String(formData.get("listing_bedrooms") ?? "").trim();
+  const bathsRaw = String(formData.get("listing_bathrooms") ?? "").trim();
+  const listing_bedrooms =
+    bedsRaw === "" ? undefined : Number.isFinite(Number.parseInt(bedsRaw, 10)) && Number.parseInt(bedsRaw, 10) >= 0
+      ? Number.parseInt(bedsRaw, 10)
+      : undefined;
+  const listing_bathrooms =
+    bathsRaw === "" ? undefined : Number.isFinite(Number.parseInt(bathsRaw, 10)) && Number.parseInt(bathsRaw, 10) >= 0
+      ? Number.parseInt(bathsRaw, 10)
+      : undefined;
   const image_url = clamp(String(formData.get("promo_image_url") ?? ""), 2000);
   const trademe_url = clamp(sanitizePastedTradeMeUrl(String(formData.get("promo_trademe_url") ?? "")), 500);
   const poster_template_id = normalizePosterTemplateId(String(formData.get("poster_template_id") ?? ""));
@@ -79,6 +91,10 @@ function buildPropertyPromoFromForm(
     ...existingPromo,
     headline: headline || undefined,
     details: details || undefined,
+    listing_address: listing_address || undefined,
+    listing_price_hint: listing_price_hint || undefined,
+    listing_bedrooms,
+    listing_bathrooms,
     image_url: image_url || undefined,
     trademe_url: nextUrl || undefined,
     poster_template_id,
@@ -93,6 +109,10 @@ function buildPropertyPromoFromForm(
   const hasAny =
     Boolean(merged.headline) ||
     Boolean(merged.details) ||
+    Boolean(merged.listing_address) ||
+    Boolean(merged.listing_price_hint) ||
+    merged.listing_bedrooms != null ||
+    merged.listing_bathrooms != null ||
     Boolean(merged.image_url) ||
     Boolean(merged.trademe_url) ||
     Boolean(merged.trademe_image_urls?.length) ||

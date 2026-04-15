@@ -43,8 +43,16 @@ export interface MerchantThemeOverridesV1 {
 
 /** Real estate: manual promo — no listing feed; image via HTTPS URL (upload to Storage later). */
 export interface PropertyPromoV1 {
+  /** TradeMe 房源页标题（海报主标题应与之一致） */
   headline?: string;
+  /** 原始长描述（导入）；海报「短说明」优先 poster_blurb */
   details?: string;
+  /** 与 TradeMe 页地址行一致；与 headline 分列展示 */
+  listing_address?: string;
+  /** 页面上标价/议价/周租等原文案；无则海报不显示价格区 */
+  listing_price_hint?: string;
+  listing_bedrooms?: number;
+  listing_bathrooms?: number;
   image_url?: string;
   trademe_url?: string;
   /** 海报选用的设计模板 */
@@ -167,6 +175,20 @@ export function parseMerchantProfile(raw: unknown): MerchantProfileV1 | null {
     }
     if (typeof p.details === "string" && p.details.trim()) {
       property_promo.details = p.details.trim();
+    }
+    if (typeof p.listing_address === "string" && p.listing_address.trim()) {
+      property_promo.listing_address = p.listing_address.trim().slice(0, 500);
+    }
+    if (typeof p.listing_price_hint === "string" && p.listing_price_hint.trim()) {
+      property_promo.listing_price_hint = p.listing_price_hint.trim().slice(0, 160);
+    }
+    const lb = p.listing_bedrooms;
+    if (typeof lb === "number" && Number.isFinite(lb) && lb >= 0) {
+      property_promo.listing_bedrooms = Math.floor(lb);
+    }
+    const lba = p.listing_bathrooms;
+    if (typeof lba === "number" && Number.isFinite(lba) && lba >= 0) {
+      property_promo.listing_bathrooms = Math.floor(lba);
     }
     if (typeof p.image_url === "string" && p.image_url.trim()) {
       property_promo.image_url = p.image_url.trim();

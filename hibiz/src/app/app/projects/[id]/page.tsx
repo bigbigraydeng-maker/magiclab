@@ -662,8 +662,74 @@ export default async function ProjectDetailPage({ params, searchParams }: Projec
                         name="promo_headline"
                         defaultValue={merchantProfile?.property_promo?.headline ?? ""}
                         className="mt-1 w-full rounded-lg border border-stone-300 px-3 py-2 text-stone-900 shadow-inner outline-none focus:ring-2 focus:ring-emerald-800"
-                        maxLength={120}
+                        maxLength={200}
                       />
+                      <p className="mt-1 text-xs text-stone-400">应与 TradeMe 页标题一致（导入会自动写入）。</p>
+                    </div>
+                    <div>
+                      <label htmlFor="listing_address" className="block font-medium text-stone-700">
+                        房源地址（海报首行，与标题分列）
+                      </label>
+                      <textarea
+                        id="listing_address"
+                        name="listing_address"
+                        defaultValue={merchantProfile?.property_promo?.listing_address ?? ""}
+                        rows={2}
+                        maxLength={500}
+                        placeholder="例：118 Robinsons Road, Prebbleton, Selwyn, Canterbury"
+                        className="mt-1 w-full rounded-lg border border-stone-300 px-3 py-2 text-stone-900 shadow-inner outline-none focus:ring-2 focus:ring-emerald-800"
+                      />
+                    </div>
+                    <div className="grid gap-4 sm:grid-cols-3">
+                      <div>
+                        <label htmlFor="listing_price_hint" className="block font-medium text-stone-700">
+                          标价 / 议价（可选）
+                        </label>
+                        <input
+                          id="listing_price_hint"
+                          name="listing_price_hint"
+                          defaultValue={merchantProfile?.property_promo?.listing_price_hint ?? ""}
+                          maxLength={160}
+                          placeholder="Asking price $3,300,000"
+                          className="mt-1 w-full rounded-lg border border-stone-300 px-3 py-2 text-sm text-stone-900 shadow-inner outline-none focus:ring-2 focus:ring-emerald-800"
+                        />
+                      </div>
+                      <div>
+                        <label htmlFor="listing_bedrooms" className="block font-medium text-stone-700">
+                          卧室数
+                        </label>
+                        <input
+                          id="listing_bedrooms"
+                          name="listing_bedrooms"
+                          type="number"
+                          min={0}
+                          max={99}
+                          defaultValue={
+                            merchantProfile?.property_promo?.listing_bedrooms != null
+                              ? String(merchantProfile.property_promo.listing_bedrooms)
+                              : ""
+                          }
+                          className="mt-1 w-full rounded-lg border border-stone-300 px-3 py-2 text-sm text-stone-900 shadow-inner outline-none focus:ring-2 focus:ring-emerald-800"
+                        />
+                      </div>
+                      <div>
+                        <label htmlFor="listing_bathrooms" className="block font-medium text-stone-700">
+                          卫生间数
+                        </label>
+                        <input
+                          id="listing_bathrooms"
+                          name="listing_bathrooms"
+                          type="number"
+                          min={0}
+                          max={99}
+                          defaultValue={
+                            merchantProfile?.property_promo?.listing_bathrooms != null
+                              ? String(merchantProfile.property_promo.listing_bathrooms)
+                              : ""
+                          }
+                          className="mt-1 w-full rounded-lg border border-stone-300 px-3 py-2 text-sm text-stone-900 shadow-inner outline-none focus:ring-2 focus:ring-emerald-800"
+                        />
+                      </div>
                     </div>
                     <div>
                       <label htmlFor="promo_details" className="block font-medium text-stone-700">

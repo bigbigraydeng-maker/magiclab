@@ -78,10 +78,17 @@ export function buildMerchantProfileFromListing(
   const headline = resolvePromoHeadlineFromListing(listing, trademeUrl);
   const details = resolvePromoDetailsFromListing(listing);
 
+  const addr = listing.address?.trim() ?? "";
+  const price = listing.price_hint?.trim() ?? "";
+
   const property_promo: PropertyPromoV1 = {
     ...prevPromo,
     headline,
     details,
+    ...(addr ? { listing_address: addr.slice(0, 500) } : {}),
+    ...(price ? { listing_price_hint: price.slice(0, 160) } : {}),
+    ...(listing.bedrooms != null && listing.bedrooms >= 0 ? { listing_bedrooms: listing.bedrooms } : {}),
+    ...(listing.bathrooms != null && listing.bathrooms >= 0 ? { listing_bathrooms: listing.bathrooms } : {}),
     trademe_image_urls: listing.images,
     trademe_url: trademeUrl.trim(),
     poster_locale: locale,
@@ -99,6 +106,19 @@ export function buildMerchantProfileFromListing(
         }
       : {}),
   };
+
+  if (!addr) {
+    delete property_promo.listing_address;
+  }
+  if (!price) {
+    delete property_promo.listing_price_hint;
+  }
+  if (listing.bedrooms == null || listing.bedrooms < 0) {
+    delete property_promo.listing_bedrooms;
+  }
+  if (listing.bathrooms == null || listing.bathrooms < 0) {
+    delete property_promo.listing_bathrooms;
+  }
 
   return {
     schema_version: 1,

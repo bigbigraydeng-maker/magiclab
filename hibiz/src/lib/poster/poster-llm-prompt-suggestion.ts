@@ -11,9 +11,21 @@ export function buildPosterLlmPromptSuggestionFromPromo(promo: PropertyPromoV1 |
   const url = promo.trademe_url?.trim();
   const headline = promo.headline?.trim();
   const details = promo.details?.trim();
+  const addr = promo.listing_address?.trim();
+  const price = promo.listing_price_hint?.trim();
   const zh = promo.poster_blurb_zh?.trim();
   const en = promo.poster_blurb_en?.trim();
-  if (!url && !headline && !details && !zh && !en) {
+  if (
+    !url &&
+    !headline &&
+    !details &&
+    !zh &&
+    !en &&
+    !addr &&
+    !price &&
+    promo.listing_bedrooms == null &&
+    promo.listing_bathrooms == null
+  ) {
     return null;
   }
 
@@ -24,8 +36,19 @@ export function buildPosterLlmPromptSuggestionFromPromo(promo: PropertyPromoV1 |
   if (url) {
     lines.push(`房源链接：${url}`);
   }
+  if (addr) {
+    lines.push(`地址：${addr}`);
+  }
   if (headline) {
     lines.push(`标题：${headline}`);
+  }
+  if (price) {
+    lines.push(`价格/议价：${price}`);
+  }
+  if (promo.listing_bedrooms != null || promo.listing_bathrooms != null) {
+    lines.push(
+      `房型：${promo.listing_bedrooms != null ? `${promo.listing_bedrooms} 卧` : ""}${promo.listing_bedrooms != null && promo.listing_bathrooms != null ? " · " : ""}${promo.listing_bathrooms != null ? `${promo.listing_bathrooms} 卫` : ""}`,
+    );
   }
   if (details) {
     lines.push("");
