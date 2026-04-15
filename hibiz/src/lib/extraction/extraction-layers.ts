@@ -14,14 +14,14 @@ export async function extractTradeMeListingMultiLayer(url: string): Promise<Extr
   const fromApi = await fetchListingFromApi(url);
   if (fromApi) {
     const images = filterAndRankListingImageUrls(fromApi.images, 12);
-    return { listing: { ...fromApi, images }, markdown: "" };
+    return { listing: { ...fromApi, images }, markdown: "", extractLayer: "trademe_api" };
   }
 
   // Layer 1: __NEXT_DATA__（零成本）
   const fromNext = await extractFromNextData(url);
   if (fromNext) {
     const images = filterAndRankListingImageUrls(fromNext.images, 12);
-    return { listing: { ...fromNext, images }, markdown: "" };
+    return { listing: { ...fromNext, images }, markdown: "", extractLayer: "next_data" };
   }
 
   // Layer 2: Jina + OpenAI

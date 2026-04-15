@@ -11,6 +11,7 @@ import { PosterPromptPanel } from "@/components/poster/PosterPromptPanel";
 import { buildPosterLlmPromptSuggestionFromPromo } from "@/lib/poster/poster-llm-prompt-suggestion";
 import { PosterMappingDebugPanel } from "@/components/poster/PosterMappingDebugPanel";
 import { PosterPrintBar } from "./poster-print-bar";
+import { extractLayerUserLabel, normalizeExtractLayerParam } from "@/lib/extraction/extract-layer-ui";
 
 function posterDetailsSourceLabel(promo: PropertyPromoV1 | undefined): string {
   if (!promo) {
@@ -154,6 +155,7 @@ export default async function PosterPage({ params, searchParams }: PosterPagePro
   const showPosterDebug =
     typeof posterDebugRaw === "string" && (posterDebugRaw === "1" || posterDebugRaw.toLowerCase() === "true");
   const posterNotice = notice ? (POSTER_NOTICE_COPY[notice] ?? null) : null;
+  const importExtractLayer = normalizeExtractLayerParam(searchParams.extract_layer);
   const listingDerivedPrompt = buildPosterLlmPromptSuggestionFromPromo(promo);
   const readiness = assessPropertyPosterReadiness({
     headline,
@@ -202,6 +204,9 @@ export default async function PosterPage({ params, searchParams }: PosterPagePro
           <p className="mt-3 rounded-lg border border-stone-200 bg-stone-50 px-3 py-2 text-sm text-stone-800">
             导入流程已结束并写入了当前能解析到的字段；在补齐上述缺口前，请勿把本页当作定稿对外发放。
           </p>
+        ) : null}
+        {notice === "listing_imported" && importExtractLayer ? (
+          <p className="mt-2 text-xs text-stone-600">{extractLayerUserLabel(importExtractLayer)}</p>
         ) : null}
         <p className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-sm">
           <Link href="/app/poster-from-trademe" className="font-medium text-emerald-800 underline hover:text-emerald-950">

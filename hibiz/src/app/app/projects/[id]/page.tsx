@@ -24,10 +24,11 @@ import { SkeletonPreviewPanel } from "@/components/skeleton-preview-panel";
 import { FormPendingHint, FormSubmitPendingButton } from "@/components/ui/form-submit-pending";
 import { ProjectCompileV2Card } from "@/components/project-compile-v2-card";
 import { parseCompiledIntentV2 } from "@/types/compiled-intent-v2";
+import { extractLayerUserLabel, normalizeExtractLayerParam } from "@/lib/extraction/extract-layer-ui";
 
 interface ProjectDetailPageProps {
   params: { id: string };
-  searchParams: { notice?: string; preview?: string; missing?: string };
+  searchParams: { notice?: string; preview?: string; missing?: string; extract_layer?: string | string[] };
 }
 
 function isClarification(data: unknown): data is ClarificationPayload {
@@ -204,6 +205,7 @@ export default async function ProjectDetailPage({ params, searchParams }: Projec
     const key = searchParams.notice;
     notice = NOTICE_COPY[key] ?? null;
   }
+  const importExtractLayer = normalizeExtractLayerParam(searchParams.extract_layer);
 
   const noticeIsError =
     searchParams.notice === "gen_error" ||
@@ -261,6 +263,11 @@ export default async function ProjectDetailPage({ params, searchParams }: Projec
           }`}
         >
           {notice}
+          {importExtractLayer ? (
+            <p className={`mt-2 text-xs ${noticeIsError ? "text-red-800/90" : "text-emerald-900/85"}`}>
+              {extractLayerUserLabel(importExtractLayer)}
+            </p>
+          ) : null}
         </div>
       ) : null}
 

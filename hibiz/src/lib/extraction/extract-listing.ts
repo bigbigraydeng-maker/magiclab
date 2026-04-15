@@ -243,10 +243,14 @@ async function extractListingJsonFromMarkdown(markdown: string): Promise<unknown
   return parsed;
 }
 
+/** 本次抓取实际走通的管线（用于导入成功页展示，便于排查空字段） */
+export type TradeMeExtractLayer = "trademe_api" | "next_data" | "jina_openai";
+
 export interface ExtractTradeMeListingResult {
   listing: TradeMeListingData;
-  /** 原始 Markdown，供海报摘要等二次 LLM 使用 */
+  /** 原始 Markdown，供海报摘要等二次 LLM 使用（非 Jina 管线可为空串） */
   markdown: string;
+  extractLayer: TradeMeExtractLayer;
 }
 
 /**
@@ -270,6 +274,7 @@ export async function extractTradeMeListing(url: string): Promise<ExtractTradeMe
     return {
       listing: buildListingFromMarkdownFallback(markdown, images),
       markdown,
+      extractLayer: "jina_openai",
     };
   }
 
@@ -293,5 +298,5 @@ export async function extractTradeMeListing(url: string): Promise<ExtractTradeMe
     agent_photo_url,
   };
 
-  return { listing, markdown };
+  return { listing, markdown, extractLayer: "jina_openai" };
 }

@@ -9,6 +9,7 @@ import { extractTradeMeListingMultiLayer } from "@/lib/extraction/extraction-lay
 import { sanitizePastedTradeMeUrl } from "@/lib/extraction/trademe-url-sanitize";
 import { proxyImagesToStorage } from "@/lib/extraction/image-proxy";
 import { generatePosterBlurbs } from "@/lib/extraction/poster-blurb";
+import type { TradeMeExtractLayer } from "@/lib/extraction/extract-listing";
 import type { TradeMeListingData } from "@/lib/extraction/trademe-schema";
 import { rawPropertyPromoObject, rawTrademeImageUrls } from "@/lib/merchant-profile/raw-json";
 import { parseMerchantProfile, type MerchantContactV1, type MerchantProfileV1, type PropertyPromoV1 } from "@/types/merchant-profile";
@@ -335,10 +336,12 @@ export async function importListingFromUrl(
 
   let listing: TradeMeListingData;
   let markdown: string;
+  let extractLayer: TradeMeExtractLayer;
   try {
     const extracted = await extractTradeMeListingMultiLayer(url);
     listing = extracted.listing;
     markdown = extracted.markdown;
+    extractLayer = extracted.extractLayer;
   } catch {
     redirect(`${errBase}?notice=listing_import_fail`);
   }
@@ -390,5 +393,5 @@ export async function importListingFromUrl(
     revalidatePath(`/site/${ms.slug}`);
   }
 
-  redirect(`${okBase}?notice=listing_imported`);
+  redirect(`${okBase}?notice=listing_imported&extract_layer=${encodeURIComponent(extractLayer)}`);
 }

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { PosterFromTradeMeForm } from "./poster-from-trademe-form";
+import { extractLayerUserLabel, normalizeExtractLayerParam } from "@/lib/extraction/extract-layer-ui";
 
 export const metadata = {
   title: "TradeMe → 海报（免微站）— HiBiz",
@@ -30,6 +31,7 @@ export default function PosterFromTradeMePage({ searchParams }: PosterFromTradeM
   const noticeRaw = searchParams.notice;
   const notice = typeof noticeRaw === "string" ? noticeRaw : undefined;
   const noticeMessage = notice ? (NOTICE_COPY[notice] ?? notice) : null;
+  const importExtractLayer = normalizeExtractLayerParam(searchParams.extract_layer);
 
   const isError = notice && notice !== "listing_imported";
 
@@ -42,13 +44,18 @@ export default function PosterFromTradeMePage({ searchParams }: PosterFromTradeM
       </p>
 
       {noticeMessage ? (
-        <p
+        <div
           className={`mt-6 rounded-lg border px-4 py-3 text-sm leading-relaxed ${
             isError ? "border-amber-200 bg-amber-50 text-amber-950" : "border-emerald-200 bg-emerald-50 text-emerald-950"
           }`}
         >
-          {noticeMessage}
-        </p>
+          <p>{noticeMessage}</p>
+          {notice === "listing_imported" && importExtractLayer ? (
+            <p className={`mt-2 text-xs ${isError ? "text-amber-900/90" : "text-emerald-900/85"}`}>
+              {extractLayerUserLabel(importExtractLayer)}
+            </p>
+          ) : null}
+        </div>
       ) : null}
 
       <PosterFromTradeMeForm />

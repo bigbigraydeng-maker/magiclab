@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { parseMerchantProfile } from "@/types/merchant-profile";
 import { TradeMePosterTool } from "./trademe-poster-tool";
+import { extractLayerUserLabel, normalizeExtractLayerParam } from "@/lib/extraction/extract-layer-ui";
 
 export const metadata = {
   title: "TradeMe → 要点 → 海报 — HiBiz",
@@ -51,6 +52,7 @@ export default async function TradeMePosterPage({ params, searchParams }: TradeM
   const noticeRaw = searchParams.notice;
   const notice = typeof noticeRaw === "string" ? noticeRaw : undefined;
   const noticeMessage = notice ? (NOTICE_COPY[notice] ?? notice) : null;
+  const importExtractLayer = normalizeExtractLayerParam(searchParams.extract_layer);
 
   const zh = promo?.poster_blurb_zh?.trim() ?? "";
   const en = promo?.poster_blurb_en?.trim() ?? "";
@@ -74,15 +76,18 @@ export default async function TradeMePosterPage({ params, searchParams }: TradeM
       </p>
 
       {noticeMessage ? (
-        <p
+        <div
           className={`mt-6 rounded-lg border px-4 py-3 text-sm ${
             notice === "listing_imported"
               ? "border-emerald-200 bg-emerald-50 text-emerald-950"
               : "border-amber-200 bg-amber-50 text-amber-950"
           }`}
         >
-          {noticeMessage}
-        </p>
+          <p>{noticeMessage}</p>
+          {notice === "listing_imported" && importExtractLayer ? (
+            <p className="mt-2 text-xs text-emerald-900/85">{extractLayerUserLabel(importExtractLayer)}</p>
+          ) : null}
+        </div>
       ) : null}
 
       <div className="mt-8">
