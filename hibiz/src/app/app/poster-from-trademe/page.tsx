@@ -16,11 +16,9 @@ const NOTICE_COPY: Record<string, string> = {
   create_microsite_failed: "无法创建存储记录，请稍后重试。",
   trademe_no_url: "链接为空，请重新粘贴后再提交。",
   listing_import_fail: "未能从链接提取房源信息。请检查链接或稍后重试。",
-  listing_extraction_failed: "抓取结果质量不足。请换一条链接或稍后重试。",
   merchant_no_microsite: "内部错误：未找到存储记录。请重试。",
   merchant_save_error: "保存失败，请重试。",
-  listing_imported: "已生成海报素材，见下方预览；可用浏览器打印。",
-  listing_imported_partial: "已导入，但部分字段偏弱；请直接看海报预览并核对。",
+  listing_imported: "已生成海报素材；打开海报页后可在「提示词建议」里复制给外部 LLM 继续润色。",
 };
 
 interface PosterFromTradeMePageProps {
@@ -31,22 +29,20 @@ export default function PosterFromTradeMePage({ searchParams }: PosterFromTradeM
   const noticeRaw = searchParams.notice;
   const notice = typeof noticeRaw === "string" ? noticeRaw : undefined;
   const noticeMessage = notice ? (NOTICE_COPY[notice] ?? notice) : null;
-  const isError =
-    notice &&
-    notice !== "listing_imported" &&
-    notice !== "listing_imported_partial";
+
+  const isError = notice && notice !== "listing_imported";
 
   return (
     <div className="mx-auto max-w-xl">
       <h1 className="font-display text-2xl font-semibold text-stone-900">TradeMe → 海报</h1>
       <p className="mt-2 text-sm text-stone-600">
-        无需生成微站：粘贴房源链接后，我们会自动抓取要点、生成中英海报正文，并打开可打印海报页。后台会创建一个名为「TradeMe
-        海报」的草稿项目用于存图与资料，你可稍后在项目列表里忽略或删除。
+        无需生成微站：粘贴客户提供的 TradeMe 链接即可抓取并写入海报素材；海报页会附带「基于本次链接的提示词建议」，便于你再交给
+        LLM 微调。后台会创建一个名为「TradeMe 海报」的草稿项目用于存图，可在项目列表中忽略或删除。
       </p>
 
       {noticeMessage ? (
         <p
-          className={`mt-6 rounded-lg border px-4 py-3 text-sm ${
+          className={`mt-6 rounded-lg border px-4 py-3 text-sm leading-relaxed ${
             isError ? "border-amber-200 bg-amber-50 text-amber-950" : "border-emerald-200 bg-emerald-50 text-emerald-950"
           }`}
         >

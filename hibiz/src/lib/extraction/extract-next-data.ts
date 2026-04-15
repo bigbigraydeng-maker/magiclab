@@ -193,13 +193,39 @@ function mapPayloadToListing(payload: Record<string, unknown>): TradeMeListingDa
     payload.Bathrooms ?? payload.bathrooms ?? prop?.Bathrooms ?? prop?.bathrooms,
   );
 
+  const startPriceStr = (() => {
+    const sp = payload.StartPrice;
+    if (typeof sp === "string") {
+      return sp.trim();
+    }
+    if (sp && typeof sp === "object") {
+      const o = sp as Record<string, unknown>;
+      return pickStr(o.DisplayPrice, o.Display, o.FormattedAmount, o.Amount);
+    }
+    return "";
+  })();
+
   const price_hint =
     pickStr(
       payload.PriceDisplay,
       payload.Price,
       payload.CurrentPrice,
+      payload.RentPerWeek,
+      payload.WeeklyRent,
+      payload.FormattedPrice,
+      payload.DisplayPrice,
       payload.priceDisplay,
       payload.Auction,
+      startPriceStr,
+      prop
+        ? pickStr(
+            prop.PriceDisplay,
+            prop.RentPerWeek,
+            prop.WeeklyRent,
+            prop.CurrentRent,
+            prop.FormattedPrice,
+          )
+        : "",
     ) || null;
 
   const agentBlock =
@@ -315,7 +341,8 @@ export async function extractFromNextData(url: string): Promise<TradeMeListingDa
     }
   }
 
-  if (!best || bestScore < 45) {
+  // 租房 / 新壳页面 props 往往更「瘦」，阈值略降以免全靠 Jina
+  if (!best || bestScore < 38) {
     console.warn("[extractFromNextData] no listing candidate above threshold, bestScore=", bestScore);
     return null;
   }

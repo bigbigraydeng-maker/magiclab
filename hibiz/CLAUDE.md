@@ -60,7 +60,7 @@
 | Server Actions | `src/app/app/projects/intent-actions.ts`, `generation-actions.ts` |
 | URL 提取（三层） | `src/lib/extraction/`（`trademe-api.ts`, `extract-next-data.ts`, `jina-reader.ts`, `extract-listing.ts`） |
 | 提取编排 | `src/lib/extraction/extraction-layers.ts`（Layer 0→1→2 fallback） |
-| 提取质量门 | `src/lib/extraction/quality-gate.ts`（评分 0-100） |
+| 海报 LLM 提示词建议 | `src/lib/poster/poster-llm-prompt-suggestion.ts`（基于已写入 `property_promo`） |
 | 图片代理 | `src/lib/extraction/image-proxy.ts`（→ Supabase Storage） |
 | 读库 URL 兼容 | `src/lib/extraction/legacy-url.ts`（`coercePersistedTradeMeImageUrl`） |
 | 商家信息 | `src/types/merchant-profile.ts`, `merchant-profile-actions.ts` |
@@ -111,8 +111,8 @@ Layer 2: Jina Reader Pro + OpenAI（最后手段）
   → 支持 X-Wait-For-Selector、X-Timeout
 
 编排: extraction-layers.ts → extractTradeMeListingMultiLayer(url)
-质量: quality-gate.ts → assessExtractionQuality()
 图片: image-proxy.ts → proxyImagesToStorage()
+海报: poster-llm-prompt-suggestion.ts（导入成功后由海报页展示可复制提示词）
 ```
 
 ### 自动填充映射

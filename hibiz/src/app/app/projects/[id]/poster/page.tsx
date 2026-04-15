@@ -8,6 +8,7 @@ import { buildPosterContactFromProfile } from "@/lib/generation/skeleton-fill";
 import { parseMerchantProfile, type PropertyPromoV1 } from "@/types/merchant-profile";
 import { PosterDesignedLayout } from "@/components/poster/PosterDesignedLayout";
 import { PosterPromptPanel } from "@/components/poster/PosterPromptPanel";
+import { buildPosterLlmPromptSuggestionFromPromo } from "@/lib/poster/poster-llm-prompt-suggestion";
 import { PosterPrintBar } from "./poster-print-bar";
 
 function resolvePosterBody(promo: PropertyPromoV1 | undefined): string {
@@ -24,7 +25,6 @@ function resolvePosterBody(promo: PropertyPromoV1 | undefined): string {
 
 const POSTER_NOTICE_COPY: Record<string, string> = {
   listing_imported: "已根据 TradeMe 链接写入标题、图片与海报要点。可直接打印或微调模板。",
-  listing_imported_partial: "已导入；部分字段偏弱，请核对海报上的文字与图片。",
 };
 
 interface PosterPageProps {
@@ -84,6 +84,7 @@ export default async function PosterPage({ params, searchParams }: PosterPagePro
   const noticeRaw = searchParams.notice;
   const notice = typeof noticeRaw === "string" ? noticeRaw : undefined;
   const posterNotice = notice ? (POSTER_NOTICE_COPY[notice] ?? null) : null;
+  const listingDerivedPrompt = buildPosterLlmPromptSuggestionFromPromo(promo);
 
   return (
     <div>
@@ -107,7 +108,7 @@ export default async function PosterPage({ params, searchParams }: PosterPagePro
           </Link>
         </p>
         <PosterPrintBar />
-        <PosterPromptPanel templateId={templateId} />
+        <PosterPromptPanel templateId={templateId} listingDerivedPrompt={listingDerivedPrompt} />
       </div>
 
       <PosterDesignedLayout

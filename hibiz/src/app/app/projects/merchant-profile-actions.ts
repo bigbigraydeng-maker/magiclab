@@ -8,7 +8,6 @@ import { buildMerchantProfileFromListing, patchHeroDraftFromListing } from "@/li
 import { extractTradeMeListingMultiLayer } from "@/lib/extraction/extraction-layers";
 import { proxyImagesToStorage } from "@/lib/extraction/image-proxy";
 import { generatePosterBlurbs } from "@/lib/extraction/poster-blurb";
-import { assessExtractionQuality } from "@/lib/extraction/quality-gate";
 import type { TradeMeListingData } from "@/lib/extraction/trademe-schema";
 import { rawPropertyPromoObject, rawTrademeImageUrls } from "@/lib/merchant-profile/raw-json";
 import { parseMerchantProfile, type MerchantContactV1, type MerchantProfileV1, type PropertyPromoV1 } from "@/types/merchant-profile";
@@ -322,13 +321,6 @@ export async function importListingFromUrl(
     redirect(`${errBase}?notice=listing_import_fail`);
   }
 
-  const quality = assessExtractionQuality(listing);
-  const missingParam =
-    quality.missing.length > 0 ? `&missing=${encodeURIComponent(quality.missing.join(","))}` : "";
-  if (quality.grade === "failed") {
-    redirect(`${errBase}?notice=listing_extraction_failed${missingParam}`);
-  }
-
   const originalImages = [...listing.images];
   const proxiedImages = await proxyImagesToStorage(listing.images, projectId, supabase);
   listing = {
@@ -376,8 +368,5 @@ export async function importListingFromUrl(
     revalidatePath(`/site/${ms.slug}`);
   }
 
-  if (quality.grade === "partial") {
-    redirect(`${okBase}?notice=listing_imported_partial${missingParam}`);
-  }
   redirect(`${okBase}?notice=listing_imported`);
 }

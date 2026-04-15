@@ -2,9 +2,11 @@ import { POSTER_TEMPLATES, type PosterTemplateId } from "@/data/poster-templates
 
 interface PosterPromptPanelProps {
   templateId: PosterTemplateId;
+  /** 基于本次 TradeMe 导入内容拼好的提示词草稿，供复制到外部 LLM 微调 */
+  listingDerivedPrompt?: string | null;
 }
 
-export function PosterPromptPanel({ templateId }: PosterPromptPanelProps) {
+export function PosterPromptPanel({ templateId, listingDerivedPrompt }: PosterPromptPanelProps) {
   const meta = POSTER_TEMPLATES.find((t) => t.id === templateId) ?? POSTER_TEMPLATES[0];
 
   return (
@@ -25,6 +27,18 @@ export function PosterPromptPanel({ templateId }: PosterPromptPanelProps) {
           {meta.llmPromptSnippet}
         </pre>
       </details>
+
+      {listingDerivedPrompt?.trim() ? (
+        <details className="mt-3 group">
+          <summary className="cursor-pointer font-medium text-emerald-900 hover:underline">基于本次 TradeMe 链接的提示词建议</summary>
+          <p className="mt-2 text-xs text-stone-600">
+            由系统根据已抓取的标题/描述/要点自动拼接，可直接复制到 ChatGPT 等工具里继续改；不替代海报上的正式排版内容。
+          </p>
+          <pre className="mt-2 max-h-56 overflow-auto whitespace-pre-wrap rounded-lg border border-emerald-100 bg-white p-3 font-mono text-xs text-stone-800">
+            {listingDerivedPrompt.trim()}
+          </pre>
+        </details>
+      ) : null}
     </div>
   );
 }

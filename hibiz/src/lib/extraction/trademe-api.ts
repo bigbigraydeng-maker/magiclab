@@ -32,7 +32,7 @@ function apiBaseForHost(hostname: string): string {
  * 从 TradeMe listing URL 提取 listing ID（纯数字部分）。
  */
 export function extractListingId(url: string): string | null {
-  const m = url.match(/\/listing\/(\d{5,12})/i);
+  const m = url.match(/\/listing\/(\d{5,15})\b/i);
   return m?.[1] ?? null;
 }
 
@@ -124,6 +124,20 @@ function collectPhotos(data: Record<string, unknown>): string[] {
   return urls.filter((u) => !isJunkListingImageUrl(u)).slice(0, 24);
 }
 
+function priceDisplayFromStartPrice(v: unknown): string {
+  if (v == null) {
+    return "";
+  }
+  if (typeof v === "string") {
+    return v.trim();
+  }
+  if (typeof v === "object") {
+    const o = v as Record<string, unknown>;
+    return pickStr(o.DisplayPrice, o.Display, o.Amount, o.FormattedAmount);
+  }
+  return "";
+}
+
 function mapApiResponseToListing(data: Record<string, unknown>): TradeMeListingData {
   const title = pickStr(data.Title as string, data.Subtitle as string);
   const description = pickStr(data.Body as string);
@@ -131,7 +145,14 @@ function mapApiResponseToListing(data: Record<string, unknown>): TradeMeListingD
 
   const bedrooms = numOrNull(data.Bedrooms);
   const bathrooms = numOrNull(data.Bathrooms);
-  const price_hint = pickStr(data.PriceDisplay as string) || null;
+  const price_hint =
+    pickStr(
+      data.PriceDisplay as string,
+      data.RentPerWeek as string,
+      data.WeeklyRent as string,
+      data.FormattedPrice as string,
+      priceDisplayFromStartPrice(data.StartPrice),
+    ) || null;
 
   // Agent info
   const member = data.Member as Record<string, unknown> | undefined;

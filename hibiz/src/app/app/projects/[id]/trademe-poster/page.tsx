@@ -14,31 +14,9 @@ const NOTICE_COPY: Record<string, string> = {
   trademe_no_url: "请先粘贴 TradeMe 房源链接，再点「从链接导入房源信息」。",
   listing_import_fail: "未能从链接提取房源信息。请检查链接是否正确，或稍后重试。",
   listing_imported: "已抓取并写入标题、描述、图片与中英海报要点。可在下方核对，再打开可打印海报。",
-  listing_imported_partial: "已导入，但部分字段偏弱。请核对下方要点；需要可到项目页补充商家信息。",
-  listing_extraction_failed: "抓取结果质量不足，未写入资料。请换一条链接或稍后重试。",
   merchant_no_microsite: "本项目还没有微站记录。请先在项目页生成微站草稿，再使用此工具。",
   merchant_save_error: "保存失败，请重试。",
 };
-
-const MISSING_FIELD_LABELS: Record<string, string> = {
-  title: "标题",
-  description: "描述",
-  images: "图片",
-  bedrooms: "卧室数",
-  price_hint: "价格信息",
-  address: "地址",
-};
-
-function missingLabelsHuman(raw: string | undefined): string {
-  if (!raw?.trim()) {
-    return "";
-  }
-  const keys = raw
-    .split(",")
-    .map((k) => k.trim())
-    .filter(Boolean);
-  return keys.map((k) => MISSING_FIELD_LABELS[k] ?? k).join("、");
-}
 
 interface TradeMePosterPageProps {
   params: { id: string };
@@ -71,20 +49,7 @@ export default async function TradeMePosterPage({ params, searchParams }: TradeM
   const promo = mp?.property_promo;
   const noticeRaw = searchParams.notice;
   const notice = typeof noticeRaw === "string" ? noticeRaw : undefined;
-  const missingRaw = searchParams.missing;
-  const missingParam = typeof missingRaw === "string" ? decodeURIComponent(missingRaw.trim()) : "";
-
-  let noticeMessage: string | null = null;
-  if (notice) {
-    const base = NOTICE_COPY[notice];
-    if (base) {
-      const missingHuman = missingLabelsHuman(missingParam);
-      noticeMessage =
-        notice === "listing_imported_partial" && missingHuman ? `${base}（偏弱项：${missingHuman}）` : base;
-    } else {
-      noticeMessage = notice;
-    }
-  }
+  const noticeMessage = notice ? (NOTICE_COPY[notice] ?? notice) : null;
 
   const zh = promo?.poster_blurb_zh?.trim() ?? "";
   const en = promo?.poster_blurb_en?.trim() ?? "";
@@ -110,7 +75,7 @@ export default async function TradeMePosterPage({ params, searchParams }: TradeM
       {noticeMessage ? (
         <p
           className={`mt-6 rounded-lg border px-4 py-3 text-sm ${
-            notice === "listing_imported" || notice === "listing_imported_partial"
+            notice === "listing_imported"
               ? "border-emerald-200 bg-emerald-50 text-emerald-950"
               : "border-amber-200 bg-amber-50 text-amber-950"
           }`}

@@ -59,12 +59,6 @@ export const LIB_LAYER: ArchLayer = {
           importedBy: ["extraction/extraction-layers.ts"],
         },
         {
-          path: "extraction/quality-gate.ts",
-          description: "提取质量评分 0–100",
-          imports: [],
-          importedBy: ["extraction/extraction-layers.ts"],
-        },
-        {
           path: "extraction/image-proxy.ts",
           description: "图片拉取写入 Supabase Storage",
           imports: [],
@@ -93,6 +87,12 @@ export const LIB_LAYER: ArchLayer = {
           description: "表单字段预设",
           imports: [],
           importedBy: ["app/projects/generation-actions.ts"],
+        },
+        {
+          path: "poster/poster-llm-prompt-suggestion.ts",
+          description: "从 property_promo 拼可复制海报 LLM 提示词",
+          imports: [],
+          importedBy: ["app/projects/[id]/poster/page.tsx"],
         },
         {
           path: "generation/skeleton-fill.ts",
