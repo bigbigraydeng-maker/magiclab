@@ -9,7 +9,31 @@ import { parseMerchantProfile, type PropertyPromoV1 } from "@/types/merchant-pro
 import { PosterDesignedLayout } from "@/components/poster/PosterDesignedLayout";
 import { PosterPromptPanel } from "@/components/poster/PosterPromptPanel";
 import { buildPosterLlmPromptSuggestionFromPromo } from "@/lib/poster/poster-llm-prompt-suggestion";
+import { PosterMappingDebugPanel } from "@/components/poster/PosterMappingDebugPanel";
 import { PosterPrintBar } from "./poster-print-bar";
+
+function posterDetailsSourceLabel(promo: PropertyPromoV1 | undefined): string {
+  if (!promo) {
+    return "无 property_promo";
+  }
+  const loc = promo.poster_locale === "en" ? "en" : "zh";
+  if (loc === "en") {
+    if (promo.poster_blurb_en?.trim()) {
+      return "poster_blurb_en";
+    }
+    if (promo.details?.trim()) {
+      return "details（无英文摘要）";
+    }
+    return "（空）";
+  }
+  if (promo.poster_blurb_zh?.trim()) {
+    return "poster_blurb_zh";
+  }
+  if (promo.details?.trim()) {
+    return "details（无中文摘要）";
+  }
+  return "（空）";
+}
 
 function resolvePosterBody(promo: PropertyPromoV1 | undefined): string {
   if (!promo) {
@@ -180,6 +204,22 @@ export default async function PosterPage({ params, searchParams }: PosterPagePro
           </Link>
         </p>
         <PosterPrintBar />
+        <PosterMappingDebugPanel
+          headlineDisplay={headline}
+          listingAddress={promo?.listing_address?.trim() ?? null}
+          posterImageUrls={posterImageUrls}
+          totalRankedImages={rankedImages.length}
+          listingPriceHint={promo?.listing_price_hint?.trim() ?? null}
+          listingBedrooms={promo?.listing_bedrooms ?? null}
+          listingBathrooms={promo?.listing_bathrooms ?? null}
+          shortDetails={posterDetailsShort}
+          detailsSourceLabel={posterDetailsSourceLabel(promo)}
+          agentName={listingAgentName}
+          agentCompany={listingAgentCompany}
+          agentPhone={listingAgentPhone}
+          agentPhotoUrl={listingAgentPhotoUrl}
+          trademeUrl={trademe}
+        />
         <PosterPromptPanel
           templateId={templateId}
           listingDerivedPrompt={listingDerivedPrompt}
