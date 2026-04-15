@@ -868,10 +868,16 @@ export default async function ProjectDetailPage({ params, searchParams }: Projec
                       ))}
                     </div>
                   ) : null}
-                  <div className="mt-4">
+                  <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2">
+                    <Link
+                      href={`/app/projects/${project.id}/trademe-poster`}
+                      className="text-sm font-medium text-emerald-800 underline hover:text-emerald-950"
+                    >
+                      TradeMe → 要点 → 海报（快捷页）→
+                    </Link>
                     <Link
                       href={`/app/projects/${project.id}/poster`}
-                      className="text-sm font-medium text-emerald-800 underline hover:text-emerald-950"
+                      className="text-sm font-medium text-stone-600 underline hover:text-stone-900"
                     >
                       Open printable poster →
                     </Link>

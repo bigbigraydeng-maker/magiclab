@@ -2,12 +2,14 @@
 
 import { useRouter } from "next/navigation";
 import { useTransition } from "react";
-import { importListingFromUrl } from "../merchant-profile-actions";
+import { importListingFromUrl, type ImportListingReturnTo } from "../merchant-profile-actions";
 
 interface ImportTradeMeButtonProps {
   projectId: string;
   /** 与 TradeMe 输入框的 id 一致，用于读取未保存的链接 */
   trademeInputId: string;
+  /** 导入完成后跳转；默认回项目详情 */
+  returnTo?: ImportListingReturnTo;
 }
 
 function isNextRedirectError(e: unknown): boolean {
@@ -18,7 +20,7 @@ function isNextRedirectError(e: unknown): boolean {
   return typeof d === "string" && d.includes("NEXT_REDIRECT");
 }
 
-export function ImportTradeMeButton({ projectId, trademeInputId }: ImportTradeMeButtonProps) {
+export function ImportTradeMeButton({ projectId, trademeInputId, returnTo = "project" }: ImportTradeMeButtonProps) {
   const [pending, startTransition] = useTransition();
   const router = useRouter();
 
@@ -32,7 +34,7 @@ export function ImportTradeMeButton({ projectId, trademeInputId }: ImportTradeMe
         const override = raw.trim() ? raw : undefined;
         startTransition(async () => {
           try {
-            await importListingFromUrl(projectId, override);
+            await importListingFromUrl(projectId, override, returnTo);
           } catch (e: unknown) {
             if (isNextRedirectError(e)) {
               throw e;

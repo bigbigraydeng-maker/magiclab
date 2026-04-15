@@ -15,7 +15,10 @@ export function ListingsModuleSection({ content }: { content: ListingsContent })
         ) : (
           <ul className="mt-8 grid gap-6 sm:grid-cols-2">
             {content.items.map((item) => (
-              <li key={item.id} className="overflow-hidden rounded-2xl border border-stone-200 bg-white shadow-sm">
+              <li
+                key={item.id}
+                className="overflow-hidden rounded-2xl border border-stone-200 bg-white shadow-sm transition duration-200 hover:-translate-y-0.5 hover:border-stone-300/90 hover:shadow-md"
+              >
                 <div className="aspect-[4/3] bg-stone-100">
                   {item.images[0] ? (
                     /* eslint-disable-next-line @next/next/no-img-element */

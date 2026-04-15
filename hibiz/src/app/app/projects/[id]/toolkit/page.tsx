@@ -48,6 +48,13 @@ export default async function ToolkitPage({ params }: ToolkitPageProps) {
 
   const tools = [
     {
+      id: "trademe-poster",
+      title: "TradeMe → 海报",
+      description: "粘贴房源链接，自动抓取要点并写入海报素材",
+      icon: "🔗",
+      href: `/app/projects/${params.id}/trademe-poster`,
+    },
+    {
       id: "poster",
       title: "海报设计",
       description: "创建专业房产宣传海报，一键生成多种模板",

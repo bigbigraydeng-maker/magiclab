@@ -250,21 +250,45 @@ export async function updateBuilderIntegrationFromForm(formData: FormData): Prom
   redirect(`/app/projects/${projectId}?notice=builder_saved`);
 }
 
+/** 导入完成后跳回项目页、海报页，或留在「TradeMe → 海报」捷径页。 */
+export type ImportListingReturnTo = "project" | "trademe-poster" | "poster";
+
+function importListingBasePath(projectId: string, returnTo: ImportListingReturnTo): string {
+  if (returnTo === "trademe-poster") {
+    return `/app/projects/${projectId}/trademe-poster`;
+  }
+  if (returnTo === "poster") {
+    return `/app/projects/${projectId}/poster`;
+  }
+  return `/app/projects/${projectId}`;
+}
+
 /**
  * 从 TradeMe 链接提取房源信息（Jina + LLM）并写入 merchant_profile；若有草稿则同步 hero。
  * `urlFromInput`：可选，与输入框一致；非空时优先于库里已保存的链接。
+ * `redirectErrorBase` / `redirectSuccessBase`：可选；用于「无项目上下文」入口（错误回独立页，成功进海报）。
  */
-export async function importListingFromUrl(projectId: string, urlFromInput?: string | null): Promise<void> {
+export async function importListingFromUrl(
+  projectId: string,
+  urlFromInput?: string | null,
+  returnTo: ImportListingReturnTo = "project",
+  redirectErrorBase?: string | null,
+  redirectSuccessBase?: string | null,
+): Promise<void> {
   if (typeof projectId !== "string" || projectId.length === 0) {
     redirect("/app/projects");
   }
+
+  const defaultBase = importListingBasePath(projectId, returnTo);
+  const errBase = (redirectErrorBase?.trim() || defaultBase).replace(/\/$/, "");
+  const okBase = (redirectSuccessBase?.trim() || defaultBase).replace(/\/$/, "");
 
   const supabase = createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) {
-    redirect(`/login?next=${encodeURIComponent(`/app/projects/${projectId}`)}`);
+    redirect(`/login?next=${encodeURIComponent(errBase)}`);
   }
 
   const { data: ms, error: msErr } = await supabase
@@ -274,7 +298,7 @@ export async function importListingFromUrl(projectId: string, urlFromInput?: str
     .maybeSingle();
 
   if (msErr || !ms) {
-    redirect(`/app/projects/${projectId}?notice=merchant_no_microsite`);
+    redirect(`${errBase}?notice=merchant_no_microsite`);
   }
 
   const existing = parseMerchantProfile(ms.merchant_profile);
@@ -285,7 +309,7 @@ export async function importListingFromUrl(projectId: string, urlFromInput?: str
   const fromInput = typeof urlFromInput === "string" ? clamp(urlFromInput, 500) : "";
   const url = fromInput || fromDb;
   if (!url) {
-    redirect(`/app/projects/${projectId}?notice=trademe_no_url`);
+    redirect(`${errBase}?notice=trademe_no_url`);
   }
 
   let listing: TradeMeListingData;
@@ -295,14 +319,14 @@ export async function importListingFromUrl(projectId: string, urlFromInput?: str
     listing = extracted.listing;
     markdown = extracted.markdown;
   } catch {
-    redirect(`/app/projects/${projectId}?notice=listing_import_fail`);
+    redirect(`${errBase}?notice=listing_import_fail`);
   }
 
   const quality = assessExtractionQuality(listing);
   const missingParam =
     quality.missing.length > 0 ? `&missing=${encodeURIComponent(quality.missing.join(","))}` : "";
   if (quality.grade === "failed") {
-    redirect(`/app/projects/${projectId}?notice=listing_extraction_failed${missingParam}`);
+    redirect(`${errBase}?notice=listing_extraction_failed${missingParam}`);
   }
 
   const originalImages = [...listing.images];
@@ -342,17 +366,18 @@ export async function importListingFromUrl(projectId: string, urlFromInput?: str
     .maybeSingle();
 
   if (uErr || !updatedRow?.id) {
-    redirect(`/app/projects/${projectId}?notice=merchant_save_error`);
+    redirect(`${errBase}?notice=merchant_save_error`);
   }
 
   revalidatePath(`/app/projects/${projectId}`);
+  revalidatePath(`/app/projects/${projectId}/trademe-poster`);
   revalidatePath(`/app/projects/${projectId}/poster`);
   if (ms.slug) {
     revalidatePath(`/site/${ms.slug}`);
   }
 
   if (quality.grade === "partial") {
-    redirect(`/app/projects/${projectId}?notice=listing_imported_partial${missingParam}`);
+    redirect(`${okBase}?notice=listing_imported_partial${missingParam}`);
   }
-  redirect(`/app/projects/${projectId}?notice=listing_imported`);
+  redirect(`${okBase}?notice=listing_imported`);
 }

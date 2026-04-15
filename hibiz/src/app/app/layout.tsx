@@ -27,6 +27,9 @@ export default async function AppLayout({ children }: { children: React.ReactNod
             <Link href="/app/projects" className="text-stone-600 hover:text-emerald-900">
               Projects
             </Link>
+            <Link href="/app/poster-from-trademe" className="text-stone-600 hover:text-emerald-900">
+              TradeMe 海报
+            </Link>
             <Link href="/app/projects/new" className="font-medium text-emerald-800 hover:text-emerald-950">
               New
             </Link>
