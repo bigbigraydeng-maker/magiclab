@@ -14,20 +14,14 @@ const Navbar = () => {
           <Link href="/services" className="text-gray-300 hover:text-white transition-colors">
             Services
           </Link>
-          <Link href="/mobile-plans" className="text-gray-300 hover:text-white transition-colors">
-            Mobile Plans
-          </Link>
           <Link href="/work" className="text-gray-300 hover:text-white transition-colors">
             Work
           </Link>
           <Link href="/insights" className="text-gray-300 hover:text-white transition-colors">
             Insights
           </Link>
-          <Link href="/immigration-assessment" className="text-gray-300 hover:text-white transition-colors">
-            Immigration Assessment
-          </Link>
-          <Link href="/agency-dashboard" className="text-gray-300 hover:text-white transition-colors">
-            Agency Dashboard
+          <Link href="/magic-network" className="text-gray-300 hover:text-white transition-colors">
+            Magic Network
           </Link>
           <Link href="/about" className="text-gray-300 hover:text-white transition-colors">
             About
