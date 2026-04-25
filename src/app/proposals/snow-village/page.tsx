@@ -11,14 +11,31 @@ export default function SnowVillageProposal() {
     <div className="min-h-screen bg-white pt-16">
 
       {/* COVER */}
-      <div className="relative overflow-hidden text-white" style={{ background: 'linear-gradient(135deg, #0a2540 0%, #1a4060 60%, #004e7c 100%)' }}>
-        <div className="absolute top-0 right-0 w-80 h-80 rounded-full opacity-20" style={{ background: 'radial-gradient(circle, #00b4d8 0%, transparent 70%)', transform: 'translate(80px, -80px)' }} />
-        <div className="absolute bottom-8 right-16 text-9xl opacity-5 leading-none select-none">❄</div>
+      <div className="relative overflow-hidden text-white" style={{ background: 'linear-gradient(135deg, #000000 0%, #0a2540 50%, #004e7c 100%)' }}>
+        {/* Logo 大图水印背景 */}
+        <div
+          className="absolute inset-0 pointer-events-none select-none"
+          style={{
+            backgroundImage: 'url(/images/snow-village/logo.svg)',
+            backgroundRepeat: 'no-repeat',
+            backgroundPosition: 'center 75%',
+            backgroundSize: '110% auto',
+            opacity: 0.18,
+          }}
+          aria-hidden="true"
+        />
+        {/* 渐变遮罩，让 logo 自然融入 + 保证文字可读 */}
+        <div
+          className="absolute inset-0 pointer-events-none"
+          style={{ background: 'linear-gradient(180deg, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.2) 40%, rgba(0,0,0,0.6) 100%)' }}
+          aria-hidden="true"
+        />
+        <div className="absolute top-0 right-0 w-80 h-80 rounded-full opacity-15" style={{ background: 'radial-gradient(circle, #00b4d8 0%, transparent 70%)', transform: 'translate(80px, -80px)' }} />
         <div className="max-w-4xl mx-auto px-8 py-20 relative">
-          <div className="inline-block bg-cyan-500/30 border border-cyan-400/60 text-cyan-300 text-xs tracking-widest px-4 py-1 rounded-full mb-8 font-medium uppercase">
+          <div className="inline-block bg-cyan-500/30 border border-cyan-400/60 text-cyan-300 text-xs tracking-widest px-4 py-1 rounded-full mb-8 font-medium uppercase backdrop-blur-sm">
             商业合作提案 · 保密文件
           </div>
-          <h1 className="text-5xl font-bold leading-tight mb-4" style={{ fontFamily: 'serif' }}>
+          <h1 className="text-5xl font-bold leading-tight mb-4" style={{ fontFamily: 'serif', textShadow: '0 2px 12px rgba(0,0,0,0.5)' }}>
             Snow Village<br />
             <span className="text-cyan-300">数字化增长全案</span>
           </h1>
@@ -168,7 +185,7 @@ export default function SnowVillageProposal() {
         <p className="text-slate-600 mb-8">
           我们对 NZ 本地主要商用制冷设备供应商进行了数字化能力扫描，结论是：<strong className="text-slate-900">这个行业整体数字化程度偏低，先动者优势显著。</strong>
         </p>
-        {/* 竞品网站卡片 */}
+        {/* 竞品网站截图 */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-10">
           {[
             {
@@ -177,8 +194,6 @@ export default function SnowVillageProposal() {
               rating: '较好',
               ratingColor: 'bg-amber-100 text-amber-700',
               note: '行业龙头，网站较完善，有在线购买，SEO 一般',
-              gradient: 'linear-gradient(135deg, #475569 0%, #64748b 100%)',
-              initial: 'SH',
             },
             {
               name: 'Simco Catering',
@@ -186,8 +201,6 @@ export default function SnowVillageProposal() {
               rating: '一般',
               ratingColor: 'bg-orange-100 text-orange-700',
               note: '功能性网站，布局密集，SEO 较弱，无 TikTok',
-              gradient: 'linear-gradient(135deg, #6b7280 0%, #9ca3af 100%)',
-              initial: 'SC',
             },
             {
               name: 'Flocon NZ',
@@ -195,8 +208,6 @@ export default function SnowVillageProposal() {
               rating: '较差',
               ratingColor: 'bg-red-100 text-red-600',
               note: '以服务安装为主，产品展示薄弱，SEO 极弱',
-              gradient: 'linear-gradient(135deg, #525252 0%, #737373 100%)',
-              initial: 'FN',
             },
             {
               name: 'Chilled Status',
@@ -204,30 +215,35 @@ export default function SnowVillageProposal() {
               rating: '一般',
               ratingColor: 'bg-orange-100 text-orange-700',
               note: '本地服务商，网站简单，无内容策略，无社媒运营',
-              gradient: 'linear-gradient(135deg, #57534e 0%, #78716c 100%)',
-              initial: 'CS',
             },
-          ].map((comp) => (
-            <div key={comp.name} className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
-              <div className="relative h-32 flex items-center justify-center" style={{ background: comp.gradient }}>
-                <div className="text-white/90 text-4xl font-bold tracking-wider" style={{ fontFamily: 'serif' }}>
-                  {comp.initial}
+          ].map((comp) => {
+            const screenshot = `https://api.microlink.io/?url=${encodeURIComponent(comp.url)}&screenshot=true&embed=screenshot.url&meta=false&viewport.width=1280&viewport.height=800`;
+            return (
+              <div key={comp.name} className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
+                <div className="relative bg-slate-100">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={screenshot}
+                    alt={`${comp.name} 网站截图`}
+                    className="w-full h-44 object-cover object-top"
+                    loading="lazy"
+                  />
+                  <span className={`absolute top-3 right-3 text-xs font-bold px-2 py-1 rounded shadow-sm ${comp.ratingColor}`}>
+                    网站质量：{comp.rating}
+                  </span>
                 </div>
-                <span className={`absolute top-3 right-3 text-xs font-bold px-2 py-1 rounded ${comp.ratingColor}`}>
-                  网站质量：{comp.rating}
-                </span>
-              </div>
-              <div className="p-4">
-                <div className="flex items-center justify-between mb-1">
-                  <h4 className="font-bold text-slate-900">{comp.name}</h4>
-                  <a href={comp.url} target="_blank" rel="noopener noreferrer" className="text-xs text-cyan-600 hover:underline">
-                    访问网站 →
-                  </a>
+                <div className="p-4">
+                  <div className="flex items-center justify-between mb-1">
+                    <h4 className="font-bold text-slate-900">{comp.name}</h4>
+                    <a href={comp.url} target="_blank" rel="noopener noreferrer" className="text-xs text-cyan-600 hover:underline">
+                      访问网站 →
+                    </a>
+                  </div>
+                  <p className="text-xs text-slate-500">{comp.note}</p>
                 </div>
-                <p className="text-xs text-slate-500">{comp.note}</p>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
 
         {/* 竞品对比表格 */}
