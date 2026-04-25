@@ -106,20 +106,23 @@ export default function SnowVillageProposal() {
         <SectionLabel num="03" label="服务详情" />
         <h2 className="text-3xl font-bold text-slate-900 mb-8" style={{ fontFamily: 'serif' }}>我们具体做什么</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-          {[
+          {([
             {
               icon: '🌐', title: '网站建设',
               items: ['Shopify 专业主题定制', '150+ SKU 产品迁移与优化', 'Mega Menu 导航系统', '移动端全面适配', '报价询价功能集成', '支付 / 物流配置', '基础 SEO 架构搭建', '2周内交付上线'],
+              note: null,
             },
             {
               icon: '🔍', title: 'SEO 优化',
               items: ['200个目标关键词追踪', '20个新优化页面 / 月', '产品页 · 场景页 · 地区页', 'Google Search Console 管理', 'SEO 实时预警系统', '每月完整排名报告', '技术SEO持续优化', '内链建设 · 外链拓展'],
+              note: null,
             },
             {
               icon: '📱', title: '社媒运营',
               items: ['200条内容 / 月', 'Facebook + TikTok + Instagram', '数字人产品讲解视频', '产品展示短视频剪辑', '促销活动内容策划', '客户案例故事化制作', '评论互动管理', '每月数据分析报告'],
+              note: '广告投流费用不含，按目标关键词 CPC 实测后另列预算，Magic Lab 不收任何代投手续费',
             },
-          ].map((svc) => (
+          ] as const).map((svc) => (
             <div key={svc.title} className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm relative overflow-hidden">
               <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-cyan-400 to-blue-600" />
               <div className="text-3xl mb-3">{svc.icon}</div>
@@ -132,6 +135,11 @@ export default function SnowVillageProposal() {
                   </li>
                 ))}
               </ul>
+              {svc.note && (
+                <p className="mt-4 pt-3 border-t border-slate-100 text-xs text-slate-400 leading-relaxed">
+                  💡 {svc.note}
+                </p>
+              )}
             </div>
           ))}
         </div>
@@ -283,16 +291,16 @@ export default function SnowVillageProposal() {
       <section className="bg-slate-50">
         <div className="max-w-4xl mx-auto px-8 py-16">
           <SectionLabel num="06" label="合作定价" />
-          <h2 className="text-3xl font-bold text-slate-900 mb-4" style={{ fontFamily: 'serif' }}>专属报价方案</h2>
+          <h2 className="text-3xl font-bold text-slate-900 mb-4" style={{ fontFamily: 'serif' }}>专属报价方案 · 3 个月合同起</h2>
           <p className="text-slate-600 mb-8">
-            以下为针对 Snow Village 定制的战略合作价格，<strong className="text-slate-900">较市场标准价格享受 40% 优惠</strong>，换取深度长期合作与案例授权。
+            以下为针对 Snow Village 定制的战略合作价格，<strong className="text-slate-900">较市场标准价格享受 40% 优惠</strong>，换取深度长期合作与案例授权。<strong className="text-slate-900">月度服务费已包含全部工具与系统成本</strong>，客户仅需另付 Shopify 自身费用。
           </p>
 
           {/* 主定价卡 */}
           <div className="relative overflow-hidden text-white rounded-2xl p-10 mb-5" style={{ background: 'linear-gradient(135deg, #0a2540, #1a4060)' }}>
             <div className="absolute right-8 bottom-0 text-8xl opacity-5 leading-none select-none">❄</div>
             <div className="inline-block bg-amber-400 text-slate-900 text-xs font-bold px-3 py-1 rounded mb-6 tracking-wide uppercase">
-              🌟 GROWTH 战略套餐 · 专属报价
+              🌟 GROWTH 全包套餐 · 3 个月合同
             </div>
 
             <div className="flex justify-between items-start py-5 border-b border-white/10">
@@ -303,21 +311,75 @@ export default function SnowVillageProposal() {
               <div className="text-right flex-shrink-0 ml-8">
                 <div className="text-xs text-white/35 line-through mb-1">市价 $8,000</div>
                 <div className="text-4xl font-bold">$4,800</div>
-                <div className="text-xs text-white/50 mt-1">一次性 · 含GST</div>
+                <div className="text-xs text-white/50 mt-1">一次性 · +GST</div>
               </div>
             </div>
 
-            <div className="flex justify-between items-start py-5">
+            <div className="flex justify-between items-start py-5 border-b border-white/10">
               <div>
-                <div className="font-semibold text-white/90 mb-1">月度服务费</div>
-                <div className="text-xs text-white/50">SEO（20页/月）+ 社媒运营（200条/月）+ 月度报告</div>
+                <div className="font-semibold text-white/90 mb-1">月度服务费 · 全包</div>
+                <div className="text-xs text-white/50">SEO（20页/月）+ 社媒运营（200条/月）+ 月度报告 + 下方所有工具栈月费</div>
               </div>
               <div className="text-right flex-shrink-0 ml-8">
                 <div className="text-xs text-white/35 line-through mb-1">市价 $5,500/月</div>
                 <div className="text-4xl font-bold">$3,300</div>
-                <div className="text-xs text-white/50 mt-1">/月 · 含GST</div>
+                <div className="text-xs text-white/50 mt-1">/月 · +GST · 3个月起</div>
               </div>
             </div>
+
+            {/* 全包工具栈 */}
+            <div className="py-5 border-b border-white/10">
+              <div className="font-semibold text-white/90 mb-3 flex items-center gap-2">
+                <span className="text-emerald-400">✓</span> Magic Lab 全包（无需另付）
+              </div>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-x-4 gap-y-2 text-xs text-white/70">
+                {[
+                  'Cloudflare CDN & 安全',
+                  'Cloudflare 企业邮箱',
+                  'Render 应用托管',
+                  'Supabase 数据库',
+                  'Publer 多平台发布',
+                  'Zapier 自动化',
+                  'Airtable CRM',
+                  'Lovart 设计 AI',
+                  'HeyGen 数字人视频',
+                ].map((tool) => (
+                  <div key={tool} className="flex items-start gap-1.5">
+                    <span className="text-cyan-300 flex-shrink-0">·</span>
+                    {tool}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Pass-through Shopify */}
+            <div className="py-5">
+              <div className="font-semibold text-white/90 mb-3 flex items-center gap-2">
+                <span className="text-amber-400">⚠</span> 客户单独支付（按 Shopify 实际收费）
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+                <div className="bg-white/5 border border-white/10 rounded-lg px-3 py-2">
+                  <div className="text-white/90 font-medium">Shopify 主题模板</div>
+                  <div className="text-white/50">一次性 · 约 NZD $400（按选定主题）</div>
+                </div>
+                <div className="bg-white/5 border border-white/10 rounded-lg px-3 py-2">
+                  <div className="text-white/90 font-medium">Shopify 月费</div>
+                  <div className="text-white/50">Basic Plan · 约 NZD $66/月</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* 限时礼包 */}
+          <div className="relative overflow-hidden rounded-2xl p-7 mb-5" style={{ background: 'linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)', border: '1px solid #f59e0b' }}>
+            <div className="absolute right-6 top-6 text-5xl opacity-20 leading-none select-none">🎁</div>
+            <div className="inline-block bg-amber-600 text-white text-xs font-bold px-3 py-1 rounded mb-3 tracking-wide uppercase">
+              限时礼包 · 仅本提案有效
+            </div>
+            <h4 className="text-xl font-bold text-amber-900 mb-2">💎 AI 技能训练营 × 3 席位</h4>
+            <p className="text-sm text-amber-900/80 leading-relaxed">
+              签约即赠 Magic Lab AI 技能训练营 3 个席位，<strong>价值 NZD $5,980</strong>。覆盖 ChatGPT 商用、AI 内容生产、AI 数据分析等模块，帮助 Snow Village 团队建立内部 AI 能力，长期受益。
+            </p>
           </div>
 
           {/* 超出费用 */}
@@ -332,6 +394,10 @@ export default function SnowVillageProposal() {
               </div>
             ))}
           </div>
+
+          <p className="mt-5 text-xs text-slate-400">
+            💡 所有费用均不含 GST。月度服务费按 3 个月合同期收取，到期可续约。
+          </p>
         </div>
       </section>
 
@@ -345,10 +411,10 @@ export default function SnowVillageProposal() {
         <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-8">
           <h4 className="font-bold text-emerald-800 mb-5">📊 盈亏平衡测算</h4>
           {[
-            ['月度服务费', '$3,300'],
-            ['单台均价（含GST）', '~$2,200'],
-            ['单台毛利（30%）', '~$660'],
-            ['回本所需增量台数', '5 台 / 月'],
+            ['月度服务费（全包，+GST）', '$3,300'],
+            ['单台均价（不含GST）', '~$2,000'],
+            ['单台毛利（30%）', '~$600'],
+            ['回本所需增量台数', '约 6 台 / 月'],
             ['行业经验：SEO+社媒成熟后带来的月增量', '15–30 台'],
           ].map(([label, val], i) => (
             <div key={i} className={`flex justify-between py-3 text-sm ${i === 4 ? 'border-t-2 border-emerald-300 mt-2 font-bold text-emerald-800 text-base' : 'border-b border-emerald-100 text-slate-700'}`}>
@@ -358,7 +424,7 @@ export default function SnowVillageProposal() {
           ))}
         </div>
         <p className="mt-5 text-sm text-slate-400">
-          💡 仅需每月多卖 <strong className="text-slate-600">5台设备</strong>即可覆盖全部营销成本。SEO 流量具有复利效应，第6个月后通常可见显著的自然流量增长。
+          💡 仅需每月多卖 <strong className="text-slate-600">6 台设备</strong>即可覆盖全部营销成本。该费用已包含 Cloudflare、Render、Supabase、Publer、HeyGen、Lovart 等全部工具栈月费，客户无隐性成本。SEO 流量具有复利效应，第 6 个月后通常可见显著的自然流量增长。
         </p>
       </section>
 
