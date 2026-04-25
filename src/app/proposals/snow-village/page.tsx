@@ -86,7 +86,7 @@ export default function SnowVillageProposal() {
             {[
               { num: '1', phase: '第 1–2 周', title: '新网站上线（Shopify）', desc: '采用 Shopify 专业主题，对标行业标杆视觉水准。完成150+ SKU 产品迁移、分类结构搭建、支付与物流配置。2周内完成交付，客户团队可即刻自主管理后台。' },
               { num: '2', phase: '第 1 个月起', title: 'SEO 系统化布局', desc: '每月产出 20 个经过关键词研究的优化页面，覆盖产品类目、行业场景（餐厅/咖啡店/超市/加油站）、地区落地页（Auckland/Wellington/Christchurch）三大维度，12个月内稳步占领本地搜索首页。' },
-              { num: '3', phase: '第 1 个月起', title: '社媒内容矩阵（FB + TK + IG）', desc: '每月 200 条内容，涵盖数字人讲解视频（HeyGen）、产品展示短视频（闪剪）、促销图文、客户案例等多种形式，全面覆盖 Facebook、TikTok、Instagram 三大平台。' },
+              { num: '3', phase: '第 1 个月起', title: '社媒内容矩阵（FB + TK + IG）', desc: '每月 100 条内容（基准，最多 200 条），其中 60% 为视频内容，涵盖数字人讲解视频（HeyGen）、产品展示短视频（闪剪）、促销图文、客户案例等多种形式，全面覆盖 Facebook、TikTok、Instagram 三大平台。' },
             ].map((step) => (
               <div key={step.num} className="flex gap-5">
                 <div className="w-10 h-10 rounded-full bg-cyan-700 text-white font-bold text-sm flex items-center justify-center flex-shrink-0 mt-1">{step.num}</div>
@@ -114,12 +114,12 @@ export default function SnowVillageProposal() {
             },
             {
               icon: '🔍', title: 'SEO 优化',
-              items: ['200个目标关键词追踪', '20个新优化页面 / 月', '产品页 · 场景页 · 地区页', 'Google Search Console 管理', 'SEO 实时预警系统', '每月完整排名报告', '技术SEO持续优化', '内链建设 · 外链拓展'],
+              items: ['50个目标关键词追踪', '20个新优化页面 / 月', '产品页 · 场景页 · 地区页', 'Google Search Console 管理', 'SEO 实时预警系统', '每月完整排名报告', '技术SEO持续优化', '内链建设 · 外链拓展'],
               note: null,
             },
             {
               icon: '📱', title: '社媒运营',
-              items: ['200条内容 / 月', 'Facebook + TikTok + Instagram', '数字人产品讲解视频', '产品展示短视频剪辑', '促销活动内容策划', '客户案例故事化制作', '评论互动管理', '每月数据分析报告'],
+              items: ['100条/月（基准），最多200条', '其中 60% 为视频内容', 'Facebook + TikTok + Instagram', '数字人产品讲解视频', '产品展示短视频剪辑', '促销活动内容策划', '客户案例故事化制作', '每月数据分析报告'],
               note: '广告投流费用不含，按目标关键词 CPC 实测后另列预算，Magic Lab 不收任何代投手续费',
             },
           ] as const).map((svc) => (
@@ -286,7 +286,7 @@ export default function SnowVillageProposal() {
             <div className="flex justify-between items-start py-5 border-b border-white/10">
               <div>
                 <div className="font-semibold text-white/90 mb-1">月度服务费 · 全包</div>
-                <div className="text-xs text-white/50">SEO（20页/月）+ 社媒运营（200条/月）+ 月度报告 + 下方所有工具栈月费</div>
+                <div className="text-xs text-white/50">SEO（20页/月）+ 社媒运营（100条基准 / 60% 视频）+ 月度报告 + 下方所有工具栈月费</div>
               </div>
               <div className="text-right flex-shrink-0 ml-8">
                 <div className="text-xs text-white/35 line-through mb-1">市价 $5,500/月</div>
@@ -369,8 +369,129 @@ export default function SnowVillageProposal() {
         </div>
       </section>
 
-      {/* 07 ROI */}
+      {/* 06+ 价值对比 */}
       <section className="max-w-4xl mx-auto px-8 py-16">
+        <SectionLabel num="06+" label="价值对比" />
+        <h2 className="text-3xl font-bold text-slate-900 mb-4" style={{ fontFamily: 'serif' }}>同样的工作，市场价 vs Magic Lab</h2>
+        <p className="text-slate-600 mb-10">
+          以下对比基于 Snow Village 完整方案范围（建站 + 12 个月 SEO + 12 个月社媒 + AI 培训 + 全部工具栈），
+          按 NZ 本地市场标准价格逐项核算。<strong className="text-slate-900">两组数字不仅展示费用差距，更体现 Magic Lab AI 增长引擎在交付效率上的代际差异。</strong>
+        </p>
+
+        {/* 费用对比 */}
+        <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden mb-10">
+          <div className="px-6 py-4 border-b border-slate-200 bg-slate-50">
+            <h3 className="font-bold text-slate-900">💰 12 个月费用对比（NZD · 不含 GST）</h3>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="bg-slate-100 text-slate-700 text-xs uppercase tracking-wider">
+                  <th className="text-left px-5 py-3 font-semibold">项目</th>
+                  <th className="text-right px-5 py-3 font-semibold">市场标准价</th>
+                  <th className="text-right px-5 py-3 font-semibold">Magic Lab</th>
+                  <th className="text-right px-5 py-3 font-semibold">节省</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {[
+                  ['Shopify 网站建设（150 SKU + 主题定制）', '$8,000 – $12,000', '$4,800', '~$5,200'],
+                  ['SEO 服务（12 个月 · 20 页/月）', '$2,500/月 × 12 = $30,000', '已含月费', '$30,000'],
+                  ['社媒运营（12 个月 · 100 条/月 · 60% 视频）', '$5,500/月 × 12 = $66,000', '已含月费', '$66,000'],
+                  ['AI 技能训练营 × 3 席位', '$5,980', '$0（赠送）', '$5,980'],
+                  ['Cloudflare CDN & 安全（Business）', '~$240/年', '已含', '$240'],
+                  ['Cloudflare 企业邮箱', '~$72/年', '已含', '$72'],
+                  ['Render 应用托管', '~$240/年', '已含', '$240'],
+                  ['Supabase 数据库（Pro）', '~$300/年', '已含', '$300'],
+                  ['Publer 多平台发布（Business）', '~$420/年', '已含', '$420'],
+                  ['Zapier 自动化（Professional）', '~$580/年', '已含', '$580'],
+                  ['Airtable CRM（Team）', '~$480/年', '已含', '$480'],
+                  ['Lovart 设计 AI', '~$360/年', '已含', '$360'],
+                  ['HeyGen 数字人视频（Creator）', '~$1,150/年', '已含', '$1,150'],
+                  ['月度服务费基础（Magic Lab）', '—', '$3,300/月 × 12 = $39,600', '—'],
+                ].map(([item, market, magic, save], i) => (
+                  <tr key={i} className="hover:bg-slate-50 transition-colors">
+                    <td className="px-5 py-3 text-slate-700">{item}</td>
+                    <td className="px-5 py-3 text-right text-slate-500">{market}</td>
+                    <td className="px-5 py-3 text-right text-slate-900 font-medium">{magic}</td>
+                    <td className="px-5 py-3 text-right text-emerald-600 font-semibold">{save}</td>
+                  </tr>
+                ))}
+                <tr className="bg-cyan-50 font-bold text-slate-900">
+                  <td className="px-5 py-4">12 个月总计</td>
+                  <td className="px-5 py-4 text-right text-slate-500 line-through">~$117,162</td>
+                  <td className="px-5 py-4 text-right text-cyan-700 text-base">$44,400</td>
+                  <td className="px-5 py-4 text-right text-emerald-600 text-base">~$72,762</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div className="px-6 py-4 bg-emerald-50 border-t border-emerald-200">
+            <div className="flex items-center justify-between flex-wrap gap-3">
+              <div className="text-sm text-emerald-900">
+                <strong>Snow Village 12 个月节省：~$72,762 NZD</strong>
+                <span className="text-emerald-700 ml-2">（约 62% 成本压缩）</span>
+              </div>
+              <div className="text-xs text-emerald-700">
+                💡 不含 Shopify 自身费用（~$1,192/年 = $400 主题 + $66/月），由客户单独支付
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* 时间效率对比 */}
+        <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
+          <div className="px-6 py-4 border-b border-slate-200 bg-slate-50">
+            <h3 className="font-bold text-slate-900">⚡ 时间效率对比 · AI 增长引擎压缩</h3>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="bg-slate-100 text-slate-700 text-xs uppercase tracking-wider">
+                  <th className="text-left px-5 py-3 font-semibold">工作内容</th>
+                  <th className="text-right px-5 py-3 font-semibold">行业常规时间</th>
+                  <th className="text-right px-5 py-3 font-semibold">Magic Lab AI 引擎</th>
+                  <th className="text-right px-5 py-3 font-semibold">效率提升</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {[
+                  ['Shopify 建站 + 150 SKU 迁移', '6 – 8 周', '2 周内交付', '3 – 4 倍'],
+                  ['SEO 内容生产（20 页/月）', '80 – 120 小时/月', '20 – 30 小时/月', '4 – 6 倍'],
+                  ['短视频与数字人视频制作（60 条/月）', '180 – 240 小时/月', '30 – 40 小时/月', '6 – 8 倍'],
+                  ['社媒图文制作（40 条/月）', '60 – 80 小时/月', '10 – 15 小时/月', '5 – 8 倍'],
+                  ['SaaS 工具集成与配置（9 项工具栈）', '2 – 4 周', '即时上线', '∞'],
+                  ['月度数据分析与报告', '8 – 16 小时/月', '1 – 2 小时/月', '8 – 10 倍'],
+                  ['关键词研究与排名追踪（50 词）', '20 – 30 小时/月', '自动化 · <2 小时', '10 – 15 倍'],
+                ].map(([work, normal, magic, gain], i) => (
+                  <tr key={i} className="hover:bg-slate-50 transition-colors">
+                    <td className="px-5 py-3 text-slate-700">{work}</td>
+                    <td className="px-5 py-3 text-right text-slate-500">{normal}</td>
+                    <td className="px-5 py-3 text-right text-slate-900 font-medium">{magic}</td>
+                    <td className="px-5 py-3 text-right text-cyan-600 font-bold">{gain}</td>
+                  </tr>
+                ))}
+                <tr className="bg-cyan-50 font-bold text-slate-900">
+                  <td className="px-5 py-4">综合效率提升</td>
+                  <td className="px-5 py-4 text-right text-slate-500">~360 小时/月</td>
+                  <td className="px-5 py-4 text-right text-cyan-700 text-base">~70 小时/月</td>
+                  <td className="px-5 py-4 text-right text-cyan-700 text-base">~5 倍</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div className="px-6 py-4 bg-cyan-50 border-t border-cyan-200">
+            <div className="text-sm text-cyan-900">
+              <strong>核心价值：</strong>
+              <span className="text-cyan-800">同样的产出，传统团队需要 ~3 个全职岗位（FTE），Magic Lab AI 引擎压缩到 ~0.5 FTE 投入即可完成。这正是 $44,400 全包价格的底层经济学支撑。</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 07 ROI */}
+      <section className="bg-slate-50">
+        <div className="max-w-4xl mx-auto px-8 py-16">
         <SectionLabel num="07" label="投资回报" />
         <h2 className="text-3xl font-bold text-slate-900 mb-4" style={{ fontFamily: 'serif' }}>每月 $3,300，需要几台冰柜回本？</h2>
         <p className="text-slate-600 mb-6">
@@ -394,6 +515,7 @@ export default function SnowVillageProposal() {
         <p className="mt-5 text-sm text-slate-400">
           💡 仅需每月多卖 <strong className="text-slate-600">6 台设备</strong>即可覆盖全部营销成本。该费用已包含 Cloudflare、Render、Supabase、Publer、HeyGen、Lovart 等全部工具栈月费，客户无隐性成本。SEO 流量具有复利效应，第 6 个月后通常可见显著的自然流量增长。
         </p>
+        </div>
       </section>
 
       {/* 推荐 Shopify 模板 */}
