@@ -195,63 +195,25 @@ export default function SnowVillageProposal() {
         </p>
         {/* 竞品网站截图 */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-10">
-          {[
-            {
-              name: 'Southern Hospitality',
-              url: 'https://www.southernhospitality.co.nz',
-              rating: '较好',
-              ratingColor: 'bg-amber-100 text-amber-700',
-              note: '行业龙头，网站较完善，有在线购买，SEO 一般',
-            },
-            {
-              name: 'Simco Catering',
-              url: 'https://simcocateringequipment.co.nz',
-              rating: '一般',
-              ratingColor: 'bg-orange-100 text-orange-700',
-              note: '功能性网站，布局密集，SEO 较弱，无 TikTok',
-            },
-            {
-              name: 'Flocon NZ',
-              url: 'https://www.flocon.co.nz',
-              rating: '较差',
-              ratingColor: 'bg-red-100 text-red-600',
-              note: '以服务安装为主，产品展示薄弱，SEO 极弱',
-            },
-            {
-              name: 'Chilled Status',
-              url: 'https://chilledstatus.co.nz',
-              rating: '一般',
-              ratingColor: 'bg-orange-100 text-orange-700',
-              note: '本地服务商，网站简单，无内容策略，无社媒运营',
-            },
-          ].map((comp) => {
-            const screenshot = `https://api.microlink.io/?url=${encodeURIComponent(comp.url)}&screenshot=true&embed=screenshot.url&meta=false&viewport.width=1280&viewport.height=800`;
-            return (
-              <div key={comp.name} className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
-                <div className="relative bg-slate-100">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={screenshot}
-                    alt={`${comp.name} 网站截图`}
-                    className="w-full h-44 object-cover object-top"
-                    loading="lazy"
-                  />
-                  <span className={`absolute top-3 right-3 text-xs font-bold px-2 py-1 rounded shadow-sm ${comp.ratingColor}`}>
-                    网站质量：{comp.rating}
-                  </span>
-                </div>
-                <div className="p-4">
-                  <div className="flex items-center justify-between mb-1">
-                    <h4 className="font-bold text-slate-900">{comp.name}</h4>
-                    <a href={comp.url} target="_blank" rel="noopener noreferrer" className="text-xs text-cyan-600 hover:underline">
-                      访问网站 →
-                    </a>
-                  </div>
-                  <p className="text-xs text-slate-500">{comp.note}</p>
-                </div>
+          {competitorSites.map((comp) => (
+            <div key={comp.name} className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
+              <div className="relative">
+                <CompetitorBrowserMockup {...comp} />
+                <span className={`absolute top-3 right-3 text-xs font-bold px-2 py-1 rounded shadow-sm ${comp.ratingColor}`}>
+                  网站质量：{comp.rating}
+                </span>
               </div>
-            );
-          })}
+              <div className="p-4">
+                <div className="flex items-center justify-between mb-1">
+                  <h4 className="font-bold text-slate-900">{comp.name}</h4>
+                  <a href={comp.url} target="_blank" rel="noopener noreferrer" className="text-xs text-cyan-600 hover:underline">
+                    访问网站 →
+                  </a>
+                </div>
+                <p className="text-xs text-slate-500">{comp.note}</p>
+              </div>
+            </div>
+          ))}
         </div>
 
         {/* 竞品对比表格 */}
@@ -565,6 +527,110 @@ function SectionLabel({ num, label }: { num: string; label: string }) {
     <div className="flex items-center gap-3 text-xs font-bold text-cyan-600 uppercase tracking-widest mb-3">
       <div className="w-6 h-0.5 bg-cyan-500" />
       {num} · {label}
+    </div>
+  );
+}
+
+/* ─── Competitor browser mockups ─── */
+
+const competitorSites = [
+  {
+    name: 'Southern Hospitality',
+    url: 'https://www.southernhospitality.co.nz',
+    rating: '较好',
+    ratingColor: 'bg-amber-100 text-amber-700',
+    note: '行业龙头，网站较完善，有在线购买，SEO 一般',
+    heroBg: '#c0392b',
+    heroText: '#fff',
+    nav: ['Home', 'Refrigeration', 'Cooking', 'Warewashing', 'Shop'],
+    headline: 'Premium Hospitality Equipment',
+    subline: 'New Zealand\'s largest supplier of commercial kitchen equipment',
+    badge: '🛒 Shop Online',
+    badgeBg: '#e74c3c',
+  },
+  {
+    name: 'Simco Catering',
+    url: 'https://simcocateringequipment.co.nz',
+    rating: '一般',
+    ratingColor: 'bg-orange-100 text-orange-700',
+    note: '功能性网站，布局密集，SEO 较弱，无 TikTok',
+    heroBg: '#1a2c5b',
+    heroText: '#fff',
+    nav: ['Home', 'Gas Equipment', 'Refrigeration', 'Deadstock'],
+    headline: 'Affordable & Energy Efficient Refrigeration',
+    subline: '2+2 Year Warranty on all Commercial Refrigeration',
+    badge: '✉ Send Enquiry',
+    badgeBg: '#2980b9',
+  },
+  {
+    name: 'Flocon NZ',
+    url: 'https://www.flocon.co.nz',
+    rating: '较差',
+    ratingColor: 'bg-red-100 text-red-600',
+    note: '以服务安装为主，产品展示薄弱，SEO 极弱',
+    heroBg: '#27ae60',
+    heroText: '#fff',
+    nav: ['Home', 'Products', 'Calculator', 'Specials', 'Services'],
+    headline: 'Commercial Refrigeration Solutions',
+    subline: 'Installation & maintenance specialists across New Zealand',
+    badge: '📞 Get a Quote',
+    badgeBg: '#229954',
+  },
+  {
+    name: 'Chilled Status',
+    url: 'https://chilledstatus.co.nz',
+    rating: '一般',
+    ratingColor: 'bg-orange-100 text-orange-700',
+    note: '本地服务商，网站简单，无内容策略，无社媒运营',
+    heroBg: '#1a1a2e',
+    heroText: '#fff',
+    nav: ['Services', 'Products', 'Rental', 'Projects', 'FAQs', 'About'],
+    headline: 'Commercial Refrigeration & Air Conditioning',
+    subline: 'Auckland\'s trusted refrigeration service provider',
+    badge: '📍 Auckland, NZ',
+    badgeBg: '#16213e',
+  },
+];
+
+function CompetitorBrowserMockup({
+  heroBg, heroText, nav, headline, subline, badge, badgeBg, name,
+}: {
+  heroBg: string; heroText: string; nav: string[]; headline: string;
+  subline: string; badge: string; badgeBg: string; name: string;
+  url: string; rating: string; ratingColor: string; note: string;
+}) {
+  return (
+    <div className="h-44 overflow-hidden" style={{ background: '#f0f0f0' }}>
+      {/* Browser chrome */}
+      <div className="flex items-center gap-2 px-3 py-2" style={{ background: '#e8e8e8', borderBottom: '1px solid #d0d0d0' }}>
+        <span className="w-2.5 h-2.5 rounded-full bg-red-400 inline-block" />
+        <span className="w-2.5 h-2.5 rounded-full bg-amber-400 inline-block" />
+        <span className="w-2.5 h-2.5 rounded-full bg-green-400 inline-block" />
+        <div className="flex-1 mx-2 px-2 py-0.5 rounded text-xs text-gray-400" style={{ background: '#fff', fontSize: '10px' }}>
+          {name.toLowerCase().replace(/\s+/g, '')}.co.nz
+        </div>
+      </div>
+      {/* Site nav bar */}
+      <div className="flex items-center gap-3 px-4 py-1.5" style={{ background: '#fff', borderBottom: '1px solid #eee' }}>
+        <span className="font-bold text-xs" style={{ color: heroBg }}>{name.split(' ')[0].toUpperCase()}</span>
+        {nav.slice(0, 4).map((item) => (
+          <span key={item} className="text-xs" style={{ color: '#555', fontSize: '10px' }}>{item}</span>
+        ))}
+      </div>
+      {/* Hero area */}
+      <div className="flex items-center px-5 py-3 gap-4" style={{ background: heroBg, color: heroText, minHeight: '88px' }}>
+        <div className="flex-1">
+          <p className="font-bold leading-tight mb-1" style={{ fontSize: '13px' }}>{headline}</p>
+          <p style={{ fontSize: '10px', opacity: 0.75 }}>{subline}</p>
+          <span className="inline-block mt-2 px-2 py-0.5 rounded text-white font-semibold" style={{ background: badgeBg, fontSize: '10px', border: '1px solid rgba(255,255,255,0.2)' }}>
+            {badge}
+          </span>
+        </div>
+        {/* Fake product image block */}
+        <div className="w-20 h-16 rounded flex-shrink-0 flex items-center justify-center" style={{ background: 'rgba(255,255,255,0.12)', border: '1px dashed rgba(255,255,255,0.3)' }}>
+          <span style={{ fontSize: '24px', opacity: 0.6 }}>🧊</span>
+        </div>
+      </div>
     </div>
   );
 }
