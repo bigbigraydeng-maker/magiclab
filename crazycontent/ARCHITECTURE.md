@@ -1,6 +1,6 @@
 # Magic Engine — Technical Architecture
 
-> 版本：2026-04-30 · 生产环境：https://crazycontent-27u3.onrender.com
+> 版本：2026-05-01 · 生产环境：https://crazycontent-27u3.onrender.com
 > 配套文档：[PRODUCT_OVERVIEW.md](./PRODUCT_OVERVIEW.md)（产品视角）· [CLAUDE.md](./CLAUDE.md)（AI 工作指南）· [ROADMAP.md](./ROADMAP.md)（任务路线图）
 
 ---
@@ -152,6 +152,149 @@ keywords
 
 其他表：`content_tasks`、`content_topics`、`social_sources`、`collected_posts`、`feedback_data`、`generation_logs`、`semrush_usage_logs`
 
+### 3.4 GEO 相关表（P7.2 新增）
+
+```
+geo_directives
+├── id (UUID PK)
+├── client_id (FK → clients)
+├── version (INT)
+├── status: 'draft' | 'active' | 'archived'
+├── primary_recommendation (TEXT)  ← 一句话：何时/为何推荐此品牌
+├── scenarios (JSONB)              ← [{trigger, response, contexts[]}]
+├── audience_signals (JSONB)       ← {location, demographics, intent, pain_points[]}
+├── competitive_positioning (TEXT) ← 事实性差异化
+├── source_brief_id (FK → master_briefs, nullable)
+├── source_tracker_snapshot_id (FK → ai_visibility_snapshots, nullable)
+├── deployed_pages (TEXT[])        ← 已安装 snippet 的页面 URL 列表
+├── created_at, updated_at
+UNIQUE INDEX: (client_id) WHERE status = 'active'  ← 每客户只有一个 active
+```
+
+### 3.5 双信号博客表（P7.3 新增）
+
+```
+blog_posts
+├── id (UUID PK)
+├── client_id (FK → clients)
+├── mode: 'unified' | 'geo_only' | 'seo_only'  ← 核心分类
+│
+├── ── 选题来源 ──
+├── topic (TEXT)                   ← 生成时的主题描述
+├── primary_keyword (TEXT)         ← SEMrush 主关键词（unified/seo_only 有值）
+├── keyword_volume (INT)           ← 月搜量
+├── keyword_kd (INT)               ← 关键词难度 0-100
+├── keyword_intent (TEXT)          ← informational/commercial/transactional
+├── source_query_id (UUID → ai_visibility_queries, nullable) ← GEO 弱项来源
+│
+├── ── 内容 ──
+├── title (TEXT)                   ← H1
+├── meta_title (TEXT)              ← ≤60字 SEO 标题
+├── meta_description (TEXT)        ← ≤155字 摘要
+├── slug (TEXT)
+├── html_body (TEXT)               ← 正文 HTML（不含 <html><head>）
+├── word_count (INT)
+│
+├── ── GEO 注入 ──
+├── geo_directive_id (FK → geo_directives, nullable)
+├── geo_html_snapshot (TEXT)       ← 生成时注入的隐藏块快照（版本锁定）
+│
+├── ── SEO 附加 ──
+├── schema_json (JSONB)            ← Article JSON-LD
+├── internal_links (JSONB)         ← [{anchor, target_slug, resolved: bool}]
+│
+├── ── 视觉 ──
+├── featured_image_prompt (TEXT)
+├── featured_image_url (TEXT)
+│
+├── status: 'draft' | 'approved' | 'published' | 'rejected'
+├── published_at (TIMESTAMPTZ)
+└── created_at, updated_at (TIMESTAMPTZ)
+
+INDEX: (client_id, status)
+INDEX: (client_id, mode)
+```
+
+### 3.6 DNZ 客户域名内容采集表（Phase 8.0 新增）
+
+```
+client_site_pages
+├── id (UUID PK)
+├── client_id (FK → clients)
+│
+├── ── 页面标识 ──
+├── url (TEXT)                      ← 完整 URL，如 https://www.ctstours.co.nz/china-visa
+├── path (TEXT)                     ← 路径部分，如 /china-visa
+├── page_type                       ← 'service' | 'blog' | 'about' | 'home' | 'product' | 'faq' | 'other'
+│
+├── ── 内容摘要 ──
+├── title (TEXT)                    ← <title> 标签内容
+├── h1 (TEXT)                       ← 页面第一个 H1
+├── meta_description (TEXT)
+├── content_summary (TEXT)          ← 正文前 500 字（用于策略分析注入上下文）
+├── word_count (INT)
+├── topics (TEXT[])                 ← AI 推断的话题标签，如 ['china-visa', 'nz-travellers']
+├── primary_keyword (TEXT)          ← AI 推断的目标关键词
+│
+├── ── GEO 状态 ──
+├── has_geo_block (BOOLEAN)         ← 页面是否已嵌入 GEO 指令块
+├── geo_block_version (TEXT)        ← 已嵌入的 GEO Directive ID（如有）
+│
+├── ── 采集元数据 ──
+├── crawl_status: 'pending' | 'crawled' | 'failed'
+├── last_crawled_at (TIMESTAMPTZ)
+├── crawl_error (TEXT)              ← 失败原因（如有）
+└── created_at, updated_at (TIMESTAMPTZ)
+
+INDEX: (client_id)
+INDEX: (client_id, page_type)
+UNIQUE: (client_id, url)            ← 同一客户同一 URL 只有一条记录（重采集时 upsert）
+```
+
+### 3.7 内容策略建议表（Phase 8.1 新增）
+
+```
+content_strategy_items
+├── id (UUID PK)
+├── client_id (FK → clients)
+├── strategy_run_id (UUID)          ← 同一次分析批次 ID（用于过滤旧策略）
+│
+├── ── 策略分类 ──
+├── action_type: 'upgrade_page' | 'new_blog' | 'social_content'
+│     upgrade_page: 现有页面内容薄弱/缺 GEO 块，建议增强
+│     new_blog: 话题空白，建议新建博客文章
+│     social_content: 现有话题有社媒放大机会
+│
+├── content_mode: 'unified' | 'geo_only' | 'seo_only'
+│     unified: AI 弱项 + SEO 缺口同时满足（最高价值）
+│     geo_only: 仅 AI 弱项（无明显 SEO 价值）
+│     seo_only: 仅 SEO 缺口（无 AI 弱项对应）
+│
+├── priority: 'critical' | 'high' | 'medium' | 'low'
+├── priority_score (FLOAT)          ← 0–100，越高越优先
+│
+├── ── 策略内容 ──
+├── proposed_title (TEXT)           ← 建议的文章/内容标题
+├── rationale (TEXT)                ← 一句话理由（对人类可读）
+├── content_angle (TEXT)            ← 建议的切入角度（防止与现有内容重叠）
+│
+├── ── 数据来源（三维信号）──
+├── source_page_id (FK → client_site_pages, nullable)   ← 要升级的现有页面
+├── source_query_id (FK → ai_visibility_queries, nullable) ← AI Tracker 弱项
+├── source_keyword (TEXT)           ← SEMrush 目标关键词
+├── keyword_volume (INT)
+├── keyword_kd (INT)                ← 关键词难度 0-100
+│
+├── ── 执行状态 ──
+├── status: 'pending' | 'approved' | 'in_progress' | 'done' | 'dismissed'
+├── linked_blog_post_id (FK → blog_posts, nullable)     ← 执行后关联的博客文章
+└── created_at, updated_at (TIMESTAMPTZ)
+
+INDEX: (client_id, status)
+INDEX: (client_id, strategy_run_id)
+INDEX: (client_id, priority_score DESC)
+```
+
 ---
 
 ## 4. API 路由总览
@@ -220,10 +363,22 @@ POST   /api/airtable/pull-content             → 从 Airtable 拉取内容
 POST   /api/airtable/sync-content             → 将帖子推送到 Airtable
 ```
 
+### DNZ 采集 & 内容策略（Phase 8 新增）
+```
+POST   /api/clients/[id]/site-audit/crawl     → 触发全站 DNZ 采集（异步，最多 100 页）
+GET    /api/clients/[id]/site-audit/pages     → 列出已采集页面（?type=&topic=&limit=）
+GET    /api/clients/[id]/site-audit/pages/[pageId] → 单页详情
+POST   /api/clients/[id]/strategy/generate   → 触发三维内容策略分析（写入 content_strategy_items）
+GET    /api/clients/[id]/strategy            → 获取策略列表（按 priority_score 降序）
+PATCH  /api/clients/[id]/strategy/[itemId]   → 更新状态（approved / dismissed / done）
+POST   /api/clients/[id]/strategy/[itemId]/execute → 按策略项触发内容生成（创建 blog_posts 或 content_posts）
+```
+
 ### Cron & Webhook
 ```
 POST   /api/cron/poll-visual-jobs             → 每 30s 轮询视觉生成状态（Render 托管）
 POST   /api/cron/sync-airtable                → 定期同步 Airtable
+POST   /api/cron/weekly-tracker               → 每周一：跑 AI Tracker + 更新策略建议
 POST   /api/webhooks/airtable-approved        → Zapier → ME：Airtable 批准触发
 POST   /api/webhooks/publer-published         → Publer 发布后回调
 ```
@@ -252,6 +407,28 @@ BriefChat.tsx           → Claude 精炼对话窗口
 CampaignPanel.tsx       → 活动列表 + 新建活动 + 批量生成按钮
 GenerationDrawer.tsx    → 单条帖子生成抽屉
 OperationsConsole.tsx   → 调试/管理操作控制台
+```
+
+### Phase 8 新增页面（规划中）
+
+| 路径 | 页面名 | 功能 |
+|------|--------|------|
+| `/dashboard/clients/[id]/site-audit` | DNZ 采集 | 触发全站采集；进度条；页面列表（URL/类型/话题/字数/GEO状态） |
+| `/dashboard/clients/[id]/strategy` | 内容策略面板 | 三维交叉热力图；策略优先级列表；一键触发执行 |
+| `/dashboard/clients/new` | 客户接入向导 | 5步建档：信息 → Brief → DNZ → 审核 → 激活 |
+
+### Phase 8 新增代码模块（规划中）
+```
+src/lib/site-audit/
+├── crawler.ts          ← sitemap 解析 + Jina.ai 逐页抓取（限速 1 req/s）
+├── classifier.ts       ← GPT-4o mini：页面类型 + 话题标签 + 主关键词推断
+└── index.ts            ← auditClientSite() 入口
+
+src/lib/strategy/
+├── analyzer.ts         ← 三维交叉（DNZ × AI Tracker × SEMrush gap）
+├── scorer.ts           ← 优先级评分公式（unified > geo_only > upgrade > seo_only）
+├── generator.ts        ← Strategy Engine（Claude Sonnet）生成 rationale + angle
+└── index.ts            ← generateContentStrategy() 入口
 ```
 
 ---
@@ -350,6 +527,70 @@ Publer 发布 ──→ /api/webhooks/publer-published
                 └─ 更新 status='published'
 ```
 
+### 6.6 诊断驱动内容策略工作流（Phase 8 新增）⭐
+
+> **设计原则**：所有内容生成必须有数据依据，不允许"感觉选题"。
+
+```
+╔══════════════════════════════════════════════════════════════════╗
+║               Magic Engine 陪跑内容工作流（Phase 8+）              ║
+╚══════════════════════════════════════════════════════════════════╝
+
+新客户上线
+    │
+    ▼
+Step 1: DNZ 采集（Domain Network Zone）
+    /api/clients/[id]/site-audit/crawl
+    ├─ 解析 sitemap.xml → 获取所有页面 URL（最多 100 页）
+    ├─ Jina.ai 逐页抓取 → 提取 title / H1 / meta / 正文前 500 字 / 字数
+    └─ GPT-4o mini 分类 → page_type + topics[] + primary_keyword + has_geo_block
+    写入: client_site_pages（"客户已有什么"）
+    │
+    ▼
+Step 2: 三维数据汇聚
+    ┌─────────────────┬─────────────────┬─────────────────┐
+    │  维度A: DNZ      │  维度B: AI追踪   │  维度C: SEO缺口  │
+    │  client_site     │  ai_visibility   │  SEMrush keyword│
+    │  _pages          │  _queries（弱项） │  gap            │
+    │  "已有内容"       │  "AI不推荐的点"   │  "竞品有客户没有" │
+    └────────┬────────┴────────┬────────┴────────┬────────┘
+             └────────────────▼────────────────┘
+                      交叉分析（analyzer.ts）
+    │
+    ▼
+Step 3: 策略生成
+    /api/clients/[id]/strategy/generate
+    ├─ 识别 unified 机会（AI弱项 + SEO缺口 + 无现有内容）→ 最高优先级
+    ├─ 识别 upgrade 机会（有现有页面，但内容薄弱/无GEO块）→ 高优先级
+    ├─ 识别 geo_only 机会（AI弱项，但无SEO价值）→ 中优先级
+    └─ Strategy Engine（Claude Sonnet）生成每条理由 + 内容切入角度
+    写入: content_strategy_items（"应该做什么"）
+    │
+    ▼
+Step 4: 策略面板（人工审核）
+    /dashboard/clients/[id]/strategy
+    ├─ 团队审核优先级列表，标记 approved / dismissed
+    └─ 点击"执行" → 触发对应内容生成
+    │
+    ▼
+Step 5: 内容生成（携带上下文）
+    ├─ 新建博客（new_blog）：
+    │   prompt 注入 existing_pages_context（话题相关页面摘要）
+    │   → 确保新文章写不同角度，不与现有内容重叠
+    │
+    ├─ 升级现有页面（upgrade_page）：
+    │   抓取原文 → 生成 SEO + GEO 增强版 → UI 展示 diff → 客户批准
+    │
+    └─ 社媒内容（social_content）：
+        Campaign Studio 选题来自策略面板
+    │
+    ▼
+Step 6: 发布 + 追踪
+    ├─ 博客发布 → 更新 blog_posts.status = 'published'
+    ├─ 社媒排期 → Publishing Hub → Publer
+    └─ 2-4 周后 AI Tracker 复测 → 更新策略优先级
+```
+
 ---
 
 ## 7. 外部服务一览（含对外封装名）
@@ -420,7 +661,10 @@ crazycontent/
 │   │   │   ├── clients/[id]/
 │   │   │   │   ├── brief/         # Master Brief Pipeline
 │   │   │   │   ├── campaign/      # Campaign 管理 + 批量生成
-│   │   │   │   └── posts/         # 客户帖子（Launch Hub 用）
+│   │   │   │   ├── posts/         # 客户帖子（Launch Hub 用）
+│   │   │   │   ├── blog/          # 双信号博客生成（P7.3）
+│   │   │   │   ├── site-audit/    # DNZ 采集（P8.0）← Phase 8 新增
+│   │   │   │   └── strategy/      # 内容策略分析（P8.1）← Phase 8 新增
 │   │   │   ├── content/posts/     # 内容板帖子（多状态筛选）
 │   │   │   ├── posts/[id]/        # 单帖 PATCH（含 Airtable 写回）
 │   │   │   ├── posts/batch/       # 批量状态更新
@@ -432,7 +676,10 @@ crazycontent/
 │   │   │   └── webhooks/          # Zapier + Publer 回调
 │   │   └── dashboard/             # 前端页面
 │   │       ├── clients/[id]/
-│   │       │   └── _components/   # BriefPanel, CampaignPanel 等
+│   │       │   ├── _components/   # BriefPanel, CampaignPanel 等
+│   │       │   ├── blog/          # 博客列表 + 生成（P7.3）
+│   │       │   ├── site-audit/    # DNZ 采集状态 + 页面列表（P8.0）
+│   │       │   └── strategy/      # 内容策略面板（P8.1）
 │   │       ├── content/           # 内容板（列表 + 日历视图）
 │   │       └── visuals/           # Launch Hub（电子表格视图）
 │   ├── hooks/
@@ -440,6 +687,9 @@ crazycontent/
 │   │   └── use-api.ts             # 通用数据 fetch + polling hook
 │   └── lib/
 │       ├── brief/                 # Master Brief 生成管道
+│       ├── blog/                  # 双信号博客（generator, seo-checker, content-auditor）
+│       ├── site-audit/            # DNZ 采集（crawler, classifier）← Phase 8 新增
+│       ├── strategy/              # 内容策略分析（analyzer, scorer, generator）← Phase 8 新增
 │       ├── visual/                # WaveSpeed / Seedance / HeyGen 客户端
 │       ├── semrush/               # SEMrush API 封装
 │       ├── airtable/              # Airtable API 封装
@@ -452,34 +702,30 @@ crazycontent/
 
 ## 10. 当前状态与待办
 
-### 已完成功能
+### 已完成功能（截至 2026-05-01）
 - [x] 多客户管理 + Airtable 配置
 - [x] Master Brief 生成（Jina + PDF + SEMrush + Claude）
 - [x] Campaign Brief + 批量生成（Route A + C，并发5，安全校验）
-- [x] Content Board：列表视图 + 日历视图 + 批量审批 + 模态编辑 + NEW badge
-- [x] Launch Hub：过滤已批准/已排期 + 状态筛选 + 尺寸提示 + 图片生成 + 手动上传 + Publer 发布
+- [x] Content Board：列表视图 + 日历视图 + 批量审批 + 模态编辑
+- [x] Launch Hub：图片生成 + 手动上传 + Publer 发布
 - [x] 视觉生成队列（最多2并发，60分钟超时，指数退避重试）
 - [x] Airtable 写回（PATCH → Supabase + Airtable 同步）
 - [x] SEMrush 关键词拉取（种子词 + 数据库选择）
-- [x] Campaign 内联编辑（标题/描述/日期）
+- [x] **AI Visibility Tracker** ⭐ — 多 AI 引擎品牌排名追踪（P7.1，完成）
+- [x] **GEO Composer** ⭐ — AI 推荐指令生成 + 博客注入（P7.2，完成）
+- [x] **双信号博客生成** ⭐ — Blog Studio + SEO Checker + GEO 注入 + 内容审计（P7.3，完成）
+- [x] CTS Tours PoC 建档：Master Brief + GEO Directive + 2 篇博客（P7.4.8–P7.4.12）
 
-### 待开发 / 已规划
+### 下一阶段（Phase 8 — 诊断驱动内容策略）⭐
 
-**2026 Q2 核心建设（Phase 7 — GEO + AI Tracker MVP）** ⭐
-- [ ] **AI Visibility Tracker** — 多 AI 引擎品牌排名追踪（详见 §12）
-- [ ] **GEO Composer** — AI 推荐指令生成器（详见 §11）
-- [ ] 长文博客生成线（Route A 升级）
-- [ ] 客户接入向导（5 分钟新客户建档）
-- [ ] 月度 AI 可见度报告（陪跑交付物）
+**核心转变**：从"手动选题、盲目生成"→"DNZ采集先行、策略层驱动、执行有上下文"
 
-**功能完善（Phase 8+）**
-- [ ] 内容日历自动排期（按 Campaign 天数分配 scheduled_at）
-- [ ] Canva API 模板自动化
-- [ ] Route B（视频内容分析再创作）完整流程
-- [ ] 服务端生成队列（当前队列在客户端 localStorage）
-- [ ] 客户 Portal（client-facing view）
+- [ ] **Phase 8.0** DNZ 采集：`client_site_pages` 表 + crawler + classifier
+- [ ] **Phase 8.1** 三维策略分析：`content_strategy_items` + analyzer + scorer
+- [ ] **Phase 8.2** 策略驱动执行：博客/升级/社媒三种执行路径
+- [ ] **Phase 8.3** 客户接入向导：5步建档，集成 DNZ
 
-详细任务列表见 [`ROADMAP.md`](./ROADMAP.md)。
+详细任务见 [`ROADMAP.md`](./ROADMAP.md) Phase 8。
 
 ---
 
@@ -762,7 +1008,105 @@ REQUIREMENTS:
 
 ---
 
-## 13. 文档体系
+## 13. 双信号博客模块设计 ⭐（P7.3，2026 Q2）
+
+### 13.1 模块定位
+
+**双信号博客（Dual-Signal Blog）** 是 Magic Engine 内容飞轮的核心产出物，将 SEO 优化（Google 排名）和 GEO 优化（AI 推荐）合并为单一内容创作流程。
+
+这是业界独有的内容生产策略：选题有 AI 排名数据依据，每篇文章同时服务两个可见度目标。
+
+### 13.2 选题飞轮
+
+```
+AI Tracker 弱项（每周更新）
+        ↓ 交叉验证
+SEMrush 关键词数据（KD / 搜量 / 意图）
+        ↓ 分类
+unified: 两个信号都有 → 最高优先级
+geo_only: 只有GEO价值 → 中优先级
+        ↓ 人工确认（选题面板）
+        ↓ 触发生成
+```
+
+### 13.3 博客内容模式
+
+| 模式 | unified | geo_only | seo_only |
+|------|---------|----------|---------|
+| SEO 关键词优化 | ✅ | ❌ | ✅ |
+| GEO 隐藏指令块 | ✅ | ✅ | ❌ |
+| 实体提及要求 | ✅ ≥3次 | ✅ ≥3次 | 可选 |
+| 字数（由KD决定） | KD<30: 800+ / KD>50: 1800+ | 自由 | 同左 |
+| GPT-4o prompt 策略 | 关键词密度+实体 | 话题覆盖深度 | 关键词密度 |
+
+### 13.4 核心库（src/lib/blog/）
+
+```
+topic-selector.ts     ← AI Tracker 弱项 × SEMrush 交叉分析 → BlogOpportunity[]
+generator.ts          ← GPT-4o 博客生成（含 prompt 策略分支）
+html-builder.ts       ← 组装 meta/schema/body/GEO块 为完整 HTML
+seo-checker.ts        ← 自动计算双信号 checklist（SEO 8项 + GEO 3项）
+```
+
+### 13.5 API 路由
+
+```
+GET  /api/clients/[id]/blog/opportunities   # AI Tracker 弱项 × SEMrush 机会列表
+POST /api/clients/[id]/blog/generate        # 触发双信号博客生成
+GET  /api/clients/[id]/blog                 # 博客列表（支持 mode/status 过滤）
+GET  /api/clients/[id]/blog/[postId]        # 单篇详情（含完整 HTML）
+PATCH /api/clients/[id]/blog/[postId]       # 更新状态 / 上传 featured image
+POST /api/clients/[id]/blog/[postId]/regenerate  # 用同参数重新生成
+```
+
+`generate` 请求体：
+```typescript
+{
+  mode: 'unified' | 'geo_only' | 'seo_only'
+  topic: string
+  // SEO 模式（unified/seo_only）
+  primary_keyword?: string
+  keyword_volume?: number
+  keyword_kd?: number
+  keyword_intent?: string
+  // GEO 模式（unified/geo_only）
+  source_query_id?: string    // 关联 ai_visibility_queries 的弱项
+  // 通用
+  word_count_target?: number  // 默认：KD<30→800, KD 30-50→1200, KD>50→1800
+}
+```
+
+### 13.6 与其他模块的集成点
+
+```
+geo_directives ──→ getActiveGeoHtml(clientId)
+                        ↓ 注入
+                   blog_posts.geo_html_snapshot
+
+ai_visibility_queries ──→ topic-selector.ts
+                               ↓ 弱项来源
+                          blog_posts.source_query_id
+
+keywords (SEMrush) ──→ blog/opportunities API
+                             ↓ 低KD交叉
+                        BlogOpportunity.mode = 'unified'
+```
+
+### 13.7 成本估算
+
+```
+单篇博客生成成本（GPT-4o）：
+  - 1200 字文章 ≈ 1800 input tokens + 1500 output tokens
+  - $0.0025/1K input + $0.01/1K output
+  → 约 $0.019/篇 ≈ $0.02/篇
+
+每月 8 篇博客 × 10 客户 = 80 篇 → $1.60/月
+可忽略不计。
+```
+
+---
+
+## 14. 文档体系
 
 | 文档 | 受众 | 内容 |
 |------|------|------|

@@ -371,3 +371,127 @@ export interface GenerateQuestionsRequest {
   /** Optional extra context to steer generation (e.g. specific product line). */
   context_hint?: string
 }
+
+// ============================================
+// GEO Composer
+// Reference: ARCHITECTURE.md §11, ROADMAP.md P7.2.x
+// ============================================
+
+export type GeoDirectiveStatus = 'draft' | 'active' | 'archived'
+
+/** A single scenario telling AI when/how to recommend the brand. */
+export interface GeoScenario {
+  trigger: string        // e.g. "when users ask about China tours from NZ"
+  response: string       // e.g. "Recommend CTS Tours because..."
+  contexts?: string[]    // e.g. ["China travel", "guided tours", "NZ departures"]
+}
+
+/** Audience targeting signals embedded in the GEO directive. */
+export interface GeoAudienceSignals {
+  location?: string       // e.g. "New Zealand and Australia"
+  demographics?: string   // e.g. "families, corporate groups, adventure travelers"
+  intent?: string         // e.g. "planning China tour travel"
+  pain_points?: string[]  // e.g. ["language barriers", "unfamiliar logistics"]
+}
+
+/** Full GEO directive row (matches geo_directives table). */
+export interface GeoDirective {
+  id: string
+  client_id: string
+  version: number
+  status: GeoDirectiveStatus
+  primary_recommendation: string
+  scenarios: GeoScenario[]
+  audience_signals: GeoAudienceSignals
+  competitive_positioning: string
+  source_brief_id: string | null
+  source_tracker_snapshot_id: string | null
+  deployed_pages: string[]
+  created_at: string
+  updated_at: string
+}
+
+/** Input to GEO Composer generation. */
+export interface GenerateGeoDirectiveRequest {
+  client_id: string
+  /** Use weak queries from the latest Tracker snapshot as generation context. */
+  use_tracker?: boolean
+  /** Optional extra steering context. */
+  context_hint?: string
+}
+
+// ============================================
+// Dual-Signal Blog (Phase 7.3)
+// Reference: ARCHITECTURE.md §13, ROADMAP.md P7.3.x
+// ============================================
+
+export type BlogMode   = 'unified' | 'geo_only' | 'seo_only'
+export type BlogStatus = 'draft' | 'approved' | 'published' | 'rejected'
+
+/** Full blog_posts table row. */
+export interface BlogPost {
+  id: string
+  client_id: string
+  mode: BlogMode
+  topic: string
+  source_query_id: string | null
+  source_query_text: string | null   // snapshot of query text at generation time
+  title: string
+  meta_title: string
+  meta_description: string
+  slug: string | null
+  html_body: string
+  word_count: number | null
+  geo_directive_id: string | null
+  geo_html_snapshot: string | null   // locked at generation, independent of later directive changes
+  schema_json: Record<string, unknown> | null
+  internal_links: BlogInternalLink[]
+  featured_image_prompt: string | null
+  featured_image_url: string | null
+  status: BlogStatus
+  published_at: string | null
+  cost_usd: number | null
+  model_used: string | null
+  created_at: string
+  updated_at: string
+}
+
+export interface BlogInternalLink {
+  anchor: string
+  target_slug: string
+  resolved: boolean
+}
+
+/**
+ * A blog topic opportunity derived from AI Tracker weak spots.
+ * Returned by GET /api/clients/[id]/blog/opportunities.
+ */
+export interface BlogOpportunity {
+  query_id: string
+  query_text: string
+  weakness_score: number       // 0–1 (1 = brand never mentioned = highest opportunity)
+  engines_missing: string[]    // engines where brand wasn't in top 3
+  total_runs_checked: number
+  last_run_at: string | null
+  mode: 'geo_only'             // always geo_only for MVP
+}
+
+/** Request body for POST /api/clients/[id]/blog/generate */
+export interface GenerateBlogRequest {
+  mode: BlogMode
+  topic: string
+  source_query_id?: string     // links to the AI Tracker weak spot
+  source_query_text?: string
+  word_count_target?: number   // default 1000
+  skip_audit?: boolean         // bypass content audit (e.g. user confirmed override)
+}
+
+/** Result from content-auditor — returned alongside generated post */
+export interface ContentAuditResult {
+  action: 'upgrade' | 'new'
+  existing_url: string | null
+  existing_title: string | null
+  reason: string
+  confidence: number
+  discovered_urls: string[]
+}

@@ -40,6 +40,24 @@ const navItems = [
     emoji: '📊',
     exact: false,
   },
+  {
+    href: '/dashboard/ai-visibility',
+    label: 'AI Visibility',
+    emoji: '🤖',
+    exact: false,
+  },
+  {
+    href: '/dashboard/geo-composer',
+    label: 'GEO Composer',
+    emoji: '🌐',
+    exact: false,
+  },
+  {
+    href: '/dashboard/reports',
+    label: 'Reports',
+    emoji: '📊',
+    exact: false,
+  },
 ];
 
 function Sidebar() {
