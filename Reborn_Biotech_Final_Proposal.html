@@ -1,0 +1,835 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reborn Biotech – 新西兰数字曝光提案</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --emerald: #1a4d3e;
+    --emerald-light: #2a6854;
+    --deep: #0f2922;
+    --silver: #e8e8e8;
+    --champagne: #d4af8f;
+    --accent: #00b4d8;
+    --accent2: #0077b6;
+    --light: #f5f9f8;
+    --white: #ffffff;
+    --text: #1a2e3b;
+    --muted: #5a7a8a;
+    --red: #d84d42;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Noto Sans SC', sans-serif;
+    background: var(--white);
+    color: var(--text);
+    font-size: 14px;
+    line-height: 1.7;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  /* ── COVER ── */
+  .cover {
+    background: linear-gradient(135deg, rgba(15, 41, 34, 0.85) 0%, rgba(26, 77, 62, 0.85) 60%, rgba(10, 62, 50, 0.85) 100%),
+                url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1200&q=80') center/cover;
+    color: white;
+    padding: 80px 60px 70px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .cover::before {
+    content: '';
+    position: absolute;
+    top: -100px; right: -100px;
+    width: 400px; height: 400px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(212, 175, 143, 0.15) 0%, transparent 70%);
+  }
+
+  .cover-tag {
+    display: inline-block;
+    background: rgba(212, 175, 143, 0.25);
+    border: 1px solid rgba(212, 175, 143, 0.5);
+    color: #f4d4a8;
+    font-size: 11px;
+    letter-spacing: 2px;
+    padding: 4px 14px;
+    border-radius: 20px;
+    margin-bottom: 28px;
+    font-weight: 500;
+  }
+
+  .cover h1 {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 38px;
+    font-weight: 700;
+    line-height: 1.25;
+    margin-bottom: 16px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .cover h1 span { color: var(--champagne); }
+  .cover-sub {
+    font-size: 15px;
+    color: rgba(255,255,255,0.8);
+    margin-bottom: 48px;
+    max-width: 520px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .cover-meta {
+    display: flex;
+    gap: 40px;
+    font-size: 12px;
+    color: rgba(255,255,255,0.6);
+    position: relative;
+    z-index: 1;
+  }
+
+  .cover-meta strong { display: block; color: rgba(255,255,255,0.95); font-size: 14px; margin-bottom: 2px; }
+
+  /* ── SECTIONS ── */
+  section { padding: 56px 60px; }
+  section:nth-child(even) { background: var(--light); }
+
+  .section-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 11px;
+    letter-spacing: 3px;
+    color: var(--emerald);
+    font-weight: 700;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+  }
+
+  .section-label::before {
+    content: '';
+    display: block;
+    width: 24px; height: 2px;
+    background: var(--emerald);
+  }
+
+  h2 {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--deep);
+    margin-bottom: 28px;
+    line-height: 1.3;
+  }
+
+  p { margin-bottom: 14px; color: var(--text); }
+
+  /* ── PAIN POINTS ── */
+  .pain-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-top: 24px;
+  }
+
+  .pain-card {
+    background: white;
+    border: 1px solid #d0dfe0;
+    border-left: 4px solid var(--red);
+    border-radius: 8px;
+    padding: 20px;
+  }
+
+  .pain-card h4 {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--deep);
+    margin-bottom: 6px;
+  }
+
+  .pain-card p { font-size: 12.5px; color: var(--muted); margin: 0; }
+
+  /* ── SOLUTION TIMELINE ── */
+  .timeline { margin-top: 24px; }
+  .tl-item {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 20px;
+    position: relative;
+  }
+
+  .tl-dot {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    background: var(--emerald);
+    color: white;
+    font-weight: 700;
+    font-size: 13px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .tl-item:not(:last-child) .tl-dot::after {
+    content: '';
+    position: absolute;
+    left: 18px; top: 38px;
+    width: 2px; height: calc(100% - 10px);
+    background: #c8dfe8;
+  }
+
+  .tl-body { padding-top: 6px; }
+  .tl-body h4 { font-size: 14px; font-weight: 700; color: var(--deep); margin-bottom: 4px; }
+  .tl-body p { font-size: 12.5px; color: var(--muted); margin: 0; }
+
+  .tl-tag {
+    display: inline-block;
+    background: #e8f4f0;
+    color: var(--emerald);
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 4px;
+    margin-bottom: 6px;
+  }
+
+  /* ── SERVICE CARDS ── */
+  .service-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 16px;
+    margin-top: 24px;
+  }
+
+  .svc-card {
+    background: white;
+    border-radius: 10px;
+    border: 1px solid #d0dfe0;
+    padding: 24px 20px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .svc-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--emerald), var(--champagne));
+  }
+
+  .svc-icon { font-size: 28px; margin-bottom: 12px; }
+  .svc-card h4 { font-size: 14px; font-weight: 700; color: var(--deep); margin-bottom: 10px; }
+  .svc-list { list-style: none; }
+
+  .svc-list li {
+    font-size: 12px;
+    color: var(--muted);
+    padding: 4px 0;
+    border-bottom: 1px solid #eef5f8;
+    display: flex;
+    align-items: flex-start;
+    gap: 6px;
+  }
+
+  .svc-list li::before { content: '✓'; color: var(--emerald); font-weight: 700; flex-shrink: 0; margin-top: 1px; }
+
+  /* ── THREE COLUMN GRID ── */
+  .three-cols {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 16px;
+    margin-top: 24px;
+  }
+
+  .three-col-item {
+    background: white;
+    border-radius: 10px;
+    border: 1px solid #d0dfe0;
+    padding: 20px;
+  }
+
+  .three-col-item h4 { font-size: 14px; font-weight: 700; color: var(--emerald); margin-bottom: 12px; }
+  .three-col-item p { font-size: 12.5px; color: var(--muted); margin: 0; }
+
+  /* ── HERO IMAGE ── */
+  .hero-image {
+    width: 100%;
+    height: 380px;
+    margin: 32px 0;
+    border-radius: 12px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.25);
+    background: linear-gradient(135deg, rgba(15, 41, 34, 0.4), rgba(26, 77, 62, 0.2)) center/cover,
+                var(--light);
+  }
+
+  .hero-image.img1::before {
+    background-image: url('https://images.unsplash.com/photo-hpjSkU2UYSU?w=1200&h=400&fit=crop');
+  }
+
+  .hero-image.img2::before {
+    background-image: url('https://images.unsplash.com/photo-s_md_TV0KZA?w=1200&h=400&fit=crop');
+  }
+
+  .hero-image.img3::before {
+    background-image: url('https://images.unsplash.com/photo-Q4iYWsWbR90?w=1200&h=400&fit=crop');
+  }
+
+  .hero-image.img4::before {
+    background-image: url('https://images.unsplash.com/photo-yIT9HO8UrPA?w=1200&h=400&fit=crop');
+  }
+
+  .hero-image::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    z-index: 0;
+  }
+
+  .hero-image::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: linear-gradient(135deg, rgba(15, 41, 34, 0.2) 0%, rgba(26, 77, 62, 0.08) 50%, rgba(212, 175, 143, 0.05) 100%);
+    z-index: 2;
+    pointer-events: none;
+  }
+
+  /* ── PRICING ── */
+  .pricing-wrapper { margin-top: 28px; }
+
+  .pricing-highlight {
+    background: linear-gradient(135deg, var(--deep), var(--emerald));
+    color: white;
+    border-radius: 12px;
+    padding: 36px 40px;
+    margin-bottom: 20px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .pricing-highlight::after {
+    content: '';
+    position: absolute;
+    right: 30px; bottom: -10px;
+    width: 150px; height: 150px;
+    background: url('https://images.unsplash.com/photo-1559027615-cd4628902d4a?w=200&q=80') center/cover;
+    opacity: 0.1;
+  }
+
+  .pricing-badge {
+    display: inline-block;
+    background: var(--champagne);
+    color: var(--deep);
+    font-size: 11px;
+    font-weight: 700;
+    padding: 4px 12px;
+    border-radius: 4px;
+    margin-bottom: 20px;
+    letter-spacing: 1px;
+  }
+
+  .pricing-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.12);
+  }
+
+  .pricing-row:last-child { border-bottom: none; }
+  .pricing-row .label { font-size: 14px; color: rgba(255,255,255,0.8); }
+  .pricing-row .label small { display: block; font-size: 11px; color: rgba(255,255,255,0.5); margin-top: 2px; }
+  .pricing-row .amount { text-align: right; }
+  .pricing-row .amount .original { font-size: 12px; color: rgba(255,255,255,0.35); text-decoration: line-through; }
+  .pricing-row .amount .final { font-size: 22px; font-weight: 700; color: white; }
+  .pricing-row .amount .unit { font-size: 11px; color: rgba(255,255,255,0.55); }
+
+  .overage-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  .overage-card {
+    background: white;
+    border: 1px solid #d0dfe0;
+    border-radius: 8px;
+    padding: 16px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .overage-card .oc-label { font-size: 13px; color: var(--muted); }
+  .overage-card .oc-price { font-size: 16px; font-weight: 700; color: var(--deep); }
+
+  /* ── COMPARISON TABLE ── */
+  .comp-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+
+  .comp-table th {
+    background: var(--deep);
+    color: white;
+    padding: 12px 16px;
+    text-align: left;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+  }
+
+  .comp-table td {
+    padding: 11px 16px;
+    font-size: 12.5px;
+    border-bottom: 1px solid #e0ecf2;
+    color: var(--text);
+  }
+
+  .comp-table tr:nth-child(even) td { background: #f5fafc; }
+  .comp-table .us td { background: #e5f6ff !important; font-weight: 600; color: var(--deep); }
+  .badge-yes { color: #1a9950; font-weight: 700; }
+  .badge-no { color: #999; }
+  .badge-partial { color: #e07000; }
+
+  /* ── KPI TABLE ── */
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 16px;
+    margin-top: 24px;
+  }
+
+  .kpi-card {
+    background: white;
+    border-radius: 10px;
+    border: 1px solid #d0dfe0;
+    padding: 20px;
+  }
+
+  .kpi-card h4 {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--emerald);
+    margin-bottom: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .kpi-item {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    padding: 6px 0;
+    border-bottom: 1px solid #eef5f8;
+    color: var(--text);
+  }
+
+  .kpi-item:last-child { border-bottom: none; }
+  .kpi-item .val { font-weight: 700; color: var(--emerald); }
+
+  /* ── NEXT STEPS ── */
+  .steps-list { margin-top: 20px; }
+  .step-item {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 16px;
+    align-items: flex-start;
+  }
+
+  .step-num {
+    width: 28px; height: 28px;
+    background: var(--emerald);
+    color: white;
+    border-radius: 50%;
+    font-size: 12px;
+    font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .step-item p { margin: 0; font-size: 13.5px; padding-top: 3px; }
+  .step-item strong { color: var(--deep); }
+
+  /* ── FOOTER ── */
+  .footer {
+    background: var(--deep);
+    color: rgba(255,255,255,0.5);
+    padding: 36px 60px;
+    font-size: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .footer strong { color: rgba(255,255,255,0.9); font-size: 14px; }
+
+  /* ── PRINT ── */
+  @media print {
+    body { max-width: 100%; }
+    section { break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+
+<!-- COVER -->
+<div class="cover">
+  <div class="cover-tag">商业合作提案 · 保密文件</div>
+  <h1>Reborn Biotech<br><span>新西兰数字曝光全案</span></h1>
+  <p class="cover-sub">从隐形到主导：官网重建 · SEO搜索优化 · 社媒全矩阵 · AI推荐战略<br>助力高端脂质体品牌成为新西兰市场领导者</p>
+  <div class="cover-meta">
+    <div><strong>提案方</strong>Magic Lab</div>
+    <div><strong>提案对象</strong>Reborn Biotech NZ</div>
+    <div><strong>日期</strong>2026年5月</div>
+    <div><strong>有效期</strong>30天</div>
+  </div>
+</div>
+
+<!-- 1. 现状诊断 -->
+<section>
+  <div class="section-label">01 · 现状诊断</div>
+  <h2>品牌真实存在，数字资产为零</h2>
+  <p>Reborn Biotech 拥有领先的脂质体纳米技术与优质的新西兰溯源，但当前的数字化能力严重制约了品牌在 NZ 市场的突破。以下四个核心痛点正在吞没你的机会成本：</p>
+  <div class="pain-grid">
+    <div class="pain-card">
+      <h4>🔴 Google 搜索战场：一席之地都没有</h4>
+      <p>搜 "Reborn Biotech"→ 全是中国湖北同名工厂；搜 "liposomal vitamin C NZ"→ ProNordic / HealthPost 占据，R&B 在前30位都找不到。</p>
+    </div>
+    <div class="pain-card">
+      <h4>🔴 社媒矩阵：5 个空白阵地</h4>
+      <p>IG / FB / TikTok / LinkedIn / 小红书 都没有官方账号。竞品 ProNordic IG 1.2万粉、LIPO-SACHETS TikTok 日更，而 R&B 的品牌声量接近零。</p>
+    </div>
+    <div class="pain-card">
+      <h4>🔴 AI Visibility：被遗忘的新战场</h4>
+      <p>ChatGPT / Perplexity 推荐高端脂质体补剂时，R&B 从不出现。AI 推荐率 0%，意味着 2026 年 30% 的购买决策起点完全失去。</p>
+    </div>
+    <div class="pain-card">
+      <h4>🔴 渠道分销曝光：零溶出</h4>
+      <p>HealthPost / Pharmacy Direct 等主流渠道没有品牌曝光。消费者无处获悉 R&B，转化链条从源头断裂。</p>
+    </div>
+  </div>
+</section>
+
+<!-- 2. 解决方案 -->
+<section>
+  <div class="section-label">02 · 解决方案</div>
+  <h2>三维突破：Google × 社媒 × AI</h2>
+  <p>我们将在 <strong>8–10周内完成官网重建 + 社媒矩阵搭建</strong>，同步启动 SEO、KOL 投放、PR 软文、AI 优化，形成"被搜到 × 被记住 × 被推荐"的完整闭环。</p>
+
+  <div class="timeline">
+    <div class="tl-item">
+      <div class="tl-dot">1</div>
+      <div class="tl-body">
+        <div class="tl-tag">第 1–2 周</div>
+        <h4>官网技术 SEO 重构 + 社媒搭建</h4>
+        <p>完成官网 Schema / Core Web Vitals 优化、Google/Bing/Apple Business 三联立、Wikipedia 品牌条目创建、IG/FB/TikTok/LinkedIn/小红书 账号搭建。2周内完成前置基建。</p>
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot">2</div>
+      <div class="tl-body">
+        <div class="tl-tag">第 1 个月起</div>
+        <h4>SEO 内容爆发 + KOL 矩阵投放</h4>
+        <p>每月产出 20 篇 SEO 优化文章（脂质体科学、产品对比、新西兰溯源、使用场景），同时启动 3–5 位 NZ 中腰部 KOL/KOC 合作，月度 200 条社媒内容全平台覆盖。</p>
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot">3</div>
+      <div class="tl-body">
+        <div class="tl-tag">第 1 个月起</div>
+        <h4>PR 软文 + AI 推荐优化</h4>
+        <p>Stuff / NZ Herald / Viva 等主流媒体投放，医学专家署名论证文章提升 AI 训练源权重，建立 AI Visibility 监控仪表盘追踪引用率。12个月内 AI 推荐率目标 50%+。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 3. 服务详情 -->
+<section>
+  <div class="section-label">03 · 服务详情</div>
+  <h2>我们具体做什么</h2>
+  <div class="service-grid">
+    <div class="svc-card">
+      <div class="svc-icon">🌐</div>
+      <h4>官网重建</h4>
+      <ul class="svc-list">
+        <li>现代化网站架构重建</li>
+        <li>SEO 基础架构搭建</li>
+        <li>中英双语完整优化</li>
+        <li>Core Web Vitals 达标</li>
+        <li>Schema 标记实现</li>
+        <li>移动端全面适配</li>
+        <li>科研内容展示体系</li>
+      </ul>
+    </div>
+    <div class="svc-card">
+      <div class="svc-icon">🔍</div>
+      <h4>SEO 与品牌占位</h4>
+      <ul class="svc-list">
+        <li>Google/Bing/Apple 认领</li>
+        <li>Wikipedia 品牌建档</li>
+        <li>20 篇 SEO 优化页/月</li>
+        <li>200+ 关键词排名追踪</li>
+        <li>Reddit / Quora 高权重源</li>
+        <li>内链与外链策略</li>
+        <li>每月排名报告</li>
+      </ul>
+    </div>
+    <div class="svc-card">
+      <div class="svc-icon">📱</div>
+      <h4>社媒与 PR</h4>
+      <ul class="svc-list">
+        <li>IG/FB/TikTok/LinkedIn</li>
+        <li>小红书/抖音本地化</li>
+        <li>200 条内容/月</li>
+        <li>KOL/KOC 合作投放</li>
+        <li>主流媒体 PR 软文</li>
+        <li>社区运营与互动</li>
+        <li>月度数据分析</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- 4. 三大战场 -->
+<section>
+  <div class="section-label">04 · 三大曝光战场</div>
+  <h2>品类 Top 3 的三维覆盖</h2>
+  <p>品牌心智占有率 = 搜索排名 × 社媒记忆 × AI 推荐。三个战场缺一，就失去 1/3 的市场机会。</p>
+
+  <div class="three-cols">
+    <div class="three-col-item">
+      <h4>🔍 Google 自然搜索</h4>
+      <p><strong>决定「被搜到」</strong>——58% 消费者在线寻找高端补剂的第一步是谷歌搜索。占据品类词Top5 = 每月 2,000–4,000 免费流量。</p>
+    </div>
+    <div class="three-col-item">
+      <h4>📱 社媒矩阵</h4>
+      <p><strong>决定「被记住」</strong>——品牌心智建立的主阵地。每月 200 条内容覆盖 5 个平台，15K+ 粉丝基础，建立社区信任度。</p>
+    </div>
+    <div class="three-col-item">
+      <h4>🤖 AI Visibility</h4>
+      <p><strong>决定「被推荐」</strong>——2026 年 30% 购买决策起点在 AI。AI 推荐率从 0% → 50%+，相当于新增一个自动转化渠道。</p>
+    </div>
+  </div>
+</section>
+
+<!-- 5. 竞品分析 -->
+<section>
+  <div class="section-label">05 · 竞品分析</div>
+  <h2>市场机会：竞争对手的数字化短板</h2>
+  <p>NZ 高端脂质体市场整体数字化程度仍低，先动者优势显著。以下对标分析显示 R&B 的突破空间：</p>
+  <table class="comp-table">
+    <tr>
+      <th>竞争对手</th>
+      <th>Google 排名</th>
+      <th>社媒布局</th>
+      <th>PR 内容</th>
+      <th>AI 引用率</th>
+      <th>小红书</th>
+    </tr>
+    <tr>
+      <td>ProNordic</td>
+      <td>Top 3</td>
+      <td class="badge-partial">IG 活跃</td>
+      <td class="badge-partial">一般</td>
+      <td class="badge-yes">中等</td>
+      <td class="badge-no">无</td>
+    </tr>
+    <tr>
+      <td>LIPO-SACHETS</td>
+      <td class="badge-partial">Top 10</td>
+      <td class="badge-yes">TikTok 强</td>
+      <td class="badge-partial">偶发</td>
+      <td class="badge-partial">中低</td>
+      <td class="badge-no">无</td>
+    </tr>
+    <tr>
+      <td>Cellular Medicines</td>
+      <td>Top 5</td>
+      <td class="badge-partial">基础</td>
+      <td class="badge-yes">有</td>
+      <td class="badge-partial">中等</td>
+      <td class="badge-no">无</td>
+    </tr>
+    <tr>
+      <td>LivOn Labs</td>
+      <td>Top 8</td>
+      <td class="badge-partial">LinkedIn</td>
+      <td class="badge-no">无</td>
+      <td class="badge-partial">低</td>
+      <td class="badge-no">无</td>
+    </tr>
+    <tr class="us">
+      <td>🚀 Reborn Biotech（合作后）</td>
+      <td>Top 3</td>
+      <td class="badge-yes">全平台</td>
+      <td class="badge-yes">系统化</td>
+      <td class="badge-yes">50%+</td>
+      <td class="badge-yes">首家</td>
+    </tr>
+  </table>
+</section>
+
+<!-- 6. KPI 预期 -->
+<section>
+  <div class="section-label">06 · 6 / 12 个月预期成果</div>
+  <h2>可量化、可追踪、可问责</h2>
+  <p>所有 KPI 都将通过 Google Search Console、社媒后台、AI 监控工具实时追踪，每月透明汇报。</p>
+
+  <div class="kpi-grid">
+    <div class="kpi-card">
+      <h4>6 个月目标</h4>
+      <div class="kpi-item"><span>Google 品牌占位</span><span class="val">8/10</span></div>
+      <div class="kpi-item"><span>品类词排名</span><span class="val">Top 15</span></div>
+      <div class="kpi-item"><span>月搜索流量</span><span class="val">2K–4K</span></div>
+      <div class="kpi-item"><span>AI 推荐率</span><span class="val">20–30%</span></div>
+      <div class="kpi-item"><span>社媒粉丝</span><span class="val">3K–6K</span></div>
+      <div class="kpi-item"><span>PR 媒体</span><span class="val">3–5 篇</span></div>
+    </div>
+    <div class="kpi-card">
+      <h4>12 个月目标</h4>
+      <div class="kpi-item"><span>Google 品牌占位</span><span class="val">10/10</span></div>
+      <div class="kpi-item"><span>品类词排名</span><span class="val">Top 5</span></div>
+      <div class="kpi-item"><span>月搜索流量</span><span class="val">8K–15K</span></div>
+      <div class="kpi-item"><span>AI 推荐率</span><span class="val">50%+</span></div>
+      <div class="kpi-item"><span>社媒粉丝</span><span class="val">15K+</span></div>
+      <div class="kpi-item"><span>PR 媒体</span><span class="val">10+ 篇</span></div>
+    </div>
+    <div class="kpi-card">
+      <h4>小红书（新战场）</h4>
+      <div class="kpi-item"><span>笔记数量</span><span class="val">100+ / 6M</span></div>
+      <div class="kpi-item"><span>粉丝增长</span><span class="val">5K+ / 12M</span></div>
+      <div class="kpi-item"><span>抖音视频</span><span class="val">50+ / 12M</span></div>
+      <div class="kpi-item"><span>引流转化</span><span class="val">系统追踪</span></div>
+      <div class="kpi-item"><span>中文市场</span><span class="val">全覆盖</span></div>
+      <div class="kpi-item"><span>多语支持</span><span class="val">4 语本化</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- 7. 定价 -->
+<section>
+  <div class="section-label">07 · 合作定价</div>
+  <h2>专属报价方案</h2>
+  <p>以下为针对 Reborn Biotech 定制的战略合作价格。我们建议从<strong>试点方案（3个月）</strong>开始验证，随后扩展至 12 个月完整计划。</p>
+
+  <div class="pricing-wrapper">
+    <div class="pricing-highlight">
+      <div class="pricing-badge">🎁 限时福利 · Foundation 启动包 FREE!</div>
+
+      <div class="pricing-row" style="border: 2px solid rgba(212, 175, 143, 0.6); border-radius: 8px; padding: 16px 12px; margin-bottom: 8px; background: rgba(255, 255, 255, 0.08);">
+        <div class="label">
+          <strong style="font-size: 16px; color: #f4d4a8;">一次性官网重建 + 社媒搭建（免费赠送）</strong>
+          <small style="display: block; margin-top: 8px; font-size: 13px; color: rgba(255,255,255,0.9);">✓ 官网 SEO 架构 + Wikipedia / Google Business 认领 + 5 社媒账号完整建档<br>✓ 基础投流设置（Google Ads / Meta Ads 初始配置）<br>✓ 社媒自动化软件（Buffer / Later 集成管理）<br>✓ 内容管理自动化软件（Zapier / Make 工作流搭建）<br><em style="color: rgba(255,255,255,0.7);">* SEO 排名监控需客户自行支付约 NZD $1,000，推荐第 1 个月启用</em></small>
+        </div>
+        <div class="amount">
+          <div class="final" style="color: #00ff88; font-size: 28px;">FREE</div>
+          <div class="unit">价值 $18K–28K</div>
+        </div>
+      </div>
+
+      <div class="pricing-row">
+        <div class="label">
+          月度 Growth 服务（推荐）
+          <small>20 页/月 SEO + 200 条/月社媒 + KOL 投放 + PR + 月度报告</small>
+        </div>
+        <div class="amount">
+          <div class="final" style="color: rgba(255,255,255,0.5);">按需定制</div>
+          <div class="unit">/月 · ≥6 个月</div>
+        </div>
+      </div>
+
+      <div class="pricing-row">
+        <div class="label">
+          12 个月旗舰包（出海级）
+          <small>含 4 语本地化、小红书/抖音、展会支持、临床数据 AI 优化</small>
+        </div>
+        <div class="amount">
+          <div class="final" style="color: rgba(255,255,255,0.5);">按需定制</div>
+          <div class="unit">/月 · 品类 Top 3 保证</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="overage-grid">
+      <div class="overage-card">
+        <div class="oc-label">超出内容条数</div>
+        <div class="oc-price">$15 / 条</div>
+      </div>
+      <div class="overage-card">
+        <div class="oc-label">Google Ads / Meta Ads 投放</div>
+        <div class="oc-price">成本 + 15% 管理费</div>
+      </div>
+    </div>
+  </div>
+
+</section>
+
+<!-- 8. 投资回报 -->
+<section>
+  <div class="section-label">08 · 投资回报</div>
+  <h2>每月 NZD $6,500，需要多少销额回本？</h2>
+  <p>假设 R&B 单瓶均价 NZD $30–50，毛利率 40–50%：</p>
+
+  <div class="pain-grid" style="margin-top: 20px;">
+    <div class="pain-card" style="border-left-color: #1a9950;">
+      <h4>✅ 保守情景</h4>
+      <p><strong>月服务费：</strong>$6,500<br><strong>单瓶均价：</strong>$40 (含税)<br><strong>毛利 45%：</strong>$18/瓶<br><strong>回本需销量：</strong>≈360瓶/月<br><strong>行业经验数据：</strong>成熟后月销 500–1,200 瓶</p>
+    </div>
+    <div class="pain-card" style="border-left-color: #1a9950;">
+      <h4>✅ 12 个月复利</h4>
+      <p><strong>M1–3：</strong>见效期（铺基础）<br><strong>M4–6：</strong>加速期（流量爆发）<br><strong>M7–12：</strong>收获期（自然流量 + AI 推荐）<br><strong>ROI：</strong>3–5 倍（保守估计）</p>
+    </div>
+  </div>
+
+  <p style="margin-top:16px; font-size:12.5px; color:var(--muted);">💡 关键点：SEO 和社媒有复利效应。第 6 个月后通常可见自然流量指数增长，无需额外投入即可产生持续销售。数字基建是<strong>永续资产</strong>。</p>
+</section>
+
+<!-- 9. 启动节奏 -->
+<section>
+  <div class="section-label">09 · 启动节奏</div>
+  <h2>确认合作后，我们立刻开始</h2>
+
+  <div class="steps-list">
+    <div class="step-item">
+      <div class="step-num">1</div>
+      <p><strong>签订合作协议（Day 1）</strong>——确认服务范围、KPI、付款条款（建议首月预付建站费+月费）</p>
+    </div>
+    <div class="step-item">
+      <div class="step-num">2</div>
+      <p><strong>启动会议（Day 2）</strong>——品牌素材交接、关键词研究、社媒账号授权、竞品深度分析</p>
+    </div>
+    <div class="step-item">
+      <div class="step-num">3</div>
+      <p><strong>官网首稿（Day 7）</strong>——提交首页设计稿、确认视觉风格、开始内容架构搭建</p>
+    </div>
+    <div class="step-item">
+      <div class="step-num">4</div>
+      <p><strong>官网上线（Day 35）</strong>——完成所有页面、SEO 架构验证、Google Search Console 绑定</p>
+    </div>
+    <div class="step-item">
+      <div class="step-num">5</div>
+      <p><strong>全面启动（Day 36）</strong>——SEO 内容发布、社媒日常运营、KOL 投放、PR 软文、AI 监控系统上线</p>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<div class="footer">
+  <div>
+    <strong>Magic Lab</strong><br>
+    新西兰华人品牌数字化增长服务 · 20 国出海支持
+  </div>
+  <div style="text-align:right">
+    本提案有效期 30 天<br>
+    联系：contact@magiclab.com | magicla
