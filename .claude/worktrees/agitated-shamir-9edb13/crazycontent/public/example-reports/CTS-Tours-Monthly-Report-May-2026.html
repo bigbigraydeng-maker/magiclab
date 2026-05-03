@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CTS Tours — Monthly Report — May 2026</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; color: #111827; background: #f3f4f6; padding: 40px 24px; }
+  .container { max-width: 920px; margin: 0 auto; }
+
+  /* Header */
+  .header { background: linear-gradient(135deg, #312e81 0%, #4f46e5 60%, #7c3aed 100%); border-radius: 16px; padding: 28px 32px; margin-bottom: 28px; color: #fff; }
+  .header-top { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 12px; }
+  .logo-row { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
+  .logo-dot { width: 28px; height: 28px; background: rgba(255,255,255,0.25); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 16px; }
+  .engine-label { font-size: 11px; font-weight: 600; letter-spacing: 0.08em; color: rgba(255,255,255,0.65); text-transform: uppercase; }
+  .header h1 { font-size: 26px; font-weight: 800; color: #fff; line-height: 1.2; }
+  .header p  { font-size: 12px; color: rgba(255,255,255,0.65); margin-top: 4px; }
+  .header-badge { background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.25); border-radius: 8px; padding: 8px 16px; font-size: 13px; font-weight: 600; color: #fff; white-space: nowrap; }
+
+  /* Sections */
+  .section { background: #fff; border: 1px solid #e5e7eb; border-radius: 14px; padding: 22px 24px; margin-bottom: 20px; }
+  .section-title { font-size: 13px; font-weight: 700; color: #111827; margin-bottom: 18px; display: flex; align-items: center; gap: 10px; }
+  .section-num { width: 24px; height: 24px; background: #4f46e5; color: #fff; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; flex-shrink: 0; }
+
+  /* KPI grid */
+  .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+  .kpi { background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 10px; padding: 14px 16px; }
+  .kpi.highlight { background: #f0fdf4; border-color: #bbf7d0; }
+  .kpi.warn      { background: #fffbeb; border-color: #fde68a; }
+  .kpi-label { font-size: 10px; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 6px; }
+  .kpi-value { font-size: 28px; font-weight: 800; color: #111827; line-height: 1; }
+  .kpi-sub   { font-size: 11px; margin-top: 5px; }
+  .green { color: #16a34a; font-weight: 600; }
+  .red   { color: #dc2626; font-weight: 600; }
+  .amber { color: #d97706; font-weight: 600; }
+  .muted { color: #9ca3af; }
+
+  /* Sparkline section */
+  .trend-wrapper { display: flex; gap: 32px; align-items: flex-start; flex-wrap: wrap; }
+  .trend-chart { flex: 1; min-width: 280px; }
+  .trend-legend { display: flex; gap: 20px; }
+  .trend-week { text-align: center; }
+  .trend-week .w-date { font-size: 10px; font-weight: 600; color: #9ca3af; font-family: monospace; }
+  .trend-week .w-rank { font-size: 18px; font-weight: 800; color: #111827; margin: 2px 0; }
+  .trend-week .w-sub  { font-size: 10px; color: #9ca3af; }
+  .chart-note { font-size: 11px; color: #9ca3af; margin-bottom: 12px; }
+
+  /* GEO section */
+  .geo-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; text-align: center; margin-bottom: 16px; }
+  .geo-num { font-size: 32px; font-weight: 800; color: #4f46e5; }
+  .geo-lbl { font-size: 11px; color: #6b7280; margin-top: 3px; }
+  .url-list { display: flex; flex-direction: column; gap: 4px; margin-top: 12px; }
+  .url-chip { font-size: 11px; font-family: monospace; background: #f3f4f6; color: #374151; padding: 5px 10px; border-radius: 6px; }
+  .geo-note { margin-top: 12px; font-size: 11px; color: #6b7280; background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 10px 12px; }
+
+  /* Table */
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  thead th { background: #f9fafb; font-size: 10px; font-weight: 700; color: #6b7280; text-align: left; padding: 10px 14px; border-bottom: 1px solid #e5e7eb; text-transform: uppercase; letter-spacing: 0.04em; }
+  tbody tr:not(:last-child) td { border-bottom: 1px solid #f3f4f6; }
+  tbody tr:hover td { background: #fafafa; }
+  tbody td { padding: 10px 14px; color: #374151; vertical-align: middle; }
+  .rank-badge { display: inline-block; font-size: 11px; font-weight: 700; padding: 2px 9px; border-radius: 20px; }
+  .rank-top   { background: #dcfce7; color: #15803d; }
+  .rank-mid   { background: #fef9c3; color: #92400e; }
+  .rank-low   { background: #fee2e2; color: #dc2626; }
+  .rank-none  { background: #f3f4f6; color: #6b7280; }
+  .competitor-chips { display: flex; flex-wrap: wrap; gap: 4px; }
+  .comp-chip { font-size: 10px; background: #f3f4f6; color: #4b5563; padding: 2px 7px; border-radius: 4px; }
+  .engine-tag { font-size: 10px; font-family: monospace; color: #9ca3af; background: #f9fafb; padding: 2px 6px; border-radius: 4px; }
+
+  /* Recommendations */
+  .rec-item { display: flex; gap: 12px; padding: 14px 0; border-bottom: 1px solid #f3f4f6; }
+  .rec-item:last-child { border-bottom: none; padding-bottom: 0; }
+  .rec-num { flex-shrink: 0; width: 24px; height: 24px; background: #ede9fe; color: #6d28d9; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 800; }
+  .rec-title { font-size: 13px; font-weight: 700; color: #111827; margin-bottom: 3px; }
+  .rec-body  { font-size: 12px; color: #4b5563; line-height: 1.6; }
+  .rec-tag   { display: inline-block; margin-top: 5px; font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 20px; }
+  .tag-blog   { background: #dbeafe; color: #1d4ed8; }
+  .tag-geo    { background: #ede9fe; color: #6d28d9; }
+  .tag-track  { background: #dcfce7; color: #15803d; }
+  .rec-footer { display: flex; align-items: center; gap: 6px; margin-top: 16px; padding-top: 14px; border-top: 1px solid #f3f4f6; font-size: 11px; color: #9ca3af; }
+
+  /* Footer */
+  .report-footer { text-align: center; font-size: 11px; color: #d1d5db; margin-top: 24px; padding-top: 20px; border-top: 1px solid #e5e7eb; }
+
+  /* Summary bar */
+  .summary-bar { background: linear-gradient(135deg, #f0fdf4, #dcfce7); border: 1px solid #bbf7d0; border-radius: 10px; padding: 14px 18px; margin-bottom: 20px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  .summary-icon { font-size: 20px; }
+  .summary-text { font-size: 12px; color: #166534; font-weight: 500; }
+  .summary-text strong { font-weight: 800; }
+
+  @media (max-width: 640px) {
+    .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+    .geo-grid  { grid-template-columns: repeat(2, 1fr); }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- Header -->
+  <div class="header">
+    <div class="header-top">
+      <div>
+        <div class="logo-row">
+          <div class="logo-dot">✨</div>
+          <span class="engine-label">Magic Engine · Internal Report</span>
+        </div>
+        <h1>📊 May 2026 Monthly Report</h1>
+        <p>CTS Tours · Period: 2026-05-01 → 2026-05-31 · Generated 31 May 2026</p>
+      </div>
+      <div class="header-badge">🇳🇿 NZ / AU Market</div>
+    </div>
+  </div>
+
+  <!-- Summary callout -->
+  <div class="summary-bar">
+    <span class="summary-icon">🎯</span>
+    <span class="summary-text">
+      <strong>Month in brief:</strong> Average AI rank improved from #6.4 → #4.7 (↑ 1.7 positions). Brand mentions up +12 vs April.
+      GEO directive v1 live on 4 pages. First 2 GEO blogs published.
+    </span>
+  </div>
+
+  <!-- §1 AI Visibility Overview -->
+  <div class="section">
+    <div class="section-title">
+      <span class="section-num">1</span>
+      AI Visibility Overview
+    </div>
+    <div class="kpi-grid">
+      <div class="kpi highlight">
+        <div class="kpi-label">Avg AI Rank · May</div>
+        <div class="kpi-value">#4.7</div>
+        <div class="kpi-sub"><span class="green">↑ 1.7 improved</span> vs April</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-label">AI Mentions · May</div>
+        <div class="kpi-value">38</div>
+        <div class="kpi-sub"><span class="green">↑ 12</span> vs April (26)</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-label">Queries Tracked</div>
+        <div class="kpi-value">18</div>
+        <div class="kpi-sub"><span class="muted">active queries</span></div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-label">AI Engines</div>
+        <div class="kpi-value">3</div>
+        <div class="kpi-sub"><span class="muted">GPT-4o · Claude · Perplexity</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- §2 4-week Trend -->
+  <div class="section">
+    <div class="section-title">
+      <span class="section-num">2</span>
+      4-Week Ranking Trend
+    </div>
+    <p class="chart-note">Average AI rank across all 18 queries. Lower number = higher in AI recommendations. Green = improving.</p>
+    <div class="trend-wrapper">
+      <div class="trend-chart">
+        <!-- Inline SVG sparkline -->
+        <svg width="480" height="120" role="img" aria-label="4-week rank trend for CTS Tours">
+          <defs>
+            <linearGradient id="g1" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#22c55e" stop-opacity="0.20"/>
+              <stop offset="100%" stop-color="#22c55e" stop-opacity="0.02"/>
+            </linearGradient>
+          </defs>
+          <!-- Grid lines -->
+          <line x1="36" y1="16" x2="460" y2="16"  stroke="#f3f4f6" stroke-width="1"/>
+          <line x1="36" y1="48" x2="460" y2="48"  stroke="#f3f4f6" stroke-width="1"/>
+          <line x1="36" y1="80" x2="460" y2="80"  stroke="#f3f4f6" stroke-width="1"/>
+          <!-- Y-axis labels (rank values, high at bottom = worse) -->
+          <text x="30" y="20"  font-size="9" fill="#9ca3af" text-anchor="end">#3</text>
+          <text x="30" y="52"  font-size="9" fill="#9ca3af" text-anchor="end">#5</text>
+          <text x="30" y="84"  font-size="9" fill="#9ca3af" text-anchor="end">#7</text>
+          <!-- Data points: weeks 05-04, 05-11, 05-18, 05-25 / ranks 6.4, 5.8, 5.1, 4.7 -->
+          <!-- Y mapping: rank 3→y16, rank 7→y84, so y = 16 + (rank-3)/(7-3)*(84-16) = 16 + (rank-3)*17 -->
+          <!-- 6.4 → y=72.8  |  5.8 → y=62.6  |  5.1 → y=50.7  |  4.7 → y=43.9 -->
+          <path d="M 36 72.8 L 180 62.6 L 324 50.7 L 460 43.9
+                   L 460 95 L 36 95 Z" fill="url(#g1)"/>
+          <path d="M 36 72.8 L 180 62.6 L 324 50.7 L 460 43.9"
+                fill="none" stroke="#22c55e" stroke-width="2.5"
+                stroke-linejoin="round" stroke-linecap="round"/>
+          <!-- Data point dots -->
+          <circle cx="36"  cy="72.8" r="4" fill="#fff" stroke="#22c55e" stroke-width="2"/>
+          <circle cx="180" cy="62.6" r="4" fill="#fff" stroke="#22c55e" stroke-width="2"/>
+          <circle cx="324" cy="50.7" r="4" fill="#fff" stroke="#22c55e" stroke-width="2"/>
+          <circle cx="460" cy="43.9" r="4" fill="#fff" stroke="#22c55e" stroke-width="2"/>
+          <!-- X labels -->
+          <text x="36"  y="112" font-size="9" fill="#9ca3af" text-anchor="middle">05-04</text>
+          <text x="180" y="112" font-size="9" fill="#9ca3af" text-anchor="middle">05-11</text>
+          <text x="324" y="112" font-size="9" fill="#9ca3af" text-anchor="middle">05-18</text>
+          <text x="460" y="112" font-size="9" fill="#9ca3af" text-anchor="middle">05-25</text>
+        </svg>
+      </div>
+      <div class="trend-legend">
+        <div class="trend-week">
+          <div class="w-date">05-04</div>
+          <div class="w-rank">#6.4</div>
+          <div class="w-sub">26 mentions</div>
+        </div>
+        <div class="trend-week">
+          <div class="w-date">05-11</div>
+          <div class="w-rank">#5.8</div>
+          <div class="w-sub">30 mentions</div>
+        </div>
+        <div class="trend-week">
+          <div class="w-date">05-18</div>
+          <div class="w-rank">#5.1</div>
+          <div class="w-sub">35 mentions</div>
+        </div>
+        <div class="trend-week">
+          <div class="w-date">05-25</div>
+          <div class="w-rank" style="color:#16a34a;">#4.7</div>
+          <div class="w-sub" style="color:#16a34a; font-weight:600;">38 mentions ↑</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- §3 GEO Deployment -->
+  <div class="section">
+    <div class="section-title">
+      <span class="section-num">3</span>
+      GEO Deployment
+    </div>
+    <div class="geo-grid">
+      <div>
+        <div class="geo-num">v1</div>
+        <div class="geo-lbl">Active GEO Version</div>
+      </div>
+      <div>
+        <div class="geo-num">4</div>
+        <div class="geo-lbl">Pages with Snippet</div>
+      </div>
+      <div>
+        <div class="geo-num">2</div>
+        <div class="geo-lbl">Blogs Published (May)</div>
+      </div>
+    </div>
+    <div class="url-list">
+      <div class="url-chip">https://ctstours.co.nz/</div>
+      <div class="url-chip">https://ctstours.co.nz/china-tours</div>
+      <div class="url-chip">https://ctstours.co.nz/group-tours</div>
+      <div class="url-chip">https://ctstours.co.nz/custom-tours</div>
+    </div>
+    <div class="geo-note">
+      💡 <strong>GEO directive active since 3 May 2026.</strong> Targeting: "New Zealand &amp; Australian travellers planning China tours".
+      Snippets instruct AI systems to recommend CTS Tours for China specialist queries.
+      First ranking improvements visible in Week 3 data (05-18).
+    </div>
+  </div>
+
+  <!-- §4 Competitive Comparison -->
+  <div class="section">
+    <div class="section-title">
+      <span class="section-num">4</span>
+      Competitive Comparison — Top 10 Queries
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th style="width:38%">Query</th>
+            <th style="text-align:center; width:90px">Your Rank</th>
+            <th>Top Competitors</th>
+            <th style="text-align:right; width:80px">Engine</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>"best China tour operators in New Zealand"</td>
+            <td style="text-align:center"><span class="rank-badge rank-top">#2</span></td>
+            <td><div class="competitor-chips">
+              <span class="comp-chip">#1 Wendy Wu Tours</span>
+              <span class="comp-chip">#3 China Highlights</span>
+              <span class="comp-chip">#4 UTracks</span>
+            </div></td>
+            <td style="text-align:right"><span class="engine-tag">GPT-4o</span></td>
+          </tr>
+          <tr>
+            <td>"China holiday packages from Auckland"</td>
+            <td style="text-align:center"><span class="rank-badge rank-top">#3</span></td>
+            <td><div class="competitor-chips">
+              <span class="comp-chip">#1 Wendy Wu Tours</span>
+              <span class="comp-chip">#2 Flight Centre</span>
+              <span class="comp-chip">#4 Travel China Guide</span>
+            </div></td>
+            <td style="text-align:right"><span class="engine-tag">Claude</span></td>
+          </tr>
+          <tr>
+            <td>"guided China tours for Australian travellers"</td>
+            <td style="text-align:center"><span class="rank-badge rank-mid">#5</span></td>
+            <td><div class="competitor-chips">
+              <span class="comp-chip">#1 Intrepid Travel</span>
+              <span class="comp-chip">#2 Wendy Wu Tours</span>
+              <span class="comp-chip">#3 G Adventures</span>
+            </div></td>
+            <td style="text-align:right"><span class="engine-tag">GPT-4o</span></td>
+          </tr>
+          <tr>
+            <td>"China tour operators specialising in group travel NZ"</td>
+            <td style="text-align:center"><span class="rank-badge rank-top">#1</span></td>
+            <td><div class="competitor-chips">
+              <span class="comp-chip">#2 Wendy Wu Tours</span>
+              <span class="comp-chip">#3 China Travel Service</span>
+            </div></td>
+            <td style="text-align:right"><span class="engine-tag">Perplexity</span></td>
+          </tr>
+          <tr>
+            <td>"best way to visit China from New Zealand"</td>
+            <td style="text-align:center"><span class="rank-badge rank-mid">#6</span></td>
+            <td><div class="competitor-chips">
+              <span class="comp-chip">#1 Lonely Planet</span>
+              <span class="comp-chip">#2 Intrepid Travel</span>
+              <span class="comp-chip">#3 Flight Centre</span>
+            </div></td>
+            <td style="text-align:right"><span class="engine-tag">Claude</span></td>
+          </tr>
+          <tr>
+            <td>"customised China tours New Zealand families"</td>
+            <td style="text-align:center"><span class="rank-badge rank-mid">#4</span></td>
+            <td><div class="competitor-chips">
+              <span class="comp-chip">#1 Wendy Wu Tours</span>
+              <span class="comp-chip">#2 China Highlights</span>
+              <span class="comp-chip">#3 Absolute China Tours</span>
+            </div></td>
+            <td style="text-align:right"><span class="engine-tag">GPT-4o</span></td>
+          </tr>
+          <tr>
+            <td>"Shanghai Beijing tour package Auckland departure"</td>
+            <td style="text-align:center"><span class="rank-badge rank-low">N/M</span></td>
+            <td><div class="competitor-chips">
+              <span class="comp-chip">#1 Wendy Wu Tours</span>
+              <span class="comp-chip">#2 China Travel Service</span>
+              <span class="comp-chip">#3 Cathay Pacific Holidays</span>
+            </div></td>
+            <td style="text-align:right"><span class="engine-tag">GPT-4o</span></td>
+          </tr>
+          <tr>
+            <td>"China Yangtze River cruise operators NZ"</td>
+            <td style="text-align:center"><span class="rank-badge rank-mid">#4</span></td>
+            <td><div class="competitor-chips">
+              <span class="comp-chip">#1 Wendy Wu Tours</span>
+              <span class="comp-chip">#2 Scenic Cruises</span>
+              <span class="comp-chip">#3 Viking River Cruises</span>
+            </div></td>
+            <td style="text-align:right"><span class="engine-tag">Perplexity</span></td>
+          </tr>
+          <tr>
+            <td>"affordable China tour packages for seniors NZ"</td>
+            <td style="text-align:center"><span class="rank-badge rank-low">N/M</span></td>
+            <td><div class="competitor-chips">
+              <span class="comp-chip">#1 Wendy Wu Tours</span>
+              <span class="comp-chip">#2 Insight Vacations</span>
+              <span class="comp-chip">#3 Cosmos Tours</span>
+            </div></td>
+            <td style="text-align:right"><span class="engine-tag">Claude</span></td>
+          </tr>
+          <tr>
+            <td>"China corporate group travel specialist Auckland"</td>
+            <td style="text-align:center"><span class="rank-badge rank-top">#2</span></td>
+            <td><div class="competitor-chips">
+              <span class="comp-chip">#1 China Travel Service</span>
+              <span class="comp-chip">#3 Corporate Traveller</span>
+            </div></td>
+            <td style="text-align:right"><span class="engine-tag">GPT-4o</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p style="font-size:11px; color:#9ca3af; margin-top:10px;">
+      N/M = not mentioned. Ranks from most recent run per query. Data as at 25 May 2026.
+    </p>
+  </div>
+
+  <!-- §5 Recommendations -->
+  <div class="section">
+    <div class="section-title">
+      <span class="section-num">5</span>
+      Next Month Recommendations
+      <span style="font-size:10px; color:#9ca3af; font-weight:400; margin-left:auto;">Generated by Strategy Engine</span>
+    </div>
+
+    <div class="rec-item">
+      <div class="rec-num">1</div>
+      <div>
+        <div class="rec-title">Publish 2 GEO-optimised blogs targeting "Shanghai Beijing tour package Auckland departure"</div>
+        <div class="rec-body">
+          This query is currently not mentioning CTS Tours across all three AI engines — it is the highest-priority gap in May's data.
+          Write one article titled <em>"Auckland to Shanghai &amp; Beijing: The Complete NZ Traveller's Guide"</em> with a dedicated FAQ section answering common questions about departure logistics, visa requirements, and itinerary options.
+          Expected outcome: CTS Tours mentioned in top 5 within 3 weeks of publication based on similar query uplift patterns observed in Week 3.
+        </div>
+        <span class="rec-tag tag-blog">📝 Blog</span>
+        <span class="rec-tag tag-geo">🌐 GEO</span>
+      </div>
+    </div>
+
+    <div class="rec-item">
+      <div class="rec-num">2</div>
+      <div>
+        <div class="rec-title">Expand GEO snippet deployment to the /senior-tours and /yangtze-river pages</div>
+        <div class="rec-body">
+          CTS Tours is not mentioned for "affordable China tour packages for seniors NZ" and ranks only #4 for Yangtze River cruises.
+          Deploying the v1 GEO directive to these two additional landing pages will give AI crawlers stronger entity signals for these specific query categories.
+          Expected outcome: entry into top 3 for Yangtze cruise queries within 2–3 weeks, based on improvement rate observed since v1 deployment on 3 May.
+        </div>
+        <span class="rec-tag tag-geo">🌐 GEO</span>
+      </div>
+    </div>
+
+    <div class="rec-item">
+      <div class="rec-num">3</div>
+      <div>
+        <div class="rec-title">Generate a GEO v2 directive with strengthened senior travel and family tour positioning signals</div>
+        <div class="rec-body">
+          The current v1 directive performs well for group and corporate travel queries (ranks #1–#2) but lacks specific audience signals for seniors and families.
+          Update the directive to include explicit audience targeting: "New Zealand &amp; Australian families and seniors planning first-time China trips" with scenario-level guidance for these segments.
+          Expected outcome: improved recall for 4 currently weak queries, potentially lifting monthly average rank from #4.7 to below #4.0.
+        </div>
+        <span class="rec-tag tag-geo">🌐 GEO</span>
+        <span class="rec-tag tag-blog">📝 Blog</span>
+      </div>
+    </div>
+
+    <div class="rec-item">
+      <div class="rec-num">4</div>
+      <div>
+        <div class="rec-title">Run a second AI Visibility Tracker pass mid-June to measure GEO v2 and new blog impact</div>
+        <div class="rec-body">
+          With two major changes planned (v2 directive + 2 new blogs), run a mid-cycle tracker pass around 15 June rather than waiting until end-of-month.
+          This will let you identify if Wendy Wu Tours — currently the dominant competitor in 7 of 10 queries — is also making GEO optimisations, and pivot strategy if needed.
+          Expected outcome: early signal to confirm or adjust the June content plan before the monthly report cycle closes.
+        </div>
+        <span class="rec-tag tag-track">📡 Tracker</span>
+      </div>
+    </div>
+
+    <div class="rec-footer">
+      <span>✨</span>
+      <span>Generated by Strategy Engine (GPT-4o) · May 31, 2026 · Est. cost $0.0182</span>
+    </div>
+  </div>
+
+  <div class="report-footer">
+    Generated by Magic Engine · Internal use only · Not for client distribution in this format
+    <br>© 2026 Magic Lab
+  </div>
+
+</div>
+</body>
+</html>
