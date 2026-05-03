@@ -20,6 +20,77 @@ Magic Engine 是 **Magic Lab 2026 旗舰产品**，承担两大角色：
 
 ---
 
+## 0.1 Magic Engine 五层架构（2026-05-03 确立）⭐
+
+> 所有现有模块和未来规划，都归位到这五层。任何新需求进来先确认它属于哪一层、是否在该层已有重复能力。
+
+```
+┌──────────────────────────────────────────────────────────────────────┐
+│  Layer 0：客户底座 — Master Brief（品牌 DNA）                          │
+│  master_briefs（含 version / is_active）                              │
+│  ↓ 一切上层动作的依据；季度根据数据反馈迭代                             │
+└──────────────────────────────────────────────────────────────────────┘
+                              ↓
+┌──────────────────────────────────────────────────────────────────────┐
+│  Layer 1：诊断层（数据采集 — 多信号并行）                              │
+├──────────────────────────────────────────────────────────────────────┤
+│  AI 引擎可见度       SEO 价值          Google 真实表现     行为 + 转化  │
+│  ai_visibility_*    keywords           gsc_* (规划)       ga4_* (规划)│
+│  (P7.1 ✅)          serp_* (P8.7 ✅)    Phase 8.G          Phase 8.G   │
+│                     backlink_* (P8.6)                     hubspot 之后 │
+│                     market_* (P8.9)                       amplitude 看需 │
+└──────────────────────────────────────────────────────────────────────┘
+                              ↓
+┌──────────────────────────────────────────────────────────────────────┐
+│  Layer 2：决策层 — Claude 驱动的洞察引擎（Phase 8.A 规划） ⭐⭐⭐         │
+│  ──────────────────────────────────────────────                      │
+│  把 Layer 1 所有信号横向汇总：                                         │
+│  ① SEMrush 估算 vs GSC 真实交叉校验                                   │
+│  ② AI Tracker 弱项 ↔ GSC 真实曝光机会 join                            │
+│  ③ AI 流量质量 vs Google 流量质量对比（GA4 referrer 分类）             │
+│  ④ 内容历史表现归因 → 下一轮选题建议                                   │
+│  ↓                                                                   │
+│  输出 5 类 artifact：月度策略简报 / 选题清单 / 优化清单 /              │
+│              季度深度复盘 / 异常预警                                  │
+└──────────────────────────────────────────────────────────────────────┘
+                              ↓
+┌──────────────────────────────────────────────────────────────────────┐
+│  Layer 3：治疗层（端到端内容生产）                                      │
+├──────────────────────────────────────────────────────────────────────┤
+│  网站 SEO          社媒内容           GEO 优化         多模态           │
+│  Blog Studio       Campaign Studio    GEO Composer    Visual/Video/   │
+│  (P7.3 ✅)         (Phase 5 ✅)       (P7.2 ✅)        Avatar Studio    │
+│                                                       Reels (P8.R ✅)  │
+│  Publishing Hub：跨平台排期 + 客户审稿闭环                              │
+└──────────────────────────────────────────────────────────────────────┘
+                              ↓
+┌──────────────────────────────────────────────────────────────────────┐
+│  Layer 4：复诊层（追踪 + 反哺）                                        │
+│  AI Tracker 4 周后复测 / GSC 排名变化 / GA4 行为 + 转化 /              │
+│  月度报告自动汇总（datasource_monthly_reports ✅）                     │
+│  ↓ 数据回流 Layer 2，下一轮决策更准                                    │
+└──────────────────────────────────────────────────────────────────────┘
+```
+
+### 五层架构的设计原则
+
+1. **数据所有权清晰**：Layer 1 是采集层，所有原始数据落入 Supabase；Layer 2 只读 Supabase 不直接调外部 API
+2. **Claude 主战场在 Layer 0 + Layer 2**：Brief 生成（创建品牌 DNA）+ 月度分析（语义化数据洞察），Layer 3 内容生成主力是 GPT-4o-mini（成本最优）
+3. **新需求归位规则**：任何新功能必须能明确归到某一层。跨层的需求拆分到对应层的子任务
+4. **数据反哺路径**：Layer 4 数据 → Layer 2 分析 → Layer 0 Brief 迭代 → 下一周期更精准的 Layer 1 配置（如 AI Tracker 问句调整）
+
+### 五层与现有 Phase 的对照
+
+| Layer | 已建成 | 规划中 |
+|-------|--------|--------|
+| Layer 0 客户底座 | Master Brief Pipeline | 季度反向迭代机制（Phase 9）|
+| Layer 1 诊断 | AI Tracker / SEMrush / DataForSEO 四件套 | **GA4 + GSC（Phase 8.G）** ⭐ / HubSpot CRM（Phase 9.X）/ Amplitude（按需） |
+| Layer 2 决策 | 月报聚合（被动汇总） | **Claude 分析引擎（Phase 8.A）** ⭐ |
+| Layer 3 治疗 | Blog Studio / Campaign / Visual/Video/Avatar/Reels Studio / Publishing Hub | DNZ 驱动的策略执行（Phase 8.D）|
+| Layer 4 复诊 | AI Tracker 复测 / SERP 历史 / 月报 | 真实流量归因（依赖 Phase 8.G）/ 询盘归因（依赖 Phase 9.X）|
+
+---
+
 ## 1. 项目概述
 
 Magic Engine（代号 crazycontent）是一个 AI 驱动的社媒内容运营平台，面向代理公司和品牌方。核心能力：
@@ -1114,3 +1185,327 @@ keywords (SEMrush) ──→ blog/opportunities API
 | [`ROADMAP.md`](./ROADMAP.md) | 项目管理 | 阶段路线图与任务跟踪 |
 | [`ARCHITECTURE.md`](./ARCHITECTURE.md) | 开发团队 | 技术架构（本文件） |
 | [`CLAUDE.md`](./CLAUDE.md) | AI 助手 | 工作指南与代号映射 |
+
+---
+
+## 15. Layer 1 数据接入扩展 — GA4 + GSC（Phase 8.G 规划）⭐
+
+### 15.1 模块定位
+
+补全 Layer 1 的"客户网站真实表现"数据源——目前 SEMrush 给的是行业估算、AI Tracker 给的是 LLM 引用，**客户网站本身的真实流量、查询表现、行为数据完全缺失**。
+
+| 数据源 | 提供能力 | 月成本 | 客户接入难度 |
+|--------|---------|--------|------------|
+| **Google Search Console** | 查询级真实曝光 / 点击 / CTR / 排名（16 月历史） | $0 | 99% 客户已装 |
+| **Google Analytics 4** | 流量来源 / 行为事件 / 转化漏斗 / referrer 分类（含 AI 引擎） | $0 | 90% 客户已装 |
+| **GA4 → BigQuery 导出** | Raw event 级数据，可无限自定义分析 | $0（GA4 标准属性免费） | 1 小时配置 |
+
+**对外封装名**：
+- GSC → **Search Performance**
+- GA4 → **Traffic Intelligence**
+
+### 15.2 数据模型
+
+```sql
+-- gsc_query_performance（GSC 查询级数据）
+-- Magic Engine 真正稀缺的新数据：客户站点的真实查询表现
+CREATE TABLE gsc_query_performance (
+  id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  client_id       UUID NOT NULL REFERENCES clients(id) ON DELETE CASCADE,
+  query           TEXT NOT NULL,
+  page            TEXT,
+  impressions     INT,
+  clicks          INT,
+  ctr             NUMERIC(5,4),
+  position        NUMERIC(5,2),
+  country         TEXT,
+  device          TEXT,
+  date_start      DATE NOT NULL,
+  date_end        DATE NOT NULL,
+  -- 关键：和现有 keywords 表 join，做 SEMrush ↔ GSC 真相校验
+  keyword_id      UUID REFERENCES keywords(id) ON DELETE SET NULL,
+  -- 关键：和 blog_posts 表 join，追踪每篇博客的真实表现
+  blog_post_id    UUID REFERENCES blog_posts(id) ON DELETE SET NULL,
+  fetched_at      TIMESTAMPTZ NOT NULL DEFAULT now(),
+  UNIQUE(client_id, query, page, date_start, date_end, country, device)
+);
+
+CREATE INDEX idx_gsc_client_date ON gsc_query_performance(client_id, date_end DESC);
+CREATE INDEX idx_gsc_keyword ON gsc_query_performance(keyword_id) WHERE keyword_id IS NOT NULL;
+CREATE INDEX idx_gsc_blog_post ON gsc_query_performance(blog_post_id) WHERE blog_post_id IS NOT NULL;
+
+-- ga4_sessions（GA4 聚合会话数据）
+CREATE TABLE ga4_sessions (
+  id                  UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  client_id           UUID NOT NULL REFERENCES clients(id) ON DELETE CASCADE,
+  date                DATE NOT NULL,
+  source              TEXT,
+  medium              TEXT,
+  -- 自定义维度：流量分类（在 traffic-classifier.ts 中分类）
+  traffic_category    TEXT CHECK (traffic_category IN
+                        ('ai_engine','google_organic','direct','social','paid','referral','other')),
+  -- AI 引擎子类（仅 traffic_category = 'ai_engine' 时填充）
+  ai_engine           TEXT,  -- 'chatgpt' / 'perplexity' / 'claude' / 'gemini' / 'copilot'
+  sessions            INT,
+  users               INT,
+  engaged_sessions    INT,
+  avg_engagement_time NUMERIC,
+  conversions         INT,
+  fetched_at          TIMESTAMPTZ NOT NULL DEFAULT now(),
+  UNIQUE(client_id, date, source, medium, traffic_category, ai_engine)
+);
+
+CREATE INDEX idx_ga4_sessions_client_date ON ga4_sessions(client_id, date DESC);
+CREATE INDEX idx_ga4_sessions_ai_engine ON ga4_sessions(client_id, ai_engine, date DESC)
+  WHERE ai_engine IS NOT NULL;
+
+-- ga4_events（GA4 关键事件级数据，从 BigQuery 导入）
+CREATE TABLE ga4_events (
+  id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  client_id       UUID NOT NULL REFERENCES clients(id) ON DELETE CASCADE,
+  event_name      TEXT NOT NULL,    -- 'page_view' / 'form_submit' / 'whatsapp_click' / 'email_click' / 'phone_click'
+  user_pseudo_id  TEXT,             -- GA4 匿名设备 ID
+  session_id      TEXT,
+  page_path       TEXT,
+  page_referrer   TEXT,
+  event_params    JSONB,
+  event_timestamp TIMESTAMPTZ NOT NULL,
+  -- 归因到具体内容（如果 page_path 匹配某篇博客 slug）
+  blog_post_id    UUID REFERENCES blog_posts(id) ON DELETE SET NULL
+);
+
+CREATE INDEX idx_ga4_events_client_event_time ON ga4_events(client_id, event_name, event_timestamp DESC);
+CREATE INDEX idx_ga4_events_blog ON ga4_events(blog_post_id, event_timestamp DESC) WHERE blog_post_id IS NOT NULL;
+
+-- clients 表新增 OAuth 配置字段
+ALTER TABLE clients ADD COLUMN gsc_property_url TEXT;       -- e.g. 'sc-domain:ctstours.co.nz'
+ALTER TABLE clients ADD COLUMN ga4_property_id TEXT;        -- e.g. '123456789'
+ALTER TABLE clients ADD COLUMN ga4_bigquery_dataset TEXT;   -- e.g. 'analytics_123456789'
+ALTER TABLE clients ADD COLUMN google_oauth_token JSONB;    -- 加密存储
+```
+
+### 15.3 API 路由
+
+```
+GET  /api/clients/[id]/google/oauth-url        → 启动 Google OAuth 流程（GSC + GA4 scope）
+GET  /api/clients/[id]/google/callback         → OAuth 回调，存 token
+
+POST /api/clients/[id]/gsc/sync                → 拉取最近 28 天查询数据 → gsc_query_performance
+POST /api/clients/[id]/gsc/backfill            → 拉取 16 个月完整历史（一次性，首次接入）
+POST /api/clients/[id]/gsc/crossreference      → SEMrush ↔ GSC 交叉校验，输出新发现的关键词机会
+
+POST /api/clients/[id]/ga4/sync                → 拉取昨日聚合数据 → ga4_sessions
+POST /api/clients/[id]/ga4/bigquery-import     → BigQuery raw event 增量导入 → ga4_events
+GET  /api/clients/[id]/ga4/ai-traffic-summary  → AI 渠道流量画像（按引擎切分）
+
+GET  /api/cron/google-data-sync                → 每日 cron：所有客户 GSC + GA4 同步
+```
+
+### 15.4 核心库
+
+```
+src/lib/gsc/
+├── client.ts              # Search Console API wrapper
+├── sync.ts                # 增量 + 全量同步逻辑
+└── crossreference.ts      # SEMrush ↔ GSC 交叉校验算法
+
+src/lib/ga4/
+├── data-api.ts            # GA4 Data API（聚合数据）
+├── bigquery-import.ts     # BigQuery raw event 导入
+├── traffic-classifier.ts  # AI 渠道识别规则（基于 source/medium/referrer）
+└── attribution.ts         # 行为归因到 blog_posts.slug
+
+src/lib/google-oauth/
+└── client.ts              # 共享 Google OAuth 流程
+```
+
+### 15.5 AI 流量识别规则（traffic-classifier.ts）
+
+```typescript
+// referrer 域名模式 → AI engine 映射
+const AI_ENGINE_REFERRERS: Record<string, AIEngine> = {
+  'chatgpt.com':     'chatgpt',
+  'chat.openai.com': 'chatgpt',
+  'perplexity.ai':   'perplexity',
+  'claude.ai':       'claude',
+  'gemini.google.com': 'gemini',
+  'copilot.microsoft.com': 'copilot',
+  // utm_source 兜底
+}
+```
+
+### 15.6 客户接入流程
+
+1. 客户接入向导新增"Google Data Authorization"步骤
+2. 客户点击 → Google OAuth 同意 GSC + GA4 读权限
+3. 系统自动列出客户拥有的 GSC properties / GA4 properties，让客户选择
+4. 选定后立即触发 GSC 16 月 backfill + GA4 30 天 backfill
+5. 配置每日 cron 同步
+
+### 15.7 数据接入后立刻产出的新洞察
+
+- **真实词价值替换估算**：Opportunity Score v2 用 `gsc.impressions` 加权 SEMrush 估算
+- **AI 流量画像**：referrer 分类后聚合 sessions / engagement_time / conversions，按 AI 引擎细分
+- **内容 ROI**：每篇 `blog_posts` 关联 GSC 查询表现 + GA4 行为，输出"这篇带来 X impression / Y 点击 / Z 询盘"
+- **AI 引用 → 实际流量验证**：`ai_visibility_runs` 中被引用的内容，是否在 ga4_events 里有 chatgpt/perplexity referrer 的访问 — **GEO ROI 的最直接证据**
+
+---
+
+## 16. Layer 2 Claude 分析引擎（Phase 8.A 规划）⭐
+
+### 16.1 模块定位
+
+> "全数据回抓，提出优化方案"——这是 Magic Engine 真正的差异化层。竞品停在 dashboard，Magic Engine 用 Claude 把多源数据自动转化成**有上下文的、可执行的、用客户语言的**优化建议。
+
+**对外封装名**：**Strategy Intelligence**（与现有 Strategy Engine 同源，强调"分析洞察"角色）
+
+### 16.2 5 类标准化输出 artifact
+
+| Artifact | 频率 | 受众 | Claude 任务 |
+|----------|------|------|------------|
+| 月度策略简报 | 月 | 客户老板 | 中英双语 3 页：上月做了什么 / 效果如何 / 下月做什么 / 为什么 |
+| 选题清单 | 月 | 客户审稿人 | 含模式判定（unified/geo_only/seo_only）、目标关键词、预期效果、生产排期 |
+| 优化清单 | 月 | 内部团队 | 已发文章哪些需要补 GEO 块、补内链、改 Meta、加 FAQ |
+| 季度深度复盘 | 季 | 客户高层 + 内部 | 趋势 + 竞品动作 + 行业基准 + ROI 测算 |
+| 异常预警 | 实时 | 内部团队 | 排名突变 / 失去 backlink / GSC 流量异常 / AI 引用消失 |
+
+### 16.3 数据模型
+
+```sql
+-- analysis_runs（每次 Claude 分析任务的执行记录）
+CREATE TABLE analysis_runs (
+  id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  client_id       UUID NOT NULL REFERENCES clients(id) ON DELETE CASCADE,
+  artifact_type   TEXT NOT NULL CHECK (artifact_type IN
+                    ('monthly_brief','topic_list','optimization_list','quarterly_review','anomaly_alert')),
+  period_start    DATE NOT NULL,
+  period_end      DATE NOT NULL,
+  -- 输入快照：哪些数据源参与了本次分析（用于复现）
+  input_sources   JSONB NOT NULL,  -- {gsc: count, ga4: count, ai_runs: count, serp: count, ...}
+  -- Claude 调用元数据
+  prompt_version  TEXT NOT NULL,   -- 'monthly_brief_v3'
+  model_used      TEXT NOT NULL,   -- 'claude-sonnet-4-6' / 'claude-opus-4-7'
+  tokens_input    INT,
+  tokens_output   INT,
+  cost_usd        NUMERIC(10,4),
+  latency_ms      INT,
+  -- 输出 artifact
+  output_markdown TEXT,            -- 主输出（人话版）
+  output_json     JSONB,           -- 结构化输出（用于自动派发任务）
+  status          TEXT NOT NULL DEFAULT 'pending'
+                  CHECK (status IN ('pending','running','completed','failed','reviewed')),
+  reviewed_by     TEXT,
+  reviewed_at     TIMESTAMPTZ,
+  client_visible  BOOLEAN DEFAULT false,  -- 是否已交付给客户
+  created_at      TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE INDEX idx_analysis_runs_client_type ON analysis_runs(client_id, artifact_type, period_end DESC);
+
+-- analysis_recommendations（Claude 输出的可执行建议，结构化）
+CREATE TABLE analysis_recommendations (
+  id                UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  analysis_run_id   UUID NOT NULL REFERENCES analysis_runs(id) ON DELETE CASCADE,
+  client_id         UUID NOT NULL REFERENCES clients(id) ON DELETE CASCADE,
+  recommendation_type TEXT NOT NULL CHECK (recommendation_type IN
+                      ('new_blog','optimize_blog','update_geo_directive','update_master_brief','social_campaign')),
+  priority          TEXT NOT NULL CHECK (priority IN ('high','medium','low')),
+  title             TEXT NOT NULL,
+  rationale         TEXT NOT NULL,    -- "为什么"
+  suggested_action  JSONB NOT NULL,   -- 结构化执行参数
+  -- 关联其他对象
+  target_blog_id    UUID REFERENCES blog_posts(id),
+  target_query_id   UUID REFERENCES ai_visibility_queries(id),
+  status            TEXT NOT NULL DEFAULT 'pending'
+                    CHECK (status IN ('pending','accepted','rejected','executed','obsolete')),
+  executed_at       TIMESTAMPTZ,
+  created_at        TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+-- industry_baseline（多客户匿名聚合 — Phase 9 启动时启用）
+-- 跑到 3+ 客户后，把 ai_visibility_runs / gsc / serp 数据匿名聚合成行业基准
+CREATE TABLE industry_baseline (
+  id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  industry_tag    TEXT NOT NULL,    -- 'tour_operator_au_nz' / 'saas_b2b_au'
+  metric_name     TEXT NOT NULL,
+  metric_value    NUMERIC NOT NULL,
+  percentile_25   NUMERIC,
+  percentile_50   NUMERIC,
+  percentile_75   NUMERIC,
+  sample_size     INT,
+  period_start    DATE NOT NULL,
+  period_end      DATE NOT NULL,
+  computed_at     TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+```
+
+### 16.4 API 路由
+
+```
+POST /api/analysis/monthly-brief       → 触发月度策略简报生成
+POST /api/analysis/topic-list          → 生成下月选题清单
+POST /api/analysis/optimization-list   → 已发内容优化建议
+POST /api/analysis/quarterly-review    → 季度深度复盘
+POST /api/analysis/anomaly-check       → 异常检测（cron 每日运行）
+
+GET  /api/analysis/runs                → 列出所有分析记录
+GET  /api/analysis/runs/[id]           → 单次分析详情
+GET  /api/analysis/recommendations     → 待执行建议列表
+PATCH /api/analysis/recommendations/[id]/accept  → 接受建议并触发对应执行
+PATCH /api/analysis/recommendations/[id]/reject  → 拒绝建议
+```
+
+### 16.5 核心库
+
+```
+src/lib/analysis/
+├── orchestrator.ts        # 主调度：拉数据 → 调 Claude → 解析 → 写库
+├── data-aggregator.ts     # 多源数据聚合（GSC + GA4 + AI Tracker + SERP + keywords + blog_posts）
+├── prompts/
+│   ├── monthly-brief.ts   # Claude prompt 模板（按客户行业 + 语言定制）
+│   ├── topic-list.ts
+│   ├── optimization-list.ts
+│   ├── quarterly-review.ts
+│   └── anomaly-check.ts
+├── output-parser.ts       # Claude markdown 输出解析为 analysis_recommendations 结构
+└── recommendation-executor.ts  # 接受建议后自动派发到 Blog Studio / Campaign Studio 等
+```
+
+### 16.6 与 Layer 0（Master Brief）的反向迭代
+
+每季度运行一次 `/api/analysis/quarterly-review`，输出中如果发现假设证伪，触发 Master Brief v2：
+
+```
+quarterly-review 发现：
+  "原 Brief 中目标受众 = '30-50 岁 NZ 中产'，
+   但实际转化数据显示 '50-65 岁 AU 退休族' 转化率高 3 倍"
+↓
+analysis_recommendations 生成：
+  type: update_master_brief
+  suggested_action: { primary_audience: '...' }
+↓
+内部审核 → 接受 → 自动新建 master_briefs.version = N+1
+```
+
+### 16.7 成本估算
+
+```
+单次月度分析（per 客户）：
+  - 输入数据汇总 ≈ 30K-80K tokens（GSC 28天 + GA4 + AI Tracker + 历史博客）
+  - Claude Sonnet 4.6：$3/1M input + $15/1M output
+  - 月报生成 ≈ 60K input + 4K output ≈ $0.24/次
+  - 加上 topic-list + optimization-list 月度三件套 ≈ $0.80/客户/月
+
+按 10 客户规模：~$8/月。可忽略。
+关键瓶颈不是成本，是 prompt 工程质量。
+```
+
+### 16.8 Prompt 工程的护城河价值
+
+Layer 2 真正的核心不是代码量（几千行），而是 **prompt 模板的迭代深度**：
+
+- 第一版 prompt：通用模板，输出"看起来像但说服力弱"的报告
+- 第三版（3 个月后）：针对旅游业精调，含具体数据解读规则、行业话术、客户老板偏好
+- 第十版（1 年后）：每个 prompt 已经是"陪跑团队 SOP 的 LLM 化"，新客户接入即享 SOP
+
+**这是为什么 Layer 2 的真正资产是 prompt 库 + 迭代历史，不是数据库表结构本身。**

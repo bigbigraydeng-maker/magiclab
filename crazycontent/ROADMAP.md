@@ -25,13 +25,21 @@
 📋 Phase 8.B     批量生产 + 自动排期 + 无缝发布（走向 Airtable-free 运营模式）
 📋 Phase 8.M     Marketing Agent 记忆系统（每客户长期 Agent 智能化，中长期）
 📋 Phase 8.D     DNZ诊断策略层（域名全量采集 → 三维策略分析 → 策略驱动执行）
-📋 Phase 9       报告化 + 客户 Portal
-📋 Phase 10      多语言 + Magic Lab Academy 沉淀
+📋 Phase 8.G     ⭐ Google 数据接入（GSC + GA4 + BigQuery）— 补全 Layer 1 客户站真实数据
+📋 Phase 8.A     ⭐ Claude 分析引擎（Layer 2）— 5 类 artifact 自动化交付
+📋 Phase 9       报告化 + 客户 Portal + HubSpot CRM 接入
+📋 Phase 10      多语言 + Magic Lab Academy 沉淀 + Industry Baseline
 ```
 
 **Phase 7 核心战略**：双信号博客（Dual-Signal Blog）— 每篇文章同时携带 SEO 信号（Google 排名）和 GEO 信号（AI 推荐），选题由 AI Tracker 弱项 × SEMrush 低KD机会交叉驱动，形成数据自强化飞轮。
 
 **Phase 8 核心战略**：DataForSEO 集成补充 SEMrush 数据缺口，构建完整 SEO 可见度体系（外链、SERP 排名、本地搜索、市场基准）。Phase 8.C.1 月报整合将 6 大数据源聚合，交付完整月度洞察报告。
+
+**Phase 8.G + 8.A 战略价值（2026-05-03 立项）**：补全五层架构（详见 [ARCHITECTURE.md §0.1](./ARCHITECTURE.md#01-magic-engine-五层架构2026-05-03-确立)）。
+- 8.G 接入 GSC + GA4 → Layer 1 拥有客户站真实查询表现 + 行为转化数据（**几乎免费、客户已装、16 月历史**）
+- 8.A 启动 Claude 分析引擎 → Layer 2 把所有信号自动转化为月度策略简报、选题清单、优化清单等 5 类 artifact
+- 这两件事是 Magic Engine 从"数据采集 + 内容生产"升级为"数据驱动的智能陪跑"的关键拼图
+- **Amplitude / HubSpot 不在近期路径上**——GA4+GSC+CRM 的最低组合就够了，避免过度工程化
 
 ---
 
@@ -660,13 +668,114 @@ Layer 3: 策略驱动执行
 
 ---
 
-### Phase 9 — 报告化 + 客户交付
+### Phase 8.G — Google 数据接入（GSC + GA4）⭐（2026-05-03 立项）
 
-- [ ] **P9.1** 月报 PDF 导出 + 邮件自动发送（Strategy Engine 生成分析文字，Puppeteer 截图）
-- [ ] **P9.2** 客户 Portal（client-facing view，只看自己内容 + 当月月报）
+> **战略价值**：补全 [ARCHITECTURE.md §0.1](./ARCHITECTURE.md#01-magic-engine-五层架构2026-05-03-确立) 五层架构中 Layer 1 的"客户站真实表现"数据。
+> GSC 提供 16 个月查询级真实曝光数据，GA4 提供流量来源 + 行为转化数据。两者**几乎免费**，**99% 客户已装**，是性价比最高的数据扩展。
+>
+> **依赖关系**：是 Phase 8.A（Claude 分析引擎）的前置条件——没有真实流量数据，分析层只能基于估算给建议。
+
+**详细技术设计**：[ARCHITECTURE.md §15](./ARCHITECTURE.md#15-layer-1-数据接入扩展--ga4--gsc-phase-8g-规划-)
+
+#### 8.G.1 — Google OAuth + 客户授权流程
+- [ ] **P8.G.1.1** DB Migration：`clients` 表新增 `gsc_property_url` / `ga4_property_id` / `ga4_bigquery_dataset` / `google_oauth_token` 字段
+- [ ] **P8.G.1.2** `src/lib/google-oauth/client.ts`：共享 Google OAuth 流程（GSC + GA4 scope）
+- [ ] **P8.G.1.3** `GET /api/clients/[id]/google/oauth-url` + `GET /api/clients/[id]/google/callback`
+- [ ] **P8.G.1.4** UI：客户详情页 "Connect Google Data" 按钮 + property 选择器
+
+#### 8.G.2 — Google Search Console 接入（Search Performance）
+- [ ] **P8.G.2.1** DB Migration：`gsc_query_performance` 表 + 索引
+- [ ] **P8.G.2.2** `src/lib/gsc/client.ts`：Search Console API wrapper
+- [ ] **P8.G.2.3** `src/lib/gsc/sync.ts`：增量 + 全量同步逻辑
+- [ ] **P8.G.2.4** `POST /api/clients/[id]/gsc/sync` + `/backfill`（16 月历史）
+- [ ] **P8.G.2.5** `src/lib/gsc/crossreference.ts`：SEMrush ↔ GSC 交叉校验算法
+- [ ] **P8.G.2.6** `POST /api/clients/[id]/gsc/crossreference` → 输出新发现的关键词机会
+- [ ] **P8.G.2.7** UI：`/dashboard/clients/[id]/search-performance` 页面（查询表现 + 交叉校验报告）
+
+#### 8.G.3 — Google Analytics 4 接入（Traffic Intelligence）
+- [ ] **P8.G.3.1** DB Migration：`ga4_sessions` + `ga4_events` 表 + 索引
+- [ ] **P8.G.3.2** `src/lib/ga4/data-api.ts`：GA4 Data API wrapper（聚合数据）
+- [ ] **P8.G.3.3** `src/lib/ga4/traffic-classifier.ts`：AI 引擎 referrer 识别规则
+- [ ] **P8.G.3.4** `src/lib/ga4/bigquery-import.ts`：BigQuery raw event 导入
+- [ ] **P8.G.3.5** `src/lib/ga4/attribution.ts`：行为归因到 `blog_posts.slug`
+- [ ] **P8.G.3.6** `POST /api/clients/[id]/ga4/sync` + `/bigquery-import`
+- [ ] **P8.G.3.7** `GET /api/clients/[id]/ga4/ai-traffic-summary` → AI 渠道流量画像
+- [ ] **P8.G.3.8** UI：`/dashboard/clients/[id]/traffic-intelligence` 页面（AI vs Google 流量对比）
+
+#### 8.G.4 — Cron 同步 + 接入向导集成
+- [ ] **P8.G.4.1** `GET /api/cron/google-data-sync`：每日所有客户增量同步
+- [ ] **P8.G.4.2** 客户接入向导（P8.3.1）新增 "Connect Google Data" 步骤
+- [ ] **P8.G.4.3** 错误处理：token 过期自动刷新 + 失败客户告警
+
+**验收标准**：
+- CTS Tours 完成 GSC + GA4 OAuth 授权
+- 16 个月 GSC 历史数据全部入库
+- GSC ↔ SEMrush 交叉报告输出（验证至少 5 个新机会词）
+- GA4 referrer 分类工作正常，能识别 chatgpt/perplexity/claude 流量
+- 每日 cron 稳定运行，零客户失败
+
+---
+
+### Phase 8.A — Claude 分析引擎（Layer 2 决策层）⭐（2026-05-03 立项）
+
+> **战略价值**：Magic Engine 真正的差异化层。把 Layer 1 多源数据（GSC + GA4 + AI Tracker + SEMrush + DataForSEO + blog_posts 历史）通过 Claude 自动转化成有上下文的、可执行的、用客户语言的优化建议。
+>
+> **对外封装名**：**Strategy Intelligence**
+>
+> **依赖关系**：必须在 Phase 8.G 完成后启动（数据源齐全才能跑出有价值的分析）。
+
+**详细技术设计**：[ARCHITECTURE.md §16](./ARCHITECTURE.md#16-layer-2-claude-分析引擎phase-8a-规划-)
+
+#### 8.A.1 — 数据模型 + 调度框架
+- [ ] **P8.A.1.1** DB Migration：`analysis_runs` + `analysis_recommendations` 表
+- [ ] **P8.A.1.2** `src/lib/analysis/orchestrator.ts`：主调度（拉数据 → 调 Claude → 解析 → 写库）
+- [ ] **P8.A.1.3** `src/lib/analysis/data-aggregator.ts`：多源数据聚合
+- [ ] **P8.A.1.4** `src/lib/analysis/output-parser.ts`：Claude markdown → 结构化 recommendations
+
+#### 8.A.2 — 5 类 artifact 的 prompt 模板
+- [ ] **P8.A.2.1** `prompts/monthly-brief.ts` — 月度策略简报（中英双语，3 页）
+- [ ] **P8.A.2.2** `prompts/topic-list.ts` — 下月选题清单（含 unified/geo_only/seo_only 模式）
+- [ ] **P8.A.2.3** `prompts/optimization-list.ts` — 已发内容优化建议
+- [ ] **P8.A.2.4** `prompts/quarterly-review.ts` — 季度深度复盘（含 Master Brief 反向迭代触发）
+- [ ] **P8.A.2.5** `prompts/anomaly-check.ts` — 异常检测（cron 每日运行）
+- [ ] **P8.A.2.6** prompt 版本管理：每个模板写入 `analysis_runs.prompt_version` 便于 A/B 对比
+
+#### 8.A.3 — API 路由 + 触发机制
+- [ ] **P8.A.3.1** `POST /api/analysis/monthly-brief` + 其他 4 个 artifact 触发端点
+- [ ] **P8.A.3.2** `GET /api/analysis/runs` + `/runs/[id]` + `/recommendations`
+- [ ] **P8.A.3.3** `PATCH /api/analysis/recommendations/[id]/{accept,reject}`
+- [ ] **P8.A.3.4** `src/lib/analysis/recommendation-executor.ts`：接受建议自动派发到 Blog Studio / Campaign Studio
+- [ ] **P8.A.3.5** Cron：每月 1 号自动跑当月 monthly-brief + topic-list + optimization-list
+
+#### 8.A.4 — UI（内部团队 + 客户视图）
+- [ ] **P8.A.4.1** `/dashboard/clients/[id]/strategy-intelligence` — 客户详情页新 Tab
+- [ ] **P8.A.4.2** Artifact 浏览器：按月份切换查看历史月报
+- [ ] **P8.A.4.3** Recommendations 工作流：建议列表 → 一键接受 → 自动跳转执行界面
+- [ ] **P8.A.4.4** 异常告警 dashboard 入口
+
+#### 8.A.5 — Master Brief 反向迭代闭环
+- [ ] **P8.A.5.1** `quarterly-review` prompt 中包含 Brief 假设证伪检测
+- [ ] **P8.A.5.2** 当 recommendation_type = `update_master_brief` 时，触发 v2 Brief 草稿
+- [ ] **P8.A.5.3** 内部审核 UI：对比 v1 vs v2，确认后 `is_active` 切换
+
+**验收标准**：
+- CTS Tours 完成 1 次完整月度分析（5 类 artifact 全部产出）
+- 月报输出语言流畅、有具体数据支撑、客户老板能读懂
+- 至少 1 条 recommendation 被接受并自动派发到 Blog Studio 完成执行
+- 单次完整分析成本 < $1，延迟 < 60 秒
+- prompt 经过至少 3 轮迭代（v1 → v2 → v3），每版有改进记录
+
+---
+
+### Phase 9 — 报告化 + 客户交付 + CRM 接入
+
+- [ ] **P9.1** 月报 PDF 导出 + 邮件自动发送（基于 Phase 8.A 的 monthly-brief artifact，Puppeteer 截图）
+- [ ] **P9.2** 客户 Portal（client-facing view，只看自己内容 + 当月月报 + recommendations）
 - [ ] **P9.3** 站点权威度追踪（DA / 外链 / 内链趋势）
 - [ ] **P9.4** Cron：每日 sync Content Workspace → 主库；每周一跑 AI Tracker + 更新策略建议
 - [ ] **P9.5** 批量执行：一键为所有 approved 策略条目生成对应内容
+- [ ] **P9.X.1** HubSpot Free CRM 接入（webhook 双向打通）— 询盘 → quoted → won → revenue 回灌
+- [ ] **P9.X.2** Email 平台 webhook（Mailchimp / SendGrid）→ `ga4_events` 邮件互动归因
 
 ### Phase 10 — 平台扩展与沉淀
 
@@ -675,6 +784,8 @@ Layer 3: 策略驱动执行
 - [ ] **P10.3** Magic Lab Academy 课程化（基于 CTS Tours 实战 SOP）
 - [ ] **P10.4** Plugin 形态：WordPress / Webflow GEO 自动注入插件
 - [ ] **P10.5** Google AI Overview 追踪（SerpAPI，AU/NZ 市场必做）
+- [ ] **P10.6** **Industry Baseline 多客户匿名聚合层**（详见 [ARCHITECTURE.md §16.3](./ARCHITECTURE.md#163-数据模型) `industry_baseline` 表）— 跑到 3+ 客户后启动，反哺单客户报告"行业百分位"
+- [ ] **P10.7** Amplitude 评估（仅当某客户的 GA4 不够用，或自建产品化场景出现）— **优先级最低**
 
 ---
 
@@ -786,6 +897,15 @@ Layer 3: 策略驱动执行
   - P7.0.5 ✅ GEO 注入方案 A + B
   - P7.0.6 ✅ PoC 客户 CTS Tours（含发布权限）
   - P7.0.7 ✅ 月报形态 Web 报告页
+
+### 2026-05-03（五层架构 + Layer 1/2 扩展立项）⭐
+- **架构正式化**：确立 Magic Engine **五层架构**（Master Brief / 诊断 / 决策 / 治疗 / 复诊），所有现有模块和未来规划归位到这五层。详见 [ARCHITECTURE.md §0.1](./ARCHITECTURE.md#01-magic-engine-五层架构2026-05-03-确立)
+- **Phase 8.G 立项（GA4 + GSC）**：补全 Layer 1 客户站真实数据。GSC 提供 16 个月查询级真实曝光，GA4 提供流量来源 + 行为转化 + AI 引擎 referrer 识别。**几乎免费 + 99% 客户已装**，性价比最高的数据源扩展
+- **Phase 8.A 立项（Claude 分析引擎）**：启动 Layer 2 决策层。把 Layer 1 多源数据通过 Claude 自动转化为 5 类 artifact（月度策略简报 / 选题清单 / 优化清单 / 季度复盘 / 异常预警）。这是 Magic Engine 真正的差异化层
+- **拒绝过度工程化**：明确 Amplitude / Mixpanel **不在近期路径**。GA4 + GSC 已经覆盖 70-80% 行为分析需求，且免费。Amplitude 仅在 Phase 10.7 评估，前提是某客户的 GA4 真不够用或自建产品化场景出现
+- **拒绝"卖数据"路径**：明确 Magic Engine 数据资产变现路径走"洞察报告 + Academy 课程 + 单点 SaaS"，**不做数据掮客生意**（法律风险 + 没有买家 + 侵蚀陪跑信任）。Industry Baseline 仅作为单客户报告内的对比维度（Phase 10.6），不对外销售 raw data
+- **Master Brief 反向迭代机制**（Phase 8.A.5）：基于季度数据，Claude 自动检测 Brief 假设证伪，触发 v2 Brief 草稿。这是把"陪跑团队 SOP"LLM 化的关键能力
+- **HubSpot CRM 接入挪到 Phase 9.X**：必须在 GA4 + GSC + Claude 分析跑通后再做，避免一次性集成过多
 
 ---
 
