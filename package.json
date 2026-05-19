@@ -8,6 +8,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "postbuild": "node scripts/create-static-out.js",
     "start": "next start",
     "lint": "next lint"
   },
