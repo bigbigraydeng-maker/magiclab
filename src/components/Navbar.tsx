@@ -9,6 +9,7 @@ const navLinks = [
   { href: '/services', label: 'Services' },
   { href: '/work', label: 'Work' },
   { href: '/magic-engine', label: 'Magic Engine' },
+  { href: '/magic-engine#magic-engine-interest', label: 'Investor' },
   { href: '/insights', label: 'Insights' },
   { href: '/about', label: 'About' },
   { href: '/contact', label: 'Contact' },
@@ -31,7 +32,7 @@ const Navbar = () => {
             />
         </Link>
 
-        <div className="hidden md:flex items-center space-x-7">
+        <div className="hidden md:flex items-center space-x-5">
           {navLinks.map((link) => (
             <Link key={link.href} href={link.href} className="text-sm font-medium text-silver/75 hover:text-white transition-colors">
               {link.label}

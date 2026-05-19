@@ -64,6 +64,11 @@ const Footer = () => {
                 </Link>
               </li>
               <li>
+                <Link href="/magic-engine#magic-engine-interest" className="text-mist hover:text-white transition-colors">
+                  Investor Interest
+                </Link>
+              </li>
+              <li>
                 <Link href="/contact" className="text-mist hover:text-white transition-colors">
                   Contact
                 </Link>
