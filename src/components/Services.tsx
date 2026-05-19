@@ -1,62 +1,103 @@
 import ServiceCard from './ServiceCard';
 
-const Services = () => {
-  const services = [
-    {
-      icon: '\u{1F310}',
-      title: 'Website Systems',
-      description: [
-        'Fast websites',
-        'SEO-ready architecture',
-        'Mobile optimized',
-        'High performance'
-      ],
-      accent: 'from-blue-500 to-blue-600',
-    },
-    {
-      icon: '\u{1F50D}',
-      title: 'SEO / GEO Optimization',
-      description: [
-        'Google search optimization',
-        'AI search visibility',
-        'Local SEO infrastructure',
-        'Content strategy'
-      ],
-      accent: 'from-cyan-500 to-teal-500',
-    },
-    {
-      icon: '\u{1F916}',
-      title: 'AI Marketing Systems',
-      description: [
-        'Lead capture automation',
-        'AI assistants',
-        'Marketing workflow automation',
-        'Data-driven marketing'
-      ],
-      accent: 'from-violet-500 to-purple-500',
-    }
-  ];
+const capabilities = [
+  'Private workflow automation',
+  'Agentic task orchestration',
+  'Human-in-the-loop review',
+  'Operational reporting layers',
+];
 
+const services = [
+  {
+    icon: '01',
+    title: 'Enterprise Automation',
+    description: [
+      'Replace repeated admin work with governed AI workflows',
+      'Connect CRM, spreadsheets, websites, documents, and inboxes',
+      'Design reliable handoff points between AI and human teams',
+    ],
+  },
+  {
+    icon: '02',
+    title: 'Data Intelligence',
+    description: [
+      'Collect and structure business, market, and public data',
+      'Build dashboards, scoring engines, and decision systems',
+      'Turn scattered signals into searchable operating knowledge',
+    ],
+  },
+  {
+    icon: '03',
+    title: 'AI Training',
+    description: [
+      'Train teams to use AI safely in real business workflows',
+      'Create custom playbooks for managers, operators, and founders',
+      'Move adoption from experimentation into daily execution',
+    ],
+  },
+];
+
+const Services = () => {
   return (
-    <section className="py-20 section-alt">
-      <div className="container mx-auto px-4">
-        <div className="text-center mb-14">
-          <p className="text-blue-400 font-medium text-sm uppercase tracking-wider mb-3">What We Do</p>
-          <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
-            Our Services
-          </h2>
-          <p className="text-gray-400 max-w-2xl mx-auto">
-            We provide comprehensive AI marketing infrastructure to help your business grow online.
-          </p>
+    <section className="photo-section py-24">
+      <div className="container mx-auto px-4 relative z-10">
+        <div className="grid lg:grid-cols-[0.9fr_1.1fr] gap-12 items-start">
+          <div>
+            <p className="section-kicker">Magic Engine</p>
+            <h2 className="modern-heading mt-4 text-3xl md:text-5xl leading-tight text-white">
+              The automation layer behind modern business operations.
+            </h2>
+            <p className="mt-6 text-base leading-8 text-mist">
+              Magic Engine is the architecture we use to turn business processes into connected
+              AI systems: agents, data pipelines, workflow rules, and team controls designed for
+              companies operating across New Zealand and Australia.
+            </p>
+
+            <div className="mt-8 grid sm:grid-cols-2 gap-3">
+              {capabilities.map((item) => (
+                <div key={item} className="tech-chip rounded-full px-4 py-3 text-sm font-semibold text-silver">
+                  {item}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="app-window rounded-[28px] p-5 md:p-7">
+            <div className="grid sm:grid-cols-2 gap-4">
+              <div className="screen-card rounded-2xl p-5">
+                <p className="text-xs font-bold uppercase tracking-[0.26em] text-mist">Input</p>
+                <p className="mt-3 text-sm leading-6 text-silver">Documents, messages, leads, market data, internal records</p>
+              </div>
+              <div className="screen-card rounded-2xl p-5">
+                <p className="text-xs font-bold uppercase tracking-[0.26em] text-mist">Reasoning</p>
+                <p className="mt-3 text-sm leading-6 text-silver">AI agents, rules, scoring models, retrieval, review gates</p>
+              </div>
+              <div className="screen-card rounded-2xl p-5">
+                <p className="text-xs font-bold uppercase tracking-[0.26em] text-mist">Action</p>
+                <p className="mt-3 text-sm leading-6 text-silver">Reports, alerts, CRM updates, booking flows, task creation</p>
+              </div>
+              <div className="screen-card rounded-2xl p-5">
+                <p className="text-xs font-bold uppercase tracking-[0.26em] text-mist">Control</p>
+                <p className="mt-3 text-sm leading-6 text-silver">Permissions, audit trails, approval steps, operating playbooks</p>
+              </div>
+            </div>
+          </div>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {services.map((service, index) => (
+
+        <div className="mt-20 text-center">
+          <p className="section-kicker">Solutions</p>
+          <h2 className="modern-heading mt-4 text-3xl md:text-5xl text-white">
+            Built for teams that need AI to work inside the business.
+          </h2>
+        </div>
+
+        <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-6">
+          {services.map((service) => (
             <ServiceCard
-              key={index}
+              key={service.title}
               icon={service.icon}
               title={service.title}
               description={service.description}
-              accent={service.accent}
             />
           ))}
         </div>

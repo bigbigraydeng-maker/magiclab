@@ -7,10 +7,10 @@ interface CaseCardProps {
 }
 
 const tagColors: Record<string, string> = {
-  'AI': 'bg-violet-500/15 text-violet-400 border-violet-500/20',
-  'Web': 'bg-blue-500/15 text-blue-400 border-blue-500/20',
-  'Data': 'bg-cyan-500/15 text-cyan-400 border-cyan-500/20',
-  'SEO': 'bg-emerald-500/15 text-emerald-400 border-emerald-500/20',
+  'AI': 'bg-white/[0.08] text-silver border-silver/20',
+  'Web': 'bg-white/[0.08] text-silver border-silver/20',
+  'Data': 'bg-white/[0.08] text-silver border-silver/20',
+  'SEO': 'bg-white/[0.08] text-silver border-silver/20',
 };
 
 function getTag(desc: string): { label: string; color: string } {
@@ -27,32 +27,32 @@ const CaseCard = ({ client, description, image }: CaseCardProps) => {
   const tag = getTag(description.join(' '));
 
   return (
-    <div className="case-card bg-gray-800/80 rounded-xl flex flex-col h-full overflow-hidden">
+    <div className="case-card rounded-lg border border-silver/20 bg-white/[0.04] flex flex-col h-full overflow-hidden">
       {image ? (
-        <div className="relative w-full h-44 overflow-hidden bg-gray-700">
+        <div className="relative w-full h-44 overflow-hidden bg-secondary">
           <img
             src={image}
             alt={`${client} project screenshot`}
             className="w-full h-full object-cover object-top"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-gray-800/60 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-primary/70 to-transparent" />
         </div>
       ) : (
-        <div className="w-full h-44 bg-gradient-to-br from-gray-700 to-gray-800 flex items-center justify-center">
-          <span className="text-4xl text-gray-500">{client.charAt(0)}</span>
+        <div className="w-full h-44 bg-gradient-to-br from-secondary to-primary flex items-center justify-center">
+          <span className="text-4xl font-extrabold text-silver">{client.charAt(0)}</span>
         </div>
       )}
       <div className="p-6 flex flex-col flex-1">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-semibold text-white">{client}</h3>
+          <h3 className="text-lg font-extrabold text-white">{client}</h3>
           <span className={`text-xs font-medium px-2.5 py-1 rounded-full border ${tag.color}`}>
             {tag.label}
           </span>
         </div>
         <ul className="space-y-2 flex-1">
           {description.map((item, index) => (
-            <li key={index} className="text-gray-400 flex items-start gap-2.5 text-sm">
-              <span className="text-blue-400 mt-1 text-xs">&#9679;</span>
+            <li key={index} className="text-mist flex items-start gap-2.5 text-sm leading-6">
+              <span className="mt-2 h-1.5 w-1.5 shrink-0 rotate-45 bg-silver" />
               {item}
             </li>
           ))}

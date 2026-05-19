@@ -1,51 +1,42 @@
-const Process = () => {
-  const steps = [
-    {
-      icon: '\u{1F3AF}',
-      title: 'Strategy',
-      description: 'Understand business goals and map out the growth path',
-    },
-    {
-      icon: '\u{1F4D0}',
-      title: 'System Design',
-      description: 'Architect website, SEO, and AI infrastructure',
-    },
-    {
-      icon: '\u{26A1}',
-      title: 'Build',
-      description: 'Rapid development with modern tech stack',
-    },
-    {
-      icon: '\u{1F4C8}',
-      title: 'Growth',
-      description: 'Deploy SEO and AI marketing for continuous growth',
-    },
-  ];
+const steps = [
+  {
+    title: 'Discover',
+    description: 'Map the business process, data sources, users, risks, and the work AI should not touch.',
+  },
+  {
+    title: 'Architect',
+    description: 'Design the Magic Engine workflow: agents, rules, integrations, dashboards, and review gates.',
+  },
+  {
+    title: 'Automate',
+    description: 'Build and connect the system with measurable outputs, permission controls, and team handoffs.',
+  },
+  {
+    title: 'Scale',
+    description: 'Train the team, monitor performance, and expand the automation layer across more operations.',
+  },
+];
 
+const Process = () => {
   return (
-    <section className="py-20 section-alt">
+    <section className="section-alt py-24">
       <div className="container mx-auto px-4">
-        <div className="text-center mb-14">
-          <p className="text-blue-400 font-medium text-sm uppercase tracking-wider mb-3">How We Work</p>
-          <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
-            Our Process
+        <div className="mx-auto mb-14 max-w-3xl text-center">
+          <p className="section-kicker">How We Build</p>
+          <h2 className="modern-heading mt-4 text-3xl md:text-5xl text-white">
+            From scattered workflow to operating intelligence.
           </h2>
-          <p className="text-gray-400 max-w-2xl mx-auto">
-            We follow a systematic approach to deliver results for your business.
-          </p>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8 relative">
-          <div className="hidden md:block absolute top-10 left-[12.5%] right-[12.5%] h-0.5 bg-gradient-to-r from-blue-500/20 via-blue-500/40 to-blue-500/20" />
+
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-5">
           {steps.map((step, index) => (
-            <div key={index} className="text-center relative z-10">
-              <div className="w-20 h-20 rounded-2xl bg-gray-800 border border-gray-700 flex items-center justify-center text-3xl mx-auto mb-5 shadow-lg shadow-blue-500/5">
-                {step.icon}
+            <div key={step.title} className="relative screen-card rounded-[24px] p-6">
+              <div className="mb-8 flex items-center justify-between">
+                <span className="text-4xl font-black text-white/25">0{index + 1}</span>
+                <span className="spark scale-75" />
               </div>
-              <div className="text-blue-400 text-xs font-bold uppercase tracking-widest mb-2">
-                Step {index + 1}
-              </div>
-              <h3 className="text-lg font-semibold text-white mb-2">{step.title}</h3>
-              <p className="text-gray-400 text-sm">{step.description}</p>
+              <h3 className="text-2xl font-extrabold text-white">{step.title}</h3>
+              <p className="mt-4 text-sm leading-7 text-mist">{step.description}</p>
             </div>
           ))}
         </div>

@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import Link from 'next/link';
 import { useState } from 'react';
 
@@ -7,8 +8,8 @@ const navLinks = [
   { href: '/', label: 'Home' },
   { href: '/services', label: 'Services' },
   { href: '/work', label: 'Work' },
+  { href: '/magic-network', label: 'Magic Engine' },
   { href: '/insights', label: 'Insights' },
-  { href: '/magic-network', label: 'Magic Network' },
   { href: '/about', label: 'About' },
   { href: '/contact', label: 'Contact' },
 ];
@@ -17,22 +18,38 @@ const Navbar = () => {
   const [open, setOpen] = useState(false);
 
   return (
-    <nav className="navbar fixed top-0 left-0 right-0 z-50 border-b border-gray-800">
-      <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-        <Link href="/" className="text-2xl font-bold text-white" onClick={() => setOpen(false)}>
-          Magic Lab
+    <nav className="navbar fixed top-0 left-0 right-0 z-50 border-b border-white/10">
+      <div className="container mx-auto px-4 py-4 flex justify-between items-center gap-5">
+        <Link href="/" aria-label="Magic Lab home" className="relative block h-9 w-[170px]" onClick={() => setOpen(false)}>
+            <Image
+              src="/images/brand/brand-wordmark.jpg"
+              alt=""
+              fill
+              sizes="170px"
+              className="object-contain object-left"
+              priority
+            />
         </Link>
-        <div className="hidden md:flex space-x-8">
+
+        <div className="hidden md:flex items-center space-x-7">
           {navLinks.map((link) => (
-            <Link key={link.href} href={link.href} className="text-gray-300 hover:text-white transition-colors">
+            <Link key={link.href} href={link.href} className="text-sm font-medium text-silver/75 hover:text-white transition-colors">
               {link.label}
             </Link>
           ))}
         </div>
+
+        <Link
+          href="/contact"
+          className="hidden lg:inline-flex btn-secondary rounded-lg px-4 py-2 text-sm font-semibold"
+        >
+          Book Strategy Call
+        </Link>
+
         <div className="md:hidden">
           <button
             type="button"
-            aria-label={open ? '关闭菜单' : '打开菜单'}
+            aria-label={open ? 'Close menu' : 'Open menu'}
             aria-expanded={open}
             onClick={() => setOpen((v) => !v)}
             className="text-white p-2 -mr-2"
@@ -51,18 +68,25 @@ const Navbar = () => {
       </div>
 
       {open && (
-        <div className="md:hidden border-t border-gray-800 bg-black/95 backdrop-blur-sm">
+        <div className="md:hidden border-t border-white/10 bg-primary/95 backdrop-blur-sm">
           <div className="container mx-auto px-4 py-4 flex flex-col space-y-1">
             {navLinks.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
                 onClick={() => setOpen(false)}
-                className="text-gray-300 hover:text-white hover:bg-white/5 transition-colors px-3 py-3 rounded-lg"
+                className="text-silver/80 hover:text-white hover:bg-white/5 transition-colors px-3 py-3 rounded-lg"
               >
                 {link.label}
               </Link>
             ))}
+            <Link
+              href="/contact"
+              onClick={() => setOpen(false)}
+              className="btn-primary mt-2 rounded-lg px-3 py-3 text-center font-semibold"
+            >
+              Book Strategy Call
+            </Link>
           </div>
         </div>
       )}

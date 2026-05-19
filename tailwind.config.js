@@ -8,14 +8,19 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        primary: '#0F172A',
-        secondary: '#3B82F6',
-        accent: '#06B6D4',
-        light: '#F8FAFC',
-        dark: '#0F172A',
+        primary: '#0A1A2B',
+        secondary: '#12324D',
+        accent: '#2A5B7F',
+        electric: '#8FD7FF',
+        aqua: '#C8F2FF',
+        mist: '#A7BCCB',
+        silver: '#D6DEE6',
+        light: '#FFFFFF',
+        dark: '#0A1A2B',
       },
       fontFamily: {
-        sans: ['Inter', 'system-ui', 'sans-serif'],
+        sans: ['var(--font-montserrat)', 'system-ui', 'sans-serif'],
+        display: ['var(--font-cinzel)', 'Georgia', 'serif'],
       },
     },
   },

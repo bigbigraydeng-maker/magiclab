@@ -3,142 +3,345 @@
 @tailwind utilities;
 
 :root {
-  --background: #0F172A;
-  --foreground: #F8FAFC;
+  --midnight: #0a1a2b;
+  --deep-blue: #12324d;
+  --signal-blue: #2a5b7f;
+  --electric: #8fd7ff;
+  --aqua: #c8f2ff;
+  --mist: #a7bccb;
+  --silver: #d6dee6;
+  --white: #ffffff;
+  --background: var(--midnight);
+  --foreground: var(--silver);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  background: var(--midnight);
 }
 
 body {
-  font-family: 'Inter', system-ui, sans-serif;
-  background-color: var(--background);
+  margin: 0;
+  font-family: var(--font-montserrat), system-ui, sans-serif;
+  background:
+    linear-gradient(180deg, rgba(10, 26, 43, 0.98) 0%, rgba(4, 12, 22, 1) 100%),
+    var(--midnight);
   color: var(--foreground);
 }
 
-.gradient-bg {
-  background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%);
+::selection {
+  background: rgba(167, 188, 203, 0.22);
+  color: var(--white);
+}
+
+.font-display {
+  font-family: var(--font-cinzel), Georgia, serif;
+}
+
+.font-tech {
+  font-family: var(--font-montserrat), system-ui, sans-serif;
+}
+
+.text-silver {
+  color: var(--silver);
+}
+
+.text-mist {
+  color: var(--mist);
+}
+
+.brand-shell {
+  position: relative;
+  background:
+    linear-gradient(180deg, rgba(10, 26, 43, 0.96), rgba(8, 18, 31, 0.98)),
+    linear-gradient(90deg, rgba(167, 188, 203, 0.04) 1px, transparent 1px),
+    linear-gradient(0deg, rgba(167, 188, 203, 0.03) 1px, transparent 1px);
+  background-size: auto, 96px 96px, 96px 96px;
 }
 
 .gradient-hero {
-  background: linear-gradient(160deg, #0F172A 0%, #1a1f3a 40%, #1E293B 100%);
   position: relative;
   overflow: hidden;
+  min-height: 760px;
+  background:
+    linear-gradient(90deg, rgba(5, 13, 24, 0.94) 0%, rgba(10, 26, 43, 0.84) 45%, rgba(5, 13, 24, 0.68) 100%),
+    radial-gradient(circle at 78% 12%, rgba(143, 215, 255, 0.28), transparent 30%),
+    radial-gradient(circle at 5% 24%, rgba(42, 91, 127, 0.48), transparent 32%),
+    url('/images/brand/unsplash-underwater.jpg') center / cover no-repeat;
 }
 
 .gradient-hero::before {
   content: '';
   position: absolute;
-  top: -50%;
-  right: -20%;
-  width: 600px;
-  height: 600px;
-  background: radial-gradient(circle, rgba(59, 130, 246, 0.08) 0%, transparent 70%);
+  inset: 0;
+  background:
+    linear-gradient(90deg, rgba(255, 255, 255, 0.06) 1px, transparent 1px),
+    linear-gradient(0deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+    linear-gradient(180deg, rgba(143, 215, 255, 0.13), transparent 42%);
+  background-size: 80px 80px, 80px 80px, auto;
+  opacity: 0.5;
   pointer-events: none;
 }
 
 .gradient-hero::after {
   content: '';
   position: absolute;
-  bottom: -30%;
-  left: -10%;
-  width: 400px;
-  height: 400px;
-  background: radial-gradient(circle, rgba(6, 182, 212, 0.06) 0%, transparent 70%);
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 240px;
+  background:
+    linear-gradient(180deg, transparent, rgba(10, 26, 43, 0.98)),
+    radial-gradient(ellipse at center, rgba(143, 215, 255, 0.16), transparent 62%);
   pointer-events: none;
 }
 
-.service-card {
-  transition: all 0.3s ease;
-  border: 1px solid transparent;
-}
-
-.service-card:hover {
-  transform: translateY(-5px);
-  border-color: rgba(59, 130, 246, 0.3);
-  box-shadow: 0 20px 40px -10px rgba(59, 130, 246, 0.15);
-}
-
-.case-card {
-  transition: all 0.3s ease;
-  border: 1px solid rgba(255, 255, 255, 0.05);
-}
-
-.case-card:hover {
-  transform: translateY(-5px);
-  border-color: rgba(59, 130, 246, 0.3);
-  box-shadow: 0 20px 40px -10px rgba(59, 130, 246, 0.15);
-}
-
-.blog-card {
-  transition: all 0.3s ease;
-  border: 1px solid rgba(255, 255, 255, 0.05);
-}
-
-.blog-card:hover {
-  transform: translateY(-5px);
-  border-color: rgba(59, 130, 246, 0.3);
-  box-shadow: 0 20px 40px -10px rgba(59, 130, 246, 0.15);
-}
-
-.btn-primary {
-  background: linear-gradient(135deg, #3B82F6 0%, #06B6D4 100%);
-  transition: all 0.3s ease;
-}
-
-.btn-primary:hover {
-  opacity: 0.9;
-  transform: translateY(-2px);
-  box-shadow: 0 10px 30px -5px rgba(59, 130, 246, 0.4);
-}
-
-.btn-secondary {
-  border: 1px solid #3B82F6;
-  transition: all 0.3s ease;
-}
-
-.btn-secondary:hover {
-  background-color: rgba(59, 130, 246, 0.1);
-  transform: translateY(-2px);
-}
-
-.navbar {
-  backdrop-filter: blur(10px);
-  background-color: rgba(15, 23, 42, 0.9);
-}
-
-.footer {
-  background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%);
-}
-
-.stat-card {
-  background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(6, 182, 212, 0.05) 100%);
-  border: 1px solid rgba(59, 130, 246, 0.15);
-}
-
-.client-card {
-  transition: all 0.3s ease;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.03) 0%, rgba(255, 255, 255, 0.01) 100%);
-}
-
-.client-card:hover {
-  border-color: rgba(59, 130, 246, 0.3);
-  background: linear-gradient(135deg, rgba(59, 130, 246, 0.08) 0%, rgba(6, 182, 212, 0.04) 100%);
-}
-
-.process-line {
+.brand-section {
   position: relative;
-}
-
-.process-line::after {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 0;
-  right: 0;
-  height: 2px;
-  background: linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.3), transparent);
-  z-index: 0;
+  overflow: hidden;
+  background: linear-gradient(180deg, #0a1a2b 0%, #081321 100%);
 }
 
 .section-alt {
-  background: linear-gradient(180deg, #0F172A 0%, #131c32 50%, #0F172A 100%);
+  position: relative;
+  overflow: hidden;
+  background:
+    linear-gradient(180deg, rgba(18, 50, 77, 0.44), rgba(10, 26, 43, 0.96)),
+    #0a1a2b;
+}
+
+.photo-section {
+  position: relative;
+  overflow: hidden;
+  background:
+    linear-gradient(180deg, rgba(5, 13, 24, 0.86), rgba(10, 26, 43, 0.98)),
+    url('/images/brand/unsplash-data-city.jpg') center / cover no-repeat;
+}
+
+.photo-section::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 80% 18%, rgba(143, 215, 255, 0.22), transparent 30%),
+    linear-gradient(90deg, rgba(5, 13, 24, 0.2), rgba(5, 13, 24, 0.82));
+  pointer-events: none;
+}
+
+.cta-photo {
+  position: relative;
+  overflow: hidden;
+  background:
+    linear-gradient(180deg, rgba(5, 13, 24, 0.76), rgba(5, 13, 24, 0.96)),
+    url('/images/brand/unsplash-liquid-metal.jpg') center / cover no-repeat;
+}
+
+.section-kicker {
+  color: var(--mist);
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+}
+
+.waterline {
+  position: relative;
+}
+
+.waterline::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(214, 222, 230, 0.34), transparent);
+}
+
+.glass-panel {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.11), rgba(42, 91, 127, 0.1));
+  border: 1px solid rgba(214, 222, 230, 0.2);
+  box-shadow: 0 32px 90px rgba(0, 0, 0, 0.34);
+}
+
+.crystal-panel {
+  position: relative;
+  background:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.1), rgba(42, 91, 127, 0.08)),
+    rgba(10, 26, 43, 0.72);
+  border: 1px solid rgba(214, 222, 230, 0.18);
+  overflow: hidden;
+}
+
+.crystal-panel::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(128deg, transparent 0 45%, rgba(214, 222, 230, 0.14) 45.2% 45.8%, transparent 46%),
+    linear-gradient(42deg, transparent 0 55%, rgba(167, 188, 203, 0.1) 55.2% 55.8%, transparent 56%);
+  opacity: 0.8;
+  pointer-events: none;
+}
+
+.spark {
+  position: relative;
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+}
+
+.spark::before,
+.spark::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  background: var(--white);
+}
+
+.spark::before {
+  width: 2px;
+  height: 18px;
+  border-radius: 999px;
+}
+
+.spark::after {
+  width: 18px;
+  height: 2px;
+  border-radius: 999px;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #ffffff 0%, #d7f4ff 56%, #8fd7ff 100%);
+  color: #0a1a2b;
+  border: 1px solid rgba(255, 255, 255, 0.66);
+  transition: transform 0.25s ease, box-shadow 0.25s ease, opacity 0.25s ease;
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 16px 34px rgba(214, 222, 230, 0.18);
+}
+
+.btn-secondary {
+  border: 1px solid rgba(214, 222, 230, 0.34);
+  color: var(--white);
+  background: rgba(214, 222, 230, 0.04);
+  transition: transform 0.25s ease, background-color 0.25s ease, border-color 0.25s ease;
+}
+
+.btn-secondary:hover {
+  transform: translateY(-2px);
+  background-color: rgba(214, 222, 230, 0.09);
+  border-color: rgba(214, 222, 230, 0.58);
+}
+
+.navbar {
+  backdrop-filter: blur(16px);
+  background: rgba(5, 13, 24, 0.76);
+}
+
+.footer {
+  background:
+    linear-gradient(180deg, rgba(8, 19, 33, 0.98), rgba(4, 10, 18, 1)),
+    var(--midnight);
+}
+
+.service-card,
+.case-card,
+.blog-card,
+.client-card {
+  transition: transform 0.25s ease, border-color 0.25s ease, background-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.service-card:hover,
+.case-card:hover,
+.blog-card:hover,
+.client-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(214, 222, 230, 0.36);
+  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.24);
+}
+
+.stat-card {
+  background: rgba(214, 222, 230, 0.06);
+  border: 1px solid rgba(214, 222, 230, 0.16);
+}
+
+.client-card {
+  border: 1px solid rgba(214, 222, 230, 0.12);
+  background: rgba(214, 222, 230, 0.04);
+}
+
+.hero-title {
+  font-family: var(--font-montserrat), system-ui, sans-serif;
+  letter-spacing: 0;
+  font-weight: 800;
+}
+
+.modern-heading {
+  font-family: var(--font-montserrat), system-ui, sans-serif;
+  letter-spacing: 0;
+  font-weight: 800;
+}
+
+.tech-chip {
+  border: 1px solid rgba(143, 215, 255, 0.24);
+  background: rgba(143, 215, 255, 0.08);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.image-panel {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(214, 222, 230, 0.18);
+  background: #081321;
+  box-shadow: 0 34px 90px rgba(0, 0, 0, 0.35);
+}
+
+.image-panel::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(180deg, transparent 30%, rgba(5, 13, 24, 0.84)),
+    linear-gradient(90deg, rgba(143, 215, 255, 0.16), transparent 38%);
+  pointer-events: none;
+}
+
+.app-window {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(214, 222, 230, 0.2);
+  background:
+    radial-gradient(circle at 78% 12%, rgba(143, 215, 255, 0.18), transparent 26%),
+    linear-gradient(145deg, rgba(255, 255, 255, 0.12), rgba(10, 26, 43, 0.84));
+  box-shadow: 0 36px 100px rgba(0, 0, 0, 0.38);
+}
+
+.app-window::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+    linear-gradient(0deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+  background-size: 48px 48px;
+  mask-image: linear-gradient(180deg, black, transparent 78%);
+  pointer-events: none;
+}
+
+.screen-card {
+  border: 1px solid rgba(214, 222, 230, 0.15);
+  background: rgba(4, 12, 22, 0.66);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.live-dot {
+  box-shadow: 0 0 0 6px rgba(143, 215, 255, 0.1), 0 0 30px rgba(143, 215, 255, 0.5);
 }

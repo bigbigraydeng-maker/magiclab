@@ -1,35 +1,46 @@
+import Image from 'next/image';
 import Link from 'next/link';
 
 const Footer = () => {
   return (
-    <footer className="footer py-16 border-t border-gray-800">
+    <footer className="footer border-t border-white/10 py-16">
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div>
-            <h3 className="text-2xl font-bold text-white mb-4">Magic Lab</h3>
-            <p className="text-gray-400 mb-4">
-              AI Marketing Infrastructure for Modern Businesses
+            <div className="mb-4 flex items-center gap-3">
+              <div className="relative h-10 w-[190px]">
+                <Image
+                  src="/images/brand/brand-wordmark.jpg"
+                  alt=""
+                  fill
+                  sizes="190px"
+                  className="object-contain object-left"
+                />
+              </div>
+            </div>
+            <p className="text-mist mb-4 leading-7">
+              AI automation infrastructure for the future of ANZ business.
             </p>
-            <p className="text-gray-500">
-              © 2026 Magic Lab. All rights reserved.
+            <p className="text-mist/70">
+              (c) 2026 Magic Lab. All rights reserved.
             </p>
           </div>
           <div>
-            <h4 className="text-white font-semibold mb-4">Services</h4>
+            <h4 className="text-white font-semibold mb-4">Solutions</h4>
             <ul className="space-y-2">
               <li>
-                <Link href="/services" className="text-gray-400 hover:text-white transition-colors">
-                  Website Systems
+                <Link href="/services" className="text-mist hover:text-white transition-colors">
+                  Enterprise Automation
                 </Link>
               </li>
               <li>
-                <Link href="/services" className="text-gray-400 hover:text-white transition-colors">
-                  SEO / GEO Optimization
+                <Link href="/services" className="text-mist hover:text-white transition-colors">
+                  Data Intelligence
                 </Link>
               </li>
               <li>
-                <Link href="/services" className="text-gray-400 hover:text-white transition-colors">
-                  AI Marketing Systems
+                <Link href="/services" className="text-mist hover:text-white transition-colors">
+                  AI Training
                 </Link>
               </li>
             </ul>
@@ -38,22 +49,22 @@ const Footer = () => {
             <h4 className="text-white font-semibold mb-4">Company</h4>
             <ul className="space-y-2">
               <li>
-                <Link href="/about" className="text-gray-400 hover:text-white transition-colors">
+                <Link href="/about" className="text-mist hover:text-white transition-colors">
                   About Us
                 </Link>
               </li>
               <li>
-                <Link href="/work" className="text-gray-400 hover:text-white transition-colors">
+                <Link href="/work" className="text-mist hover:text-white transition-colors">
                   Our Work
                 </Link>
               </li>
               <li>
-                <Link href="/insights" className="text-gray-400 hover:text-white transition-colors">
+                <Link href="/insights" className="text-mist hover:text-white transition-colors">
                   Insights
                 </Link>
               </li>
               <li>
-                <Link href="/contact" className="text-gray-400 hover:text-white transition-colors">
+                <Link href="/contact" className="text-mist hover:text-white transition-colors">
                   Contact
                 </Link>
               </li>
@@ -61,11 +72,14 @@ const Footer = () => {
           </div>
           <div>
             <h4 className="text-white font-semibold mb-4">Contact</h4>
-            <p className="text-gray-400 mb-2">
+            <p className="text-mist mb-2">
               Email: grace.gu@magiclab.nz
             </p>
-            <p className="text-gray-400">
+            <p className="text-mist mb-2">
               Phone: +61 499 451 794
+            </p>
+            <p className="text-mist">
+              Auckland / Australia / New Zealand
             </p>
           </div>
         </div>

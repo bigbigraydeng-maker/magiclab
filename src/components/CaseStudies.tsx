@@ -4,15 +4,16 @@ import { featuredProjects } from '../data/projects';
 
 const CaseStudies = () => {
   return (
-    <section className="py-20 bg-gray-900">
+    <section className="brand-section py-24">
       <div className="container mx-auto px-4">
         <div className="text-center mb-14">
-          <p className="text-blue-400 font-medium text-sm uppercase tracking-wider mb-3">Our Work</p>
-          <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
-            Case Studies
+          <p className="section-kicker">AI Systems in Market</p>
+          <h2 className="modern-heading mt-4 text-3xl md:text-5xl text-white mb-5">
+            Automation outcomes, not demo concepts.
           </h2>
-          <p className="text-gray-400 max-w-2xl mx-auto">
-            See how we&apos;ve helped businesses grow with our AI marketing infrastructure.
+          <p className="text-mist max-w-2xl mx-auto leading-8">
+            Selected systems built across property intelligence, quantitative trading, public
+            sentiment analysis, valuation engines, tourism, and cross-border business operations.
           </p>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -28,7 +29,7 @@ const CaseStudies = () => {
         <div className="text-center mt-12">
           <Link
             href="/work"
-            className="btn-secondary px-8 py-3 rounded-lg font-semibold text-white inline-block"
+            className="btn-secondary px-8 py-3 rounded-lg font-semibold inline-block"
           >
             View All Work
           </Link>

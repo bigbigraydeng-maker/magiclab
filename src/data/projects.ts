@@ -92,11 +92,11 @@ export const projects: Project[] = [
   {
     client: 'Warm Voyage',
     description:
-      'Premium Auckland Chinese tourism and chauffeur service website with bilingual support, SEO architecture, and conversion-optimized booking flow.',
+      'Premium Auckland Chinese tourism and chauffeur operation system with bilingual support, SEO architecture, and conversion-optimized booking flow.',
     summary: [
-      'Premium travel website',
+      'Premium travel operation system',
       'SEO architecture',
-      'Conversion optimization',
+      'Booking flow automation',
     ],
     services: [
       'Website Development',
@@ -111,7 +111,7 @@ export const projects: Project[] = [
   {
     client: 'China Travel Service NZ',
     description:
-      'Tour company website with SEO infrastructure and automated lead capture system for NZ tourism market.',
+      'Tour company digital operation system with SEO infrastructure and automated lead capture for the NZ tourism market.',
     summary: [
       'Tour company website',
       'SEO infrastructure',
@@ -125,7 +125,7 @@ export const projects: Project[] = [
   {
     client: 'BizMate',
     description:
-      'AI-powered business assistant SaaS for NZ Chinese entrepreneurs — virtual COO with compliance calendar, tax calculators, GP finder, and Xero integration.',
+      'AI-powered business assistant SaaS for NZ Chinese entrepreneurs: a virtual COO with compliance calendar, tax calculators, GP finder, and Xero integration.',
     summary: [
       'AI business assistant SaaS',
       'Compliance & tax automation',
