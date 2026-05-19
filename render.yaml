@@ -8,3 +8,9 @@ services:
     envVars:
       - key: NEXT_PUBLIC_SITE_URL
         sync: false
+      - key: RESEND_API_KEY
+        sync: false
+      - key: RESEND_FROM
+        sync: false
+      - key: MAGIC_ENGINE_TO
+        sync: false

@@ -8,7 +8,7 @@ const navLinks = [
   { href: '/', label: 'Home' },
   { href: '/services', label: 'Services' },
   { href: '/work', label: 'Work' },
-  { href: '/magic-network', label: 'Magic Engine' },
+  { href: '/magic-engine', label: 'Magic Engine' },
   { href: '/insights', label: 'Insights' },
   { href: '/about', label: 'About' },
   { href: '/contact', label: 'Contact' },

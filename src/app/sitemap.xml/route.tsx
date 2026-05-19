@@ -20,6 +20,12 @@ export async function GET() {
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://magiclab.nz/magic-engine</loc>
+    <lastmod>${new Date().toISOString()}</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://magiclab.nz/insights</loc>
     <lastmod>${new Date().toISOString()}</lastmod>
     <changefreq>weekly</changefreq>

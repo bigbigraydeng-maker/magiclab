@@ -46,7 +46,7 @@ const Hero = () => {
                 Book Strategy Call
               </Link>
               <Link
-                href="/magic-network"
+                href="/magic-engine"
                 className="btn-secondary rounded-full px-8 py-4 text-center font-bold"
               >
                 See Magic Engine
