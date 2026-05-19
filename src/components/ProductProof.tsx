@@ -18,7 +18,7 @@ const products = [
   {
     name: 'Magic Lab Academy',
     label: 'AI Training for Teams',
-    image: '/images/brand/unsplash-blue-wave.jpg',
+    image: '/images/brand/magic-lab-academy-skool-card.png',
     copy: 'Hands-on AI adoption programs for founders, managers, operators, and teams moving from tools to workflows.',
     metric: 'Workflow-first training',
   },
