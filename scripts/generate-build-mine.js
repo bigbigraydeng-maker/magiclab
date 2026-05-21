@@ -4,9 +4,11 @@ const path = require('path');
 const defaultLogDir = 'C:\\Users\\Zhong\\Documents\\Claude Big Ray\\magic-engine\\Second-Brain\\Claude-Code-Logs';
 const logDir = process.env.BUILD_MINE_LOG_DIR || defaultLogDir;
 const outputPath = path.join(process.cwd(), 'src', 'data', 'buildMineEntries.ts');
+const forceEmpty = process.argv.includes('--force-empty');
 
 function readMarkdownFiles(dir) {
   if (!fs.existsSync(dir)) {
+    console.log(`Build Mine log directory not found: ${dir}`);
     return [];
   }
 
@@ -41,6 +43,16 @@ function section(content, heading) {
   return match ? match[0] : '';
 }
 
+function numberedSectionBody(content, number) {
+  const regex = new RegExp(`##\\s+${number}\\.\\s+[\\s\\S]*?(?=\\n##\\s+\\d+\\.|$)`);
+  const match = content.match(regex);
+  if (!match) {
+    return '';
+  }
+
+  return match[0].split(/\r?\n/).slice(1).join('\n').trim();
+}
+
 function stripMarkdown(text) {
   return text
     .replace(/^#+\s+/gm, '')
@@ -61,14 +73,6 @@ function firstSentence(text, fallback) {
   return sentence.length > 180 ? `${sentence.slice(0, 177)}...` : sentence;
 }
 
-function sectionBody(content, heading) {
-  return section(content, heading)
-    .split(/\r?\n/)
-    .slice(1)
-    .join('\n')
-    .trim();
-}
-
 function extractDate(file, frontmatter) {
   if (frontmatter.date) {
     return frontmatter.date;
@@ -84,7 +88,7 @@ function extractCommits(content) {
 }
 
 function extractGems(content) {
-  const material = section(content, '5\\. 可以转成内容的素材');
+  const material = numberedSectionBody(content, 5);
   if (!material) {
     return [];
   }
@@ -125,13 +129,13 @@ function extractEntry(file) {
   const content = fs.readFileSync(file, 'utf8');
   const frontmatter = parseFrontmatter(content);
 
-  if (frontmatter.content_ready !== 'true') {
+  if (frontmatter.public_ready === 'false' || frontmatter.content_ready !== 'true') {
     return null;
   }
 
-  const completed = sectionBody(content, '2\\. 实际完成');
-  const goal = sectionBody(content, '1\\. 今日目标');
-  const problems = sectionBody(content, '4\\. 遇到的问题');
+  const completed = numberedSectionBody(content, 2);
+  const goal = numberedSectionBody(content, 1);
+  const problems = numberedSectionBody(content, 4);
   const commits = extractCommits(content);
   const gems = extractGems(content);
   const bulletCount = (completed.match(/^\s*-\s+/gm) || []).length;
@@ -182,6 +186,12 @@ export const buildMineEntries: BuildMineEntry[] = ${JSON.stringify(sorted, null,
 }
 
 const entries = readMarkdownFiles(logDir).map(extractEntry).filter(Boolean);
+
+if (!entries.length && fs.existsSync(outputPath) && !forceEmpty) {
+  console.log(`Build Mine kept existing data because no public-ready entries were found in ${logDir}`);
+  process.exit(0);
+}
+
 writeOutput(entries);
 
 console.log(`Build Mine generated ${entries.length} entries from ${logDir}`);

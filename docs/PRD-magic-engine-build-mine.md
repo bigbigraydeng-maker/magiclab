@@ -47,14 +47,30 @@ npm run generate:build-mine
 
 `src/data/buildMineEntries.ts`
 
+同时，项目已经把 Build Mine 生成脚本接入 `prebuild`：
+
+```bash
+npm run build
+```
+
+执行正式构建时，会先自动运行：
+
+```bash
+node scripts/generate-build-mine.js
+```
+
+这样本地只要 Claude/Codex 日报目录里有新的 `content_ready: true` 文件，构建前就会自动刷新 Build Mine 数据。
+
 ## 5. 隐私规则
 
 Build Mine 不能直接公开原始日报。第一版遵守以下规则：
 
 - 只读取 `content_ready: true` 的日报。
+- 如果日报声明 `public_ready: false`，即使 `content_ready: true` 也不会进入公开 Build Mine。
 - 不读取“不能公开的内容”作为页面展示主体。
 - 页面只展示公开摘要、标签、建设强度、commit 数和可公开素材钩子。
 - 客户名、内部路径、token、环境变量、未验证生产状态等敏感内容不应进入公开页面。
+- 如果部署服务器没有本地 Claude/Codex 日报目录，脚本会保留已经生成并提交的 `src/data/buildMineEntries.ts`，不会把公开页面清空。
 
 ## 6. 页面定位
 
