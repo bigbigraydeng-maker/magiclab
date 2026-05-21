@@ -1,9 +1,19 @@
 import type { Metadata } from 'next';
+import { buildSeoMetadata } from '@/lib/seo';
 
-export const metadata: Metadata = {
-  title: 'Insights | Magic Lab',
-  description: 'Latest trends and best practices in AI marketing and website development.',
-};
+export const metadata: Metadata = buildSeoMetadata({
+  title: 'AI Automation Insights | Magic Lab',
+  description:
+    'Practical insights on AI automation, AI SEO/GEO, data intelligence, and operating systems for New Zealand and Australia businesses.',
+  path: '/insights',
+  keywords: [
+    'AI automation insights',
+    'AI SEO GEO',
+    'workflow automation',
+    'AI adoption',
+    'data intelligence',
+  ],
+});
 
 export default function InsightsPage() {
   const articles = [
@@ -29,10 +39,11 @@ export default function InsightsPage() {
       <div className="container mx-auto px-4">
         <div className="text-center mb-16">
           <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
-            Insights
+            AI Automation Insights
           </h1>
           <p className="text-gray-400 max-w-2xl mx-auto">
-            Latest trends and best practices in AI marketing and website development.
+            Practical thinking on AI workflow automation, data intelligence, AI SEO/GEO,
+            and operating systems for businesses in New Zealand and Australia.
           </p>
         </div>
 

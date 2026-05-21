@@ -1,11 +1,21 @@
 /* eslint-disable @next/next/no-img-element */
 import type { Metadata } from 'next';
+import Link from 'next/link';
 import { projects } from '../../data/projects';
+import { buildSeoMetadata } from '@/lib/seo';
 
-export const metadata: Metadata = {
-  title: 'Work | Magic Lab',
-  description: 'Our case studies show how we\'ve helped businesses grow with AI marketing infrastructure.',
-};
+export const metadata: Metadata = buildSeoMetadata({
+  title: 'AI Automation Case Studies | Magic Lab',
+  description:
+    'See Magic Lab case studies across AI development, workflow automation, data intelligence, SEO systems, and digital operations.',
+  path: '/work',
+  keywords: [
+    'AI automation case studies',
+    'AI development New Zealand',
+    'workflow automation examples',
+    'data intelligence systems',
+  ],
+});
 
 export default function WorkPage() {
   return (
@@ -14,10 +24,11 @@ export default function WorkPage() {
         <div className="text-center mb-16">
           <p className="text-blue-400 font-medium text-sm uppercase tracking-wider mb-3">Portfolio</p>
           <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
-            Our Work
+            AI Automation Case Studies
           </h1>
           <p className="text-gray-400 max-w-2xl mx-auto">
-            See how we&apos;ve helped businesses grow with our AI marketing infrastructure.
+            See how we&apos;ve helped businesses build AI systems, data infrastructure,
+            SEO foundations, and digital operating tools.
           </p>
         </div>
 
@@ -46,7 +57,13 @@ export default function WorkPage() {
               )}
               <div className="lg:w-1/2 w-full">
                 <h2 className="text-2xl font-semibold text-white mb-3">
-                  {caseStudy.client}
+                  {caseStudy.slug ? (
+                    <Link href={`/work/${caseStudy.slug}`} className="hover:text-aqua transition-colors">
+                      {caseStudy.client}
+                    </Link>
+                  ) : (
+                    caseStudy.client
+                  )}
                 </h2>
                 <p className="text-gray-300 mb-5 leading-relaxed">
                   {caseStudy.description}
@@ -67,6 +84,14 @@ export default function WorkPage() {
                     {caseStudy.results}
                   </p>
                 </div>
+                {caseStudy.slug ? (
+                  <Link
+                    href={`/work/${caseStudy.slug}`}
+                    className="btn-secondary mt-5 inline-block rounded-full px-6 py-3 text-sm font-bold"
+                  >
+                    View case study
+                  </Link>
+                ) : null}
               </div>
             </div>
           ))}

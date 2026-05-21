@@ -3,9 +3,9 @@ import BlogCard from './BlogCard';
 
 const Insights = () => {
   const articles = [
-    { title: 'How ANZ Teams Should Prepare for AI Workflow Automation', tag: 'Automation' },
+    { title: 'How ANZ Teams Should Prepare for AI Workflow Automation', tag: 'Automation', href: '/ai-workflow-automation' },
     { title: 'From Dashboards to Decision Systems: What Data Intelligence Needs', tag: 'Data Intelligence' },
-    { title: 'Training Operators to Work With AI Agents Safely', tag: 'AI Academy' },
+    { title: 'AI SEO and GEO Growth Systems for Modern Search', tag: 'AI Search', href: '/ai-seo-geo-growth-systems' },
   ];
 
   return (
@@ -23,7 +23,7 @@ const Insights = () => {
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {articles.map((article, index) => (
-            <BlogCard key={index} title={article.title} tag={article.tag} />
+            <BlogCard key={index} title={article.title} tag={article.tag} href={article.href} />
           ))}
         </div>
         <div className="text-center mt-12">

@@ -1,4 +1,5 @@
 export interface Project {
+  slug?: string;
   client: string;
   description: string;
   summary: string[];
@@ -10,6 +11,7 @@ export interface Project {
 
 export const projects: Project[] = [
   {
+    slug: 'aucompass',
     client: 'AUCompass',
     description:
       'Brisbane Chinese community real estate data platform with AI-powered property analysis, multi-source data aggregation, and RAG-based intelligent Q&A.',
@@ -30,6 +32,7 @@ export const projects: Project[] = [
     image: '/images/projects/aucompass.jpg',
   },
   {
+    slug: 'stockqueen',
     client: 'StockQueen',
     description:
       'AI-driven US stock quantitative rotation system with a 9-factor scoring engine, scanning 1,500+ stocks weekly and auto-adapting across 4 market regimes.',
@@ -50,6 +53,7 @@ export const projects: Project[] = [
     image: '/images/projects/stockqueen.jpg',
   },
   {
+    slug: 'yellow-book',
     client: 'Yellow Book',
     description:
       'NZ public sentiment and political mood index platform, collecting data from 13 sources with 4-layer AI analysis architecture for real-time social pulse tracking.',
@@ -70,6 +74,7 @@ export const projects: Project[] = [
     image: '/images/projects/yellowbook.png',
   },
   {
+    slug: 'car-scout',
     client: 'Car Scout',
     description:
       'Japanese import used car trading and valuation platform with a 3-layer hybrid pricing model (rule-based, KNN correction, confidence scoring) and multi-platform data scraping.',
@@ -90,6 +95,7 @@ export const projects: Project[] = [
     image: '/images/projects/carscout.jpg',
   },
   {
+    slug: 'warm-voyage',
     client: 'Warm Voyage',
     description:
       'Premium Auckland Chinese tourism and chauffeur operation system with bilingual support, SEO architecture, and conversion-optimized booking flow.',

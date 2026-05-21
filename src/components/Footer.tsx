@@ -29,18 +29,18 @@ const Footer = () => {
             <h4 className="text-white font-semibold mb-4">Solutions</h4>
             <ul className="space-y-2">
               <li>
-                <Link href="/services" className="text-mist hover:text-white transition-colors">
-                  Enterprise Automation
+                <Link href="/ai-workflow-automation" className="text-mist hover:text-white transition-colors">
+                  AI Workflow Automation
                 </Link>
               </li>
               <li>
-                <Link href="/services" className="text-mist hover:text-white transition-colors">
-                  Data Intelligence
+                <Link href="/ai-seo-geo-growth-systems" className="text-mist hover:text-white transition-colors">
+                  AI SEO / GEO
                 </Link>
               </li>
               <li>
-                <Link href="/services" className="text-mist hover:text-white transition-colors">
-                  AI Training
+                <Link href="/magic-engine" className="text-mist hover:text-white transition-colors">
+                  Magic Engine
                 </Link>
               </li>
             </ul>

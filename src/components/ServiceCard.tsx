@@ -1,13 +1,16 @@
+import Link from 'next/link';
+
 interface ServiceCardProps {
   icon: string;
   title: string;
   description: string[];
+  href?: string;
   accent?: string;
 }
 
-const ServiceCard = ({ icon, title, description }: ServiceCardProps) => {
+const ServiceCardContent = ({ icon, title, description }: Omit<ServiceCardProps, 'href' | 'accent'>) => {
   return (
-    <div className="service-card screen-card rounded-[24px] p-7">
+    <>
       <div className="relative z-10 mb-8 flex h-12 w-12 items-center justify-center rounded-2xl border border-aqua/20 bg-aqua/10 text-sm font-extrabold text-aqua">
         {icon}
       </div>
@@ -20,6 +23,24 @@ const ServiceCard = ({ icon, title, description }: ServiceCardProps) => {
           </li>
         ))}
       </ul>
+    </>
+  );
+};
+
+const ServiceCard = ({ icon, title, description, href }: ServiceCardProps) => {
+  const className = 'service-card screen-card rounded-[24px] p-7 block h-full';
+
+  if (href) {
+    return (
+      <Link href={href} className={className}>
+        <ServiceCardContent icon={icon} title={title} description={description} />
+      </Link>
+    );
+  }
+
+  return (
+    <div className={className}>
+      <ServiceCardContent icon={icon} title={title} description={description} />
     </div>
   );
 };

@@ -1,9 +1,13 @@
 import type { Metadata } from 'next';
+import { buildSeoMetadata } from '@/lib/seo';
 
-export const metadata: Metadata = {
-  title: 'About | Magic Lab',
-  description: 'Learn about Magic Lab and our mission to build AI marketing infrastructure for modern businesses.',
-};
+export const metadata: Metadata = buildSeoMetadata({
+  title: 'About Magic Lab | AI Automation Infrastructure Studio',
+  description:
+    'Magic Lab is an AI automation infrastructure studio helping ANZ businesses turn workflows, data, and team knowledge into operating systems.',
+  path: '/about',
+  keywords: ['Magic Lab', 'AI automation studio', 'AI systems builder', 'ANZ business automation'],
+});
 
 export default function AboutPage() {
   return (
@@ -14,7 +18,7 @@ export default function AboutPage() {
             About Magic Lab
           </h1>
           <p className="text-gray-400 max-w-2xl mx-auto">
-            We build AI marketing infrastructure for modern businesses.
+            We build AI automation infrastructure for modern businesses across New Zealand and Australia.
           </p>
         </div>
 
@@ -24,7 +28,7 @@ export default function AboutPage() {
           </h2>
           <p className="text-gray-300 mb-4">
             Magic Lab is dedicated to helping businesses grow online through cutting-edge AI marketing infrastructure.
-            We specialize in building fast websites, SEO systems, and AI-powered marketing tools that drive results.
+            We specialize in workflow automation, data intelligence, SEO/GEO systems, and AI-powered operating tools that drive results.
           </p>
           <p className="text-gray-300">
             Our focus is on creating sustainable growth for our clients through data-driven strategies and modern technology.

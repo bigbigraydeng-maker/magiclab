@@ -3,6 +3,10 @@ import type { Metadata } from 'next';
 export const metadata: Metadata = {
   title: 'Agency Dashboard | Magic Lab',
   description: 'Dashboard for New Zealand immigration agencies to manage assessment tools and generate marketing content.',
+  robots: {
+    index: false,
+    follow: false,
+  },
 };
 
 const AgencyDashboardPage = () => {

@@ -1,9 +1,13 @@
 import type { Metadata } from 'next';
+import { buildSeoMetadata } from '@/lib/seo';
 
-export const metadata: Metadata = {
-  title: 'Contact | Magic Lab',
-  description: 'Get in touch with us to discuss your AI marketing needs.',
-};
+export const metadata: Metadata = buildSeoMetadata({
+  title: 'Contact Magic Lab | AI Automation Strategy Call',
+  description:
+    'Book a strategy call with Magic Lab to discuss AI workflow automation, data intelligence, AI SEO/GEO, or team AI adoption.',
+  path: '/contact',
+  keywords: ['AI automation consultation', 'AI strategy call', 'Magic Lab contact'],
+});
 
 export default function ContactPage() {
   return (
@@ -14,7 +18,8 @@ export default function ContactPage() {
             Contact Us
           </h1>
           <p className="text-gray-400 max-w-2xl mx-auto">
-            Get in touch with us to discuss your AI marketing needs.
+            Get in touch to discuss AI workflow automation, data intelligence, AI SEO/GEO,
+            or team AI adoption.
           </p>
         </div>
 

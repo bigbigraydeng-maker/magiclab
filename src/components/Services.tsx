@@ -11,6 +11,7 @@ const services = [
   {
     icon: '01',
     title: 'Enterprise Automation',
+    href: '/ai-workflow-automation',
     description: [
       'Replace repeated admin work with governed AI workflows',
       'Connect CRM, spreadsheets, websites, documents, and inboxes',
@@ -20,6 +21,7 @@ const services = [
   {
     icon: '02',
     title: 'Data Intelligence',
+    href: '/services',
     description: [
       'Collect and structure business, market, and public data',
       'Build dashboards, scoring engines, and decision systems',
@@ -29,6 +31,7 @@ const services = [
   {
     icon: '03',
     title: 'AI Training',
+    href: '/services',
     description: [
       'Train teams to use AI safely in real business workflows',
       'Create custom playbooks for managers, operators, and founders',
@@ -98,6 +101,7 @@ const Services = () => {
               icon={service.icon}
               title={service.title}
               description={service.description}
+              href={service.href}
             />
           ))}
         </div>
