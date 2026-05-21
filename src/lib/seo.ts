@@ -20,6 +20,7 @@ export const publicRoutes = [
   { path: '/ai-seo-geo-growth-systems', priority: '0.9', changefreq: 'monthly' },
   { path: '/services', priority: '0.9', changefreq: 'monthly' },
   { path: '/magic-engine', priority: '0.9', changefreq: 'monthly' },
+  { path: '/magic-engine/build-mine', priority: '0.8', changefreq: 'weekly' },
   { path: '/work', priority: '0.8', changefreq: 'monthly' },
   { path: '/work/aucompass', priority: '0.75', changefreq: 'monthly' },
   { path: '/work/stockqueen', priority: '0.75', changefreq: 'monthly' },

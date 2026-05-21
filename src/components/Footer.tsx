@@ -43,6 +43,11 @@ const Footer = () => {
                   Magic Engine
                 </Link>
               </li>
+              <li>
+                <Link href="/magic-engine/build-mine" className="text-mist hover:text-white transition-colors">
+                  Build Mine
+                </Link>
+              </li>
             </ul>
           </div>
           <div>

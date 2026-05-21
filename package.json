@@ -7,6 +7,7 @@
   },
   "scripts": {
     "dev": "next dev",
+    "generate:build-mine": "node scripts/generate-build-mine.js",
     "build": "next build",
     "postbuild": "node scripts/create-static-out.js",
     "start": "next start",
