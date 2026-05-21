@@ -18,6 +18,39 @@ export type BuildMineEntry = {
 
 export const buildMineEntries: BuildMineEntry[] = [
   {
+    "date": "2026-05-22",
+    "project": "Magiclab",
+    "source": "Claude Code / Codex",
+    "title": "开工前先花 10 分钟修 git，比硬上敲 5 个 commit 更值得。",
+    "summary": "开工前先把昨晚遗留的 git 元数据截断问题修干净，让 git status / commit / push 全链路恢复正常 —— 这件事不做完，今天后面任何代码改动都没法落盘。",
+    "publicNote": "- 已知遗留（昨日带过来）：5-21 日报里登记的 prod chinatravel 仓库 PR merge → 网站上线 端到端验证还没跑过 - 已知遗留：shared Claude client 还有几个老路由没迁 - 已知遗留：6 维健康快照 API 返回的 dimension_name 字段是英文，待枚举化 - 悬念（今日新出）：还不知道是什么...",
+    "commits": 0,
+    "artifacts": 9,
+    "intensity": 70,
+    "tags": [
+      "GitHub",
+      "UI",
+      "Content Engine"
+    ],
+    "gems": [
+      {
+        "type": "builder 过程",
+        "title": "开工前先花 10 分钟修 git，比硬上敲 5 个 commit 更值得。",
+        "platform": "X / Threads"
+      },
+      {
+        "type": "产品判断",
+        "title": "把 .git/ 放进同步盘，是 2026 年最常见的开发者隐形地雷。",
+        "platform": "X / LinkedIn"
+      },
+      {
+        "type": "founder insight",
+        "title": "凌晨 3 点开工，第一件事不是写功能，是把环境扫干净。",
+        "platform": "X / Threads / LinkedIn"
+      }
+    ]
+  },
+  {
     "date": "2026-05-21",
     "project": "Magiclab",
     "source": "Claude Code / Codex",

@@ -83,7 +83,19 @@ function extractDate(file, frontmatter) {
 }
 
 function extractCommits(content) {
-  const match = content.match(/(\d+)\s*个\s*commit/i) || content.match(/(\d+)\s*commits?/i);
+  if (
+    content.includes('GitHub commit：无') ||
+    content.includes('GitHub commit: 无') ||
+    content.includes('未生成 commit') ||
+    /GitHub commit[：:]\s*无/i.test(content)
+  ) {
+    return 0;
+  }
+
+  const match =
+    content.match(/今天共\s*(\d+)\s*个\s*commit/i) ||
+    content.match(/total(?:ly)?\s*(\d+)\s*commits?/i) ||
+    content.match(/commits?[：:]\s*(\d+)/i);
   return match ? Number(match[1]) : 0;
 }
 
