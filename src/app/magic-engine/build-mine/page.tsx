@@ -1,7 +1,7 @@
 import type { CSSProperties } from 'react';
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { buildMineEntries } from '@/data/buildMineEntries';
+import { buildMineEntries, type BuildMineEntry } from '@/data/buildMineEntries';
 import { buildSeoMetadata } from '@/lib/seo';
 
 export const metadata: Metadata = buildSeoMetadata({
@@ -65,6 +65,70 @@ function intensityClass(intensity: number) {
   return 'bg-white/[0.055]';
 }
 
+function rarityFor(intensity: number) {
+  if (intensity >= 95) {
+    return {
+      label: 'Legendary',
+      className: 'border-aqua/40 bg-aqua/[0.16] text-aqua',
+    };
+  }
+
+  if (intensity >= 75) {
+    return {
+      label: 'Rare',
+      className: 'border-[#8fd7ff]/35 bg-[#8fd7ff]/[0.12] text-[#8fd7ff]',
+    };
+  }
+
+  return {
+    label: 'Field Note',
+    className: 'border-white/15 bg-white/[0.06] text-silver',
+  };
+}
+
+function questType(entry: BuildMineEntry) {
+  if (entry.tags.includes('Security')) {
+    return 'Security Hardening Quest';
+  }
+  if (entry.tags.includes('SEO') || entry.tags.includes('GEO')) {
+    return 'Visibility Engine Quest';
+  }
+  if (entry.tags.includes('GitHub')) {
+    return 'Execution Pipeline Quest';
+  }
+  if (entry.tags.includes('UI')) {
+    return 'Interface Craft Quest';
+  }
+  return 'Builder Field Quest';
+}
+
+function bossFight(entry: BuildMineEntry) {
+  const text = `${entry.title} ${entry.summary} ${entry.publicNote}`.toLowerCase();
+
+  if (text.includes('git') || text.includes('metadata')) {
+    return 'Boss Fight: broken Git metadata before the real work could even begin.';
+  }
+  if (text.includes('token') || text.includes('encrypt') || text.includes('security')) {
+    return 'Boss Fight: protecting customer trust before shipping the next connector.';
+  }
+  if (text.includes('seo') || text.includes('geo')) {
+    return 'Boss Fight: turning search advice into something the system can execute.';
+  }
+  if (text.includes('ui') || text.includes('workbench')) {
+    return 'Boss Fight: making a complex workflow feel usable enough to return to tomorrow.';
+  }
+
+  return 'Boss Fight: turning a messy work session into a reusable system artifact.';
+}
+
+function builderNote(entry: BuildMineEntry) {
+  if (entry.gems[0]?.title) {
+    return entry.gems[0].title;
+  }
+
+  return entry.publicNote || entry.summary;
+}
+
 export default function BuildMinePage() {
   const entries = buildMineEntries;
   const entryByDate = new Map(entries.map((entry) => [entry.date, entry]));
@@ -87,11 +151,12 @@ export default function BuildMinePage() {
             <div>
               <p className="section-kicker">Magic Engine Build Mine</p>
               <h1 className="hero-title mt-5 text-5xl md:text-7xl leading-[0.95] text-white">
-                Proof of work, mined from daily AI-assisted building.
+                A living adventure log for daily AI-assisted building.
               </h1>
               <p className="mt-7 max-w-3xl text-lg leading-8 text-silver/85">
-                Every public-ready Claude Code and Codex daily log becomes a visible build artifact:
-                product progress, technical decisions, shipped systems, and hard-earned learning.
+                Every public-ready Claude Code and Codex daily log becomes a little chapter:
+                the quest, the obstacle, the loot, and the lesson. The goal is to make the
+                boring parts of building worth remembering later.
               </p>
               <div className="mt-9 flex flex-col gap-4 sm:flex-row">
                 <Link href="/magic-engine" className="btn-primary rounded-full px-8 py-4 text-center font-bold">
@@ -105,13 +170,13 @@ export default function BuildMinePage() {
 
             <div className="app-window rounded-[32px] p-6 md:p-8">
               <div className="relative z-10">
-                <p className="section-kicker">Current Mine State</p>
+                <p className="section-kicker">Campaign State</p>
                 <div className="mt-7 grid grid-cols-2 gap-4">
                   {[
-                    ['Build days', entries.length],
-                    ['Current streak', currentStreak],
-                    ['Artifacts', totalArtifacts],
-                    ['Commits logged', totalCommits],
+                    ['Chapters', entries.length],
+                    ['Streak', currentStreak],
+                    ['Loot drops', totalArtifacts],
+                    ['Commits', totalCommits],
                   ].map(([label, value]) => (
                     <div key={label} className="screen-card rounded-2xl p-5">
                       <p className="text-3xl font-black text-white">{value}</p>
@@ -137,7 +202,7 @@ export default function BuildMinePage() {
           <div className="mb-10 max-w-3xl">
             <p className="section-kicker">{latestYear} Mining Map</p>
             <h2 className="modern-heading mt-4 text-3xl md:text-5xl text-white">
-              A year of building, one square at a time.
+              The year map is the quiet proof. The cards below are the story.
             </h2>
           </div>
           <div className="app-window rounded-[28px] p-5 md:p-7">
@@ -163,57 +228,101 @@ export default function BuildMinePage() {
       <section className="photo-section py-20">
         <div className="container mx-auto px-4 relative z-10">
           <div className="mb-10 max-w-3xl">
-            <p className="section-kicker">Latest Artifacts</p>
+            <p className="section-kicker">Build Chronicle</p>
             <h2 className="modern-heading mt-4 text-3xl md:text-5xl text-white">
-              What came out of the mine.
+              Each day gets a chapter, not just a row.
             </h2>
           </div>
           <div className="grid gap-6">
-            {entries.map((entry) => (
+            {entries.map((entry, index) => {
+              const rarity = rarityFor(entry.intensity);
+              const chapter = entries.length - index;
+
+              return (
               <article key={`${entry.date}-${entry.project}`} className="app-window rounded-[28px] p-6 md:p-8">
-                <div className="relative z-10 grid gap-8 lg:grid-cols-[0.7fr_1.3fr]">
-                  <div>
-                    <p className="text-sm font-black uppercase tracking-[0.22em] text-aqua">{entry.date}</p>
-                    <h3 className="mt-4 text-2xl md:text-3xl font-extrabold text-white">{entry.title}</h3>
-                    <p className="mt-4 text-sm leading-7 text-mist">{entry.summary}</p>
-                    <div className="mt-5 flex flex-wrap gap-2">
-                      {entry.tags.map((tag) => (
-                        <span key={tag} className="rounded-full border border-white/10 bg-white/[0.05] px-3 py-1 text-xs font-bold text-silver">
-                          {tag}
-                        </span>
-                      ))}
+                <div className="relative z-10">
+                  <div className="flex flex-col gap-4 border-b border-white/10 pb-6 md:flex-row md:items-start md:justify-between">
+                    <div>
+                      <p className="text-sm font-black uppercase tracking-[0.22em] text-aqua">
+                        Chapter {String(chapter).padStart(3, '0')} / {entry.date}
+                      </p>
+                      <h3 className="mt-4 max-w-4xl text-2xl md:text-4xl font-extrabold leading-tight text-white">
+                        {entry.title}
+                      </h3>
+                    </div>
+                    <div className={`w-fit rounded-full border px-4 py-2 text-xs font-black uppercase tracking-[0.18em] ${rarity.className}`}>
+                      {rarity.label}
                     </div>
                   </div>
-                  <div className="grid gap-4">
-                    <div className="grid gap-3 sm:grid-cols-3">
-                      {[
-                        ['Commits', entry.commits],
-                        ['Artifacts', entry.artifacts],
-                        ['XP', entry.intensity],
-                      ].map(([label, value]) => (
-                        <div key={label} className="screen-card rounded-2xl p-4">
-                          <p className="text-2xl font-black text-white">{value}</p>
-                          <p className="mt-1 text-xs font-bold uppercase tracking-[0.18em] text-mist">{label}</p>
-                        </div>
-                      ))}
+
+                  <div className="mt-7 grid gap-6 lg:grid-cols-[1.05fr_0.95fr]">
+                    <div className="grid gap-4">
+                      <section className="screen-card rounded-3xl p-5">
+                        <p className="text-xs font-black uppercase tracking-[0.2em] text-aqua">Daily Quest</p>
+                        <h4 className="mt-3 text-xl font-extrabold text-white">{questType(entry)}</h4>
+                        <p className="mt-3 text-sm leading-7 text-mist">{entry.summary}</p>
+                      </section>
+
+                      <section className="screen-card rounded-3xl p-5">
+                        <p className="text-xs font-black uppercase tracking-[0.2em] text-aqua">Boss Fight</p>
+                        <p className="mt-3 text-base font-bold leading-7 text-white">{bossFight(entry)}</p>
+                      </section>
+
+                      <section className="screen-card rounded-3xl p-5">
+                        <p className="text-xs font-black uppercase tracking-[0.2em] text-aqua">Builder Note</p>
+                        <p className="mt-3 text-sm leading-7 text-mist">{builderNote(entry)}</p>
+                      </section>
                     </div>
-                    {entry.gems.length ? (
-                      <div className="grid gap-3">
-                        {entry.gems.map((gem) => (
-                          <div key={gem.title} className="screen-card rounded-2xl p-4">
-                            <p className="text-xs font-black uppercase tracking-[0.18em] text-aqua">{gem.type}</p>
-                            <p className="mt-2 text-base font-bold leading-7 text-white">{gem.title}</p>
-                            {gem.platform ? <p className="mt-2 text-xs font-semibold text-mist">{gem.platform}</p> : null}
+
+                    <div className="grid gap-4">
+                      <div className="grid gap-3 sm:grid-cols-3">
+                        {[
+                          ['Commits', entry.commits],
+                          ['Loot', entry.artifacts],
+                          ['XP', entry.intensity],
+                        ].map(([label, value]) => (
+                          <div key={label} className="screen-card rounded-2xl p-4">
+                            <p className="text-2xl font-black text-white">{value}</p>
+                            <p className="mt-1 text-xs font-bold uppercase tracking-[0.18em] text-mist">{label}</p>
                           </div>
                         ))}
                       </div>
-                    ) : (
-                      <p className="screen-card rounded-2xl p-4 text-sm leading-7 text-mist">{entry.publicNote}</p>
-                    )}
+
+                      <section className="screen-card rounded-3xl p-5">
+                        <p className="text-xs font-black uppercase tracking-[0.2em] text-aqua">Unlocked Skills</p>
+                        <div className="mt-4 flex flex-wrap gap-2">
+                          {entry.tags.map((tag) => (
+                            <span key={tag} className="rounded-full border border-white/10 bg-white/[0.05] px-3 py-1 text-xs font-bold text-silver">
+                              {tag}
+                            </span>
+                          ))}
+                        </div>
+                      </section>
+
+                      <section className="screen-card rounded-3xl p-5">
+                        <p className="text-xs font-black uppercase tracking-[0.2em] text-aqua">Loot Drops</p>
+                        <div className="mt-4 grid gap-3">
+                          {entry.gems.length ? (
+                            entry.gems.map((gem, gemIndex) => (
+                              <div key={gem.title} className="rounded-2xl border border-white/10 bg-white/[0.045] p-4">
+                                <p className="text-xs font-black uppercase tracking-[0.16em] text-mist">
+                                  Drop {gemIndex + 1} / {gem.type}
+                                </p>
+                                <p className="mt-2 text-sm font-bold leading-7 text-white">{gem.title}</p>
+                                {gem.platform ? <p className="mt-2 text-xs font-semibold text-aqua">{gem.platform}</p> : null}
+                              </div>
+                            ))
+                          ) : (
+                            <p className="text-sm leading-7 text-mist">{entry.publicNote}</p>
+                          )}
+                        </div>
+                      </section>
+                    </div>
                   </div>
                 </div>
               </article>
-            ))}
+              );
+            })}
           </div>
         </div>
       </section>
